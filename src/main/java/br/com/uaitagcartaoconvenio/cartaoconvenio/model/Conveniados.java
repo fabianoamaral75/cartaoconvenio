@@ -11,8 +11,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
@@ -68,7 +66,7 @@ public class Conveniados implements Serializable {
 	
 	@NotNull(message = "Status da Conveniada deverá ser informada!")
 	@Column(name = "STATUS", nullable = false)
-	@Enumerated(EnumType.STRING)
+//	@Enumerated(EnumType.STRING)
 	private StatusConveniada descStatusConveniada;
 	
 	@NotNull(message = "O Nicho da Conveniada deverá ser informado!")
