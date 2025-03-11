@@ -1,5 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,4 +41,45 @@ public class EntidadeService {
 		return entidade;
 		
 	}
+	
+	public List<Entidade> getAllEntidades( )  {
+		
+		List<Entidade> listaAllEntidades = entidadeRespository.listaTodasEntidade();
+		
+		return listaAllEntidades;
+		
+	}
+	
+	public Entidade getEntidadesCnpj( String cnpj )  {
+		
+		String resultCnpj = removerCaracteresNaoNumericos( cnpj );
+		
+		Entidade listaAllEntidade = entidadeRespository.findByCnpj( resultCnpj );
+		
+		return listaAllEntidade;
+		
+	}
+	
+	public List<Entidade> findEntidadeNome( String nomeEntidade )  {
+		
+		List<Entidade> listaEntidades = entidadeRespository.findEntidadeNome( nomeEntidade );
+		
+		return listaEntidades;
+		
+	}	
+		
+    public static String removerCaracteresNaoNumericos(String input) {
+        // Substitui todos os caracteres não numéricos por uma string vazia
+        return input.replaceAll("[^0-9]", "");
+    }
+
+	public Entidade getEntidadesId( Long id )  {
+				
+		Entidade entidade = entidadeRespository.findByIdEntidade( id );
+		
+		return entidade;
+		
+	}
+
+	
 }

@@ -41,7 +41,7 @@ public class UsuarioController {
 	@GetMapping(value = "/findUsuarioPessoaFisica/{login}")
 	public ResponseEntity<UauarioDTO> findUsuarioPessoaFisica(  @PathVariable("login") String login ) throws ExceptionCustomizada, UnsupportedEncodingException{
 
-		if( login == null ) throw new ExceptionCustomizada("ERRO anão foi informado o Login a ser pesquisado!");
+		if( login == null ) throw new ExceptionCustomizada("ERRO não foi informado o Login a ser pesquisado!");
 		
 		
 		UauarioDTO uauarioPFDTO = usuarioService.pesquisaUsuarioPFByLongin( login );
