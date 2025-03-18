@@ -23,6 +23,10 @@ public class EntidadeController {
 	@Autowired
 	private EntidadeService entidadeService;
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@ResponseBody
 	@PostMapping(value = "/salvarEntidade")
 	public ResponseEntity<Entidade> salvarEntidade( @RequestBody Entidade entidade ) throws ExceptionCustomizada, UnsupportedEncodingException{
@@ -35,6 +39,10 @@ public class EntidadeController {
 		return new ResponseEntity<Entidade>(entidade, HttpStatus.OK);		
 	}
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getAllEntidades")
 	public ResponseEntity<List<Entidade>> getAllEntidades(  ) throws ExceptionCustomizada{
@@ -47,6 +55,10 @@ public class EntidadeController {
 		return new ResponseEntity<List<Entidade>>(listaEntidade, HttpStatus.OK);		
 	}
 
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getEntidadesCNPJ/{cnpj}")
 	public ResponseEntity<Entidade> getEntidadesCNPJ( @PathVariable("cnpj") String cnpj ) throws ExceptionCustomizada{
@@ -59,6 +71,10 @@ public class EntidadeController {
 		return new ResponseEntity<Entidade>(listaEntidade, HttpStatus.OK);		
 	}
 
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/findEntidadeByNome/{nomeEntidade}")
 	public ResponseEntity<List<Entidade>> findEntidadeByNome( @PathVariable("nomeEntidade") String nomeEntidade ) throws ExceptionCustomizada{
@@ -71,6 +87,10 @@ public class EntidadeController {
 		return new ResponseEntity<List<Entidade>>(listaEntidade, HttpStatus.OK);		
 	}
 
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getIdEntidade/{id}")
 	public ResponseEntity<Entidade> getEntidadesIdEntidade( @PathVariable("id") Long id ) throws ExceptionCustomizada{
@@ -82,5 +102,22 @@ public class EntidadeController {
 		}
 		return new ResponseEntity<Entidade>(listaEntidade, HttpStatus.OK);		
 	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getEntidadeByCidade/{cidade}")
+	public ResponseEntity<List<Entidade>> getEntidadeByCnpj( @PathVariable("cidade") String cidade ) throws ExceptionCustomizada{
+
+		List<Entidade> listaEntidade = entidadeService.listaEntidadeByCidade(cidade);
+		
+		if(listaEntidade == null) {
+			throw new ExceptionCustomizada("Não existe Entidades relacionada ao Cidade: " + cidade );
+		}
+		return new ResponseEntity<List<Entidade>>(listaEntidade, HttpStatus.OK);		
+	}
+
 
 }

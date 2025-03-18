@@ -1,5 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Pessoa;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveiniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ConveniadosRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
 
 @Service
 public class ConveniadosService {
@@ -78,6 +81,42 @@ public class ConveniadosService {
 		return pessoa;
 		
 	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public Conveniados getConveniadosByCnpj( String cnpj )  {
+		
+		String resultCnpj = FuncoesUteis.removerCaracteresNaoNumericos( cnpj );
+		
+		Conveniados listaConveniados = conveniadosRepository.conveniadosByCnpj( resultCnpj );
+		
+		return listaConveniados;		
+	}
 
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public List<Conveniados> getConveniadosByNome( String nome )  {
+		
+		List<Conveniados> listaConveniados = conveniadosRepository.listaConveniadosByNome( nome );
+		
+		return listaConveniados;
+		
+	}
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public List<Conveniados> getConveniadosByCidade( String cidade )  {
+		
+		List<Conveniados> listaConveniados = conveniadosRepository.listaConveniadosByCidade( cidade );
+		
+		return listaConveniados;
+		
+	}
 
 }

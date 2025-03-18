@@ -61,7 +61,7 @@ public class ContasReceber implements Serializable{
 	@NotNull(message = "Status da Conta a Receber da Entidade deverá ser informada!")
 	@Column(name = "STATUS", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private StatusReceber descStatusEmtidade;
+	private StatusReceber descStatusReceber;
 	
 	@NotNull(message = "O Valor a Receber deverá ser informado")
 	@Column(name = "VALOR_RECEBER", nullable = false)

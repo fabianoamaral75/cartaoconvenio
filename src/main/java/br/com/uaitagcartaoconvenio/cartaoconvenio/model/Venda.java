@@ -79,7 +79,7 @@ public class Venda implements Serializable{
 	private Date dtAlteracao = Calendar.getInstance().getTime(); 
 
 	@NotNull(message = "O Login do User do usuário realizado da venda deverá ser informado!")
-	@Column(name = "LOGIN_USER", length = 6, nullable = false)
+	@Column(name = "LOGIN_USER", length = 100, nullable = false)
 	private String loginUser;
 
 	@NotNull(message = "Status da Conta a Receber da Entidade deverá ser informada!")
@@ -108,12 +108,12 @@ public class Venda implements Serializable{
 
 	@NotNull(message = "O Taxa configurada para desconto aplicada para a Prefeitura deverá ser informada!")
 	@ManyToOne(targetEntity = TaxaEntidade.class)
-	@JoinColumn(name = "ID_TAXA_ENTIDADE", referencedColumnName = "ID_TAXA_ENTIDADE", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_TX_ENTIDADE"))
+	@JoinColumn(name = "ID_TAXA_ENTIDADE", referencedColumnName = "ID_TAXA_ENTIDADE", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_TX_ENTIDADE"))
 	private TaxaEntidade taxaEntidade;
 
 	@NotNull(message = "O Cartão do funcionario realizador da compra deverá ser informada!")
 	@ManyToOne(targetEntity = Cartao.class)
-	@JoinColumn(name = "ID_CARTAO", referencedColumnName = "ID_CARTAO", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_CARTAO"))
+	@JoinColumn(name = "ID_CARTAO", referencedColumnName = "ID_CARTAO", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_CARTAO"))
 	private Cartao cartao;
 
 	@OneToMany(mappedBy = "venda", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)

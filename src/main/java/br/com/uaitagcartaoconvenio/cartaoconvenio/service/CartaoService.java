@@ -1,8 +1,11 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCartao;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Cartao;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.CartaoRepository;
 
@@ -26,6 +29,55 @@ public class CartaoService {
 		 }
 
 		return novoCartao;
+	}
+	
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public Cartao getCartaoByIdFuncionario( Long idFuncionario )  {
+		
+		Cartao cartao = cartaoRepository.listaCartaoByIdFuncionario( idFuncionario );
+		
+		return cartao;
+		
+	}
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public List<Cartao> getlistaCartaoByNomePessoa( String nomePessoa )  {
+		
+		List<Cartao> listaCartao = cartaoRepository.listaCartaoByNomePessoa( nomePessoa );
+		
+		return listaCartao;
+		
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public List<Cartao> getlistaCartaoByIdStatus( StatusCartao statusCartao )  {
+		
+		List<Cartao> listaCartao = cartaoRepository.listaCartaoByIdStatus( statusCartao );
+		
+		return listaCartao;
+		
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public Cartao getCartaoByNumeracao( String numeracao )  {
+		
+		Cartao cartao = cartaoRepository.findByNumeracao( numeracao );
+		
+		return cartao;
+		
 	}
 	
 	

@@ -3,6 +3,8 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -42,6 +44,7 @@ public class UsuarioAcesso implements Serializable {
 	@JoinColumn(name = "ID_ACESSO", referencedColumnName = "ID_ACESSO", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_USUARIO_AC_ACESSO"))	
 	private Acesso acesso;
 	
+	@JsonIgnore
 	@ManyToOne(targetEntity = Usuario.class)
 	@JoinColumn(name = "ID_USUARIO", referencedColumnName = "ID_USUARIO", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_USUARIO_AC_USUARIO"))	
 	private Usuario usuario;	

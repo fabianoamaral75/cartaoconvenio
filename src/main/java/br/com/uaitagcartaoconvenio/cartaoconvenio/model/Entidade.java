@@ -106,6 +106,7 @@ public class Entidade implements Serializable{
 	@Column(name = "BAIRRO", length = 100, nullable = false)
 	private String bairro;
 	
+	
 	@OneToMany(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Secretaria> secretaria = new ArrayList<Secretaria>();
 	

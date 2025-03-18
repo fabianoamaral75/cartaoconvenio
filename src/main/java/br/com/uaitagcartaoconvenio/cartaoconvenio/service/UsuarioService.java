@@ -1,13 +1,12 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
-import org.springframework.stereotype.Service;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCartao;
@@ -184,6 +183,10 @@ public class UsuarioService {
 
 	}
 
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/
 	public UauarioDTO pesquisaUsuarioPFByLongin(String login ) {
 		
 		Usuario userPF = usuarioRepository.findByLogin(login);
@@ -192,6 +195,10 @@ public class UsuarioService {
 		return uauarioPFDTO;
 	}
 
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/
 	private UauarioDTO getUauarioPFDTO( Usuario user ) {
 	
         Date dtCriacao    = user.getDtCriacao();
@@ -246,6 +253,16 @@ public class UsuarioService {
 		return uauarioPFDTO;		
 	}
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public Usuario getUsuarioByLogin( String login )  {
+		
+		Usuario usuario = usuarioRepository.findByLogin( login );
+		
+		return usuario;		
+	}
 	
 	
 }

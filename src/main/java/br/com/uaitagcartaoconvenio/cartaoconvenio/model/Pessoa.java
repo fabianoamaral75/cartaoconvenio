@@ -108,6 +108,7 @@ public class Pessoa implements Serializable {
 	@JoinColumn(name = "ID_USUARIO", nullable = false, referencedColumnName = "ID_USUARIO", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_UUSARIO"))
 	private Usuario usuario;
 
+	@JsonIgnore
 	@ManyToOne(targetEntity = Conveniados.class)
 	@JoinColumn(name = "ID_CONVENIADOS", referencedColumnName = "ID_CONVENIADOS", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_CONVENIADOS"))
 	private Conveniados conveniados;

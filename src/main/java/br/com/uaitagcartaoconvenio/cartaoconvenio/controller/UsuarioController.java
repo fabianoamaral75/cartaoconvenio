@@ -24,6 +24,10 @@ public class UsuarioController {
 	private UsuarioService usuarioService;
 	
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@ResponseBody
 	@PostMapping(value = "/salvarUsuarioPessoaFisica")
 	public ResponseEntity<UauarioDTO> salvarUsuarioPessoaFisica( @RequestBody Usuario userPF ) throws ExceptionCustomizada, UnsupportedEncodingException{
@@ -37,6 +41,10 @@ public class UsuarioController {
 		return new ResponseEntity<UauarioDTO>(uauarioPFDTO, HttpStatus.OK);		
 	}
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/findUsuarioPessoaFisica/{login}")
 	public ResponseEntity<UauarioDTO> findUsuarioPessoaFisica(  @PathVariable("login") String login ) throws ExceptionCustomizada, UnsupportedEncodingException{
@@ -49,6 +57,10 @@ public class UsuarioController {
 		return new ResponseEntity<UauarioDTO>(uauarioPFDTO, HttpStatus.OK);		
 	}
 
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@ResponseBody
 	@PostMapping(value = "/salvarUsuarioPJConveniada")
 	public ResponseEntity<UauarioDTO> salvarUsuarioPJConveniada( @RequestBody Usuario userPJ ) throws ExceptionCustomizada, UnsupportedEncodingException{
@@ -62,6 +74,10 @@ public class UsuarioController {
 		return new ResponseEntity<UauarioDTO>(uauarioPFDTO, HttpStatus.OK);		
 	}
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@ResponseBody
 	@PostMapping(value = "/salvarUserFuncionario")
 	public ResponseEntity<UauarioDTO> salvarUserFuncionario( @RequestBody Usuario userFunc ) throws ExceptionCustomizada, UnsupportedEncodingException{
@@ -75,5 +91,20 @@ public class UsuarioController {
 		return new ResponseEntity<UauarioDTO>(uauarioPFDTO, HttpStatus.OK);		
 	}
 
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getUsuarioByLogin/{login}")
+	public ResponseEntity<Usuario> getUsuarioByLogin( @PathVariable("login") String login ) throws ExceptionCustomizada{
+
+		Usuario usuario = usuarioService.getUsuarioByLogin(login.trim());
+		
+		if(usuario == null) {
+			throw new ExceptionCustomizada("Não existe a Usuário com este login: " + login );
+		}
+		return new ResponseEntity<Usuario>(usuario, HttpStatus.OK);		
+	}
 	
 }

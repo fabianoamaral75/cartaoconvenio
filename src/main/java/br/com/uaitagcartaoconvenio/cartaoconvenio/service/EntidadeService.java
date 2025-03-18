@@ -6,10 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaEntidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaCalcLimiteCredFuncionaro;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaEntidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Entidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.EntidadeRespository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
 
 @Service
 public class EntidadeService {
@@ -17,8 +18,11 @@ public class EntidadeService {
 	
 	@Autowired
 	private EntidadeRespository entidadeRespository;
-	
-	
+		
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	public Entidade salvarEntidadeService( Entidade entidade ) throws ExceptionCustomizada {
 		
 				
@@ -42,6 +46,10 @@ public class EntidadeService {
 		
 	}
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	public List<Entidade> getAllEntidades( )  {
 		
 		List<Entidade> listaAllEntidades = entidadeRespository.listaTodasEntidade();
@@ -50,9 +58,13 @@ public class EntidadeService {
 		
 	}
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	public Entidade getEntidadesCnpj( String cnpj )  {
 		
-		String resultCnpj = removerCaracteresNaoNumericos( cnpj );
+		String resultCnpj = FuncoesUteis.removerCaracteresNaoNumericos( cnpj );
 		
 		Entidade listaAllEntidade = entidadeRespository.findByCnpj( resultCnpj );
 		
@@ -60,6 +72,10 @@ public class EntidadeService {
 		
 	}
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	public List<Entidade> findEntidadeNome( String nomeEntidade )  {
 		
 		List<Entidade> listaEntidades = entidadeRespository.findEntidadeNome( nomeEntidade );
@@ -68,11 +84,10 @@ public class EntidadeService {
 		
 	}	
 		
-    public static String removerCaracteresNaoNumericos(String input) {
-        // Substitui todos os caracteres não numéricos por uma string vazia
-        return input.replaceAll("[^0-9]", "");
-    }
-
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	public Entidade getEntidadesId( Long id )  {
 				
 		Entidade entidade = entidadeRespository.findByIdEntidade( id );
@@ -81,5 +96,16 @@ public class EntidadeService {
 		
 	}
 
-	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public List<Entidade> listaEntidadeByCidade( String cidade )  {
+		
+		List<Entidade> listaEntidades = entidadeRespository.listaEntidadeByCidade( cidade) ;
+		
+		return listaEntidades;
+		
+	}	
+
 }

@@ -89,6 +89,7 @@ public class Secretaria implements Serializable{
 	@Column(name = "BAIRRO", length = 100, nullable = false)
 	private String bairro;
 	
+	@JsonIgnore
 	@NotNull(message = "A Secretaria deverá estar associada a uma Entidade, favor informar Entidade!")
 	@ManyToOne(targetEntity = Entidade.class)
 	@JoinColumn(name = "ID_ENTIDADE", referencedColumnName = "ID_ENTIDADE", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_SECRETARIA_ENTIDADE"))

@@ -3,7 +3,7 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.enums;
 public enum StatusTaxaConv {
 
 	DESATUALIZADA       ("Taxa descontinuada!"                             ),
-	ATUAL               ("Venda realizada com sucesso"                      ),
+	ATUAL               ("Taxa Atual"                      ),
 	BLOQUEADA           ("Taxa Bloqueada!"                                 ),
 	AGUARDANDO_APROVACAO("Aguardando aprovação da Taxa pela Administração!");
 	

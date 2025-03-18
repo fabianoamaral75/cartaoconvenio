@@ -26,4 +26,17 @@ public interface EntidadeRespository extends JpaRepository<Entidade, Long> {
 	@Query(value = "select u from Entidade u where u.idEntidade = ?1")
 	Entidade findByIdEntidade(Long idEntidade);
 
+	@Query(value = "select en            "
+                 + " from Entidade    en "
+                 + " where upper(trim(en.cidade)) like upper(concat('%', ?1, '%'))" )
+    List<Entidade> listaEntidadeByCidade( String cidade) ;  
+	
+	@Query(value = "select ent                "
+                 + " from Cartao ca           "
+                 + " JOIN ca.funcionario fun  "
+                 + " JOIN fun.entidade   ent  "
+                 + " where ca.numeracao = ?1  " )
+    Entidade findEntidadeByNumCartao( String numCartao ); 
+
+
 }
