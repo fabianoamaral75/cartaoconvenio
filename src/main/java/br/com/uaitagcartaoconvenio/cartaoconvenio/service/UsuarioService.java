@@ -104,7 +104,7 @@ public class UsuarioService {
 		userPJConveniado.getPessoa().setPessoaJuridica(userPJConveniado.getPessoa().getPessoaJuridica());
 		userPJConveniado.getPessoa().getPessoaJuridica().setPessoa(userPJConveniado.getPessoa());
 
-		Conveniados conveniados = conveniadosService.salvarEntidadeService(userPJConveniado.getPessoa().getConveniados());
+		Conveniados conveniados = conveniadosService.salvarConveniadosService(userPJConveniado.getPessoa().getConveniados());
 
 		userPJConveniado.getPessoa().setConveniados( conveniados );
 		userPJConveniado.getPessoa().setPessoaFisica(null);

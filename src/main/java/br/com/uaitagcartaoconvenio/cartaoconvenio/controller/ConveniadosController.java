@@ -33,7 +33,7 @@ public class ConveniadosController {
 
 		if( pessoa == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Conveniada. Valores vazios!");
 
-		pessoa = conveniadosService.salvarEntidadeService(pessoa);
+		pessoa = conveniadosService.salvarConveniadosService(pessoa);
 		
 		return new ResponseEntity<Pessoa>(pessoa, HttpStatus.OK);		
 	}

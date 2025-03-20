@@ -1,6 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,5 +32,15 @@ public class RamoAtividadeController {
 		
 		return new ResponseEntity<RamoAtividade>(ramoAtividade, HttpStatus.OK);		
 	}
-	
+
+	@ResponseBody
+	@PostMapping(value = "/getAllRamoAtividade")
+	public ResponseEntity<List<RamoAtividade>> getAllRamoAtividade(  ) throws ExceptionCustomizada, UnsupportedEncodingException{
+
+		
+		List<RamoAtividade> ramoAtividade = ramoAtividadeRepository.findAllRamoAtividade();
+		
+		return new ResponseEntity<List<RamoAtividade>>(ramoAtividade, HttpStatus.OK);		
+	}
+
 }

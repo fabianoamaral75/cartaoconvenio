@@ -25,7 +25,7 @@ public class ConveniadosService {
 	@Autowired
 	private TaxaConveiniadosService taxaConveiniadosService;
 	
-	public Conveniados salvarEntidadeService( Conveniados conveniados ) throws ExceptionCustomizada {
+	public Conveniados salvarConveniadosService( Conveniados conveniados ) throws ExceptionCustomizada {
 		
 		conveniados.getNicho().setConveniados(conveniados);
 		conveniados.getRamoAtividade().setConveniados(conveniados);
@@ -42,7 +42,7 @@ public class ConveniadosService {
 		
 	}
 	
-	public Pessoa salvarEntidadeService( Pessoa pessoa ) throws ExceptionCustomizada {
+	public Pessoa salvarConveniadosService( Pessoa pessoa ) throws ExceptionCustomizada {
 		
 		
 		pessoa.getConveniados().getNicho().setConveniados(pessoa.getConveniados());
