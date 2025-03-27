@@ -5,8 +5,6 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -56,7 +54,7 @@ public class Produto implements Serializable{
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtCadastro = Calendar.getInstance().getTime(); 
 	
-	@JsonIgnore
+//Ø	@JsonIgnore
 	@ManyToOne(targetEntity = Conveniados.class)
 	@JoinColumn(name = "ID_CONVENIADOS", nullable = true, referencedColumnName = "ID_CONVENIADOS", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PRODUTO_CONVENIADO"))
 	private Conveniados conveniados;
