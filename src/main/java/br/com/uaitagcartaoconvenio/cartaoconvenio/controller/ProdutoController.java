@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Produto;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ProdutoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.ProdutoService;
 
 @Controller
@@ -27,16 +27,16 @@ public class ProdutoController {
 	
 	@ResponseBody                         /* Poder dar um retorno da API      */
 	@PostMapping(value = "/saveProduto") /*Mapeando a url para receber JSON*/
-	public ResponseEntity<Produto> saveProduto( @RequestBody Produto produto) throws ExceptionCustomizada { /*Recebe o JSON e converte pra Objeto*/
+	public ResponseEntity<ProdutoDTO> saveProduto( @RequestBody ProdutoDTO produto) throws ExceptionCustomizada { /*Recebe o JSON e converte pra Objeto*/
 		
 		if(produto == null ) throw new ExceptionCustomizada("Favor informar o Produto!" );
 		
-		if( produto.getConveniados().getIdConveniados() == null || produto.getConveniados().getIdConveniados() == 0 ) throw new ExceptionCustomizada("Favor informar o Conveniado!" );
+		if( produto.getIdConveniado()== null || produto.getIdConveniado() == 0 ) throw new ExceptionCustomizada("Favor informar o Conveniado!" );
 		
-		produto = produtoService.saveProduto(produto);
+		ProdutoDTO produtoDTO = produtoService.saveProduto(produto);
 		
 		
-		return new ResponseEntity<Produto>(produto, HttpStatus.OK);
+		return new ResponseEntity<ProdutoDTO>(produtoDTO, HttpStatus.OK);
 		
 	}
 
@@ -46,15 +46,15 @@ public class ProdutoController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getlistaProdutoByNomeProduto/{nomeProduto}/{idConveniados}")
-	public ResponseEntity<List<Produto>> getlistaProdutoByNomeProduto( @PathVariable("nomeProduto"  ) String nomeProduto  ,
+	public ResponseEntity<List<ProdutoDTO>> getlistaProdutoByNomeProduto( @PathVariable("nomeProduto"  ) String nomeProduto  ,
 		    	                                                       @PathVariable("idConveniados") Long   idConveniados) throws ExceptionCustomizada{
 
-		List<Produto> listaProduto = produtoService.getlistaProdutoByNomeProduto( nomeProduto, idConveniados );
+		List<ProdutoDTO> listaProduto = produtoService.getlistaProdutoByNomeProduto( nomeProduto, idConveniados );
 		
 		if(listaProduto == null) {
 			throw new ExceptionCustomizada("Não existe Produto cadastrado com este nome: " + nomeProduto );
 		}
-		return new ResponseEntity<List<Produto>>(listaProduto, HttpStatus.OK);		
+		return new ResponseEntity<List<ProdutoDTO>>(listaProduto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -63,14 +63,14 @@ public class ProdutoController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getlistaProdutoByIdConveniados/{idConveniados}")
-	public ResponseEntity<List<Produto>> getlistaProdutoByIdConveniados( @PathVariable("idConveniados") Long idConveniados) throws ExceptionCustomizada{
+	public ResponseEntity<List<ProdutoDTO>> getlistaProdutoByIdConveniados( @PathVariable("idConveniados") Long idConveniados) throws ExceptionCustomizada{
 
-		List<Produto> listaProduto = produtoService.getlistaProdutoByIdConveniados( idConveniados );
+		List<ProdutoDTO> listaProduto = produtoService.getlistaProdutoByIdConveniados( idConveniados );
 		
 		if(listaProduto == null) {
 			throw new ExceptionCustomizada("Não existe Produto cadastrado para o Id da Conveniados: " + idConveniados );
 		}
-		return new ResponseEntity<List<Produto>>(listaProduto, HttpStatus.OK);		
+		return new ResponseEntity<List<ProdutoDTO>>(listaProduto, HttpStatus.OK);		
 	}
 
 }
