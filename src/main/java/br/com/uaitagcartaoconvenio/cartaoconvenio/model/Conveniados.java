@@ -50,13 +50,17 @@ public class Conveniados implements Serializable {
 	@Column(name = "ID_CONVENIADOS")
 	private Long idConveniados;	
 	
-	@Column(name = "DT_CRIACAO", nullable = false)
+	@Column(name = "DT_CRIACAO", nullable = false, columnDefinition = "TIMESTAMP")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtCriacao = Calendar.getInstance().getTime();
 
-	@Column(name = "DT_ALTERACAO", nullable = false )
+	@Column(name = "DT_ALTERACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date  dtAlteracao = Calendar.getInstance().getTime();
+
+	@NotNull(message = "Quantidade de dias para pagamento após fechamento!")
+	@Column(name = "QTY_DIAS_PAGAMENTO", nullable = true)
+	private Long qtyDiasPagamento;	
 	
 	@Column(name = "SITE", length = 500)
 	private String site;

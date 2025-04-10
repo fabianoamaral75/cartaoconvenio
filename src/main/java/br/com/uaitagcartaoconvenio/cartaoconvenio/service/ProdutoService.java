@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.ProdutoMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Produto;
@@ -27,7 +26,7 @@ public class ProdutoService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-    @Transactional(readOnly = true)
+    // @Transactional(readOnly = true)
     public List<ProdutoDTO> getlistaProdutoByIdConveniados(Long id) {
     	
     	return produtoRepository.listaProdutoByIdConveniados( id ) 
@@ -41,7 +40,7 @@ public class ProdutoService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-    @Transactional(readOnly = true)
+    // @Transactional(readOnly = true)
     public List<ProdutoDTO> getlistaProdutoByNomeProduto(String nomeProduto, Long idConveniados) {
         return produtoRepository.listaProdutoByNomeProduto(nomeProduto, idConveniados)
                 .stream()
@@ -53,9 +52,9 @@ public class ProdutoService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-    @Transactional
-    public ProdutoDTO saveProduto(ProdutoDTO produtoDTO) {
-        Produto produto = produtoMapper.toEntity(produtoDTO);
+    // @Transactional
+    public ProdutoDTO saveProduto(Produto produto) {
+        // Produto produto = produtoMapper.toEntity(produtoDTO);
         Produto produtoSalvo = produtoRepository.save(produto);
         return produtoMapper.toDTO(produtoSalvo);
     }
@@ -64,7 +63,7 @@ public class ProdutoService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-    @Transactional
+    // @Transactional
     public ProdutoDTO update(Long id, ProdutoDTO produtoDTO) {
         return produtoRepository.findById(id)
                 .map(existingProduto -> {
@@ -80,34 +79,9 @@ public class ProdutoService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-    @Transactional
+    // @Transactional
     public void delete(Long id) {
         produtoRepository.deleteById(id);
     }	
 	
-	/*		
-	public Produto saveProduto( Produto produto ) {
-		
-		
-		return produtoRepository.save(produto);
-
-	}
-	
-	public List<Produto> getlistaProdutoByNomeProduto( String nomeProduto, Long idConveniados )  {
-		
-		List<Produto> listaProduto = produtoRepository.listaProdutoByNomeProduto( nomeProduto, idConveniados );
-		
-		return listaProduto;
-		
-	}
-	
-
-	public List<Produto> getlistaProdutoByIdConveniados( Long idConveniados )  {
-		
-		List<Produto> listaProduto = produtoRepository.listaProdutoByIdConveniados(  idConveniados );
-		
-		return listaProduto;
-		
-	}
-*/
 }

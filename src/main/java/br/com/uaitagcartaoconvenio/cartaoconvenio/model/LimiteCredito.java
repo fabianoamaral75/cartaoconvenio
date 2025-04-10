@@ -7,8 +7,6 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -55,15 +53,15 @@ public class LimiteCredito implements Serializable{
 	@Column(name = "VALOR_UTILIZADO", nullable = false)
 	private BigDecimal valorUtilizado; 
 	
-	@Column(name = "DT_CRIACAO", nullable = false)
+	@Column(name = "DT_CRIACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtCriacao = Calendar.getInstance().getTime();
 
-	@Column(name = "DT_ALTERACAO", nullable = false )
+	@Column(name = "DT_ALTERACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtAlteracao = Calendar.getInstance().getTime();
 
-	@JsonIgnore
+//	@JsonIgnore
 	@OneToOne
 	@JoinColumn(name = "ID_FUNCIONARIO", referencedColumnName = "ID_FUNCIONARIO", nullable = true,foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_limite_credito_funcionario"))
 	private Funcionario funcionario;	

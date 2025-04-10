@@ -54,11 +54,11 @@ public class Secretaria implements Serializable{
 	@Column(name = "NOME_SECRETARIA", length = 300, nullable = false)
 	private String nomeSecretaria;	
 	
-	@Column(name = "DT_CRIACAO", nullable = false )
+	@Column(name = "DT_CRIACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtCriacao;
 
-	@Column(name = "DT_ALTERACAO", nullable = false )
+	@Column(name = "DT_ALTERACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtAlteracao;
 	
@@ -89,13 +89,13 @@ public class Secretaria implements Serializable{
 	@Column(name = "BAIRRO", length = 100, nullable = false)
 	private String bairro;
 	
-	@JsonIgnore
+//	@JsonIgnore
 	@NotNull(message = "A Secretaria deverá estar associada a uma Entidade, favor informar Entidade!")
 	@ManyToOne(targetEntity = Entidade.class)
 	@JoinColumn(name = "ID_ENTIDADE", referencedColumnName = "ID_ENTIDADE", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_SECRETARIA_ENTIDADE"))
 	private Entidade entidade;
 
-	@JsonIgnore
+//	@JsonIgnore
 	@OneToOne(mappedBy = "secretaria", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Funcionario funcionario = new Funcionario();
 

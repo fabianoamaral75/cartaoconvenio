@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.TaxaConveniadosMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveiniados;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaConveniadosDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.TaxaConveiniadosService;
 
 @Controller
@@ -28,7 +30,7 @@ public class TaxaConveiniadosController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaTaxaConveiniadosByStatusTaxaConv/{status}")
-	public ResponseEntity<List<TaxaConveiniados>> getListaTaxaConveiniadosByStatusTaxaConv( @PathVariable("status") String status) throws ExceptionCustomizada{
+	public ResponseEntity<List<TaxaConveniadosDTO>> getListaTaxaConveiniadosByStatusTaxaConv( @PathVariable("status") String status) throws ExceptionCustomizada{
 
 		StatusTaxaConv statusTaxaCon = StatusTaxaConv.valueOf(status);
 		
@@ -37,7 +39,10 @@ public class TaxaConveiniadosController {
 		if(listaTaxaConveiniados == null) {
 			throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para o Status: " + StatusCicloPgVenda.valueOf(status).getDescStatusReceber() );
 		}
-		return new ResponseEntity<List<TaxaConveiniados>>(listaTaxaConveiniados, HttpStatus.OK);		
+		
+		List<TaxaConveniadosDTO> dto = TaxaConveniadosMapper.INSTANCE.toListDto(listaTaxaConveiniados); 
+		
+		return new ResponseEntity<List<TaxaConveniadosDTO>>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -46,14 +51,17 @@ public class TaxaConveiniadosController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaTaxaConveiniadosByStatusTaxaConv/{idConveniados}")
-	public ResponseEntity<TaxaConveiniados> getListaTaxaConveiniadosByStatusTaxaConv( @PathVariable("idConveniados") Long idConveniados ) throws ExceptionCustomizada{
+	public ResponseEntity<TaxaConveniadosDTO> getListaTaxaConveiniadosByStatusTaxaConv( @PathVariable("idConveniados") Long idConveniados ) throws ExceptionCustomizada{
 
 		TaxaConveiniados taxaConveiniados = taxaConveiniadosService.getTaxaConveiniadosByIdConveniados( idConveniados );
 		
 		if(taxaConveiniados == null) {
 			throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para a ID da Conveniada: " + idConveniados );
 		}
-		return new ResponseEntity<TaxaConveiniados>(taxaConveiniados, HttpStatus.OK);		
+		
+		TaxaConveniadosDTO dto = TaxaConveniadosMapper.INSTANCE.toDto(taxaConveiniados);
+		
+		return new ResponseEntity<TaxaConveniadosDTO>(dto, HttpStatus.OK);		
 	}
 
 }

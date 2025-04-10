@@ -3,9 +3,8 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
-import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.validation.constraints.NotNull;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCartao;
 import jakarta.persistence.Column;
@@ -53,11 +52,11 @@ public class Cartao implements Serializable{
 	private String numeracao;
 	
 //	@Column(name = "DT_CRIACAO", nullable = false, insertable=false, updatable=false,columnDefinition = "TIMESTAMP")
-	@Column(name = "DT_CRIACAO", nullable = false)
+	@Column(name = "DT_CRIACAO", nullable = false, columnDefinition = "TIMESTAMP")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtCriacao = Calendar.getInstance().getTime();
 
-	@Column(name = "DT_ALTERACAO", nullable = false )
+	@Column(name = "DT_ALTERACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtAlteracao = Calendar.getInstance().getTime();
 	
@@ -71,7 +70,7 @@ public class Cartao implements Serializable{
 	@Enumerated(EnumType.STRING)
 	private StatusCartao statusCartao;
 
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(targetEntity = Funcionario.class)
 	@JoinColumn(name = "ID_FUNCIONARIO", nullable = true, referencedColumnName = "ID_FUNCIONARIO", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CARTAO_FUNCIONARIO"))
 	private Funcionario funcionario;
@@ -81,11 +80,9 @@ public class Cartao implements Serializable{
 		dtAlteracao =  Calendar.getInstance().getTime();
     }
 	
-    @PrePersist
-    public void prePersist() {
-    	Calendar vencimento = Calendar.getInstance(); 
-    	vencimento.add(Calendar.YEAR, 5);
-    	dtValidade  = vencimento.getTime();
+     @PrePersist
+    protected void onCreate() {
+        dtCriacao = Calendar.getInstance().getTime();
     }
 
 }

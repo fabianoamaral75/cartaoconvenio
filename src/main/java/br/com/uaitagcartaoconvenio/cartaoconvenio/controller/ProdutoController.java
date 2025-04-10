@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Produto;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ProdutoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.ProdutoService;
 
@@ -27,11 +28,11 @@ public class ProdutoController {
 	
 	@ResponseBody                         /* Poder dar um retorno da API      */
 	@PostMapping(value = "/saveProduto") /*Mapeando a url para receber JSON*/
-	public ResponseEntity<ProdutoDTO> saveProduto( @RequestBody ProdutoDTO produto) throws ExceptionCustomizada { /*Recebe o JSON e converte pra Objeto*/
+	public ResponseEntity<ProdutoDTO> saveProduto( @RequestBody Produto produto) throws ExceptionCustomizada { /*Recebe o JSON e converte pra Objeto*/
 		
 		if(produto == null ) throw new ExceptionCustomizada("Favor informar o Produto!" );
 		
-		if( produto.getIdConveniado()== null || produto.getIdConveniado() == 0 ) throw new ExceptionCustomizada("Favor informar o Conveniado!" );
+		if( produto.getConveniados().getIdConveniados() == null || produto.getConveniados().getIdConveniados() == 0 ) throw new ExceptionCustomizada("Favor informar o Conveniado!" );
 		
 		ProdutoDTO produtoDTO = produtoService.saveProduto(produto);
 		

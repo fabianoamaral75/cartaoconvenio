@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusRestabeleceLimiteCredito;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaPg;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaReceb;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendas;
@@ -45,9 +46,10 @@ public class VendaService {
 		
 
 		
-		venda.setDescStatusVendaPg   ( StatusVendaPg.AGURARDANDO_PAGAMENTO      );
-		venda.setDescStatusVendaReceb( StatusVendaReceb.AGURARDANDO_RECEBIMENTO );
-		venda.setDescStatusVendas    ( StatusVendas.AGUARDANDO_PAGAMENTO        );
+		venda.setDescStatusVendaPg    ( StatusVendaPg.AGUARDANDO_PAGAMENTO             );
+		venda.setDescStatusVendaReceb ( StatusVendaReceb.AGURARDANDO_RECEBIMENTO       );
+		venda.setDescStatusVendas     ( StatusVendas.AGUARDANDO_PAGAMENTO              );
+		venda.setDescRestLimiteCredito( StatusRestabeleceLimiteCredito.VENDA_REALIZADA );
 		
 		for(int ca = 0; ca < venda.getItensVenda().size(); ca++)
 			venda.getItensVenda().get(ca).setVenda(venda);
@@ -84,10 +86,7 @@ public class VendaService {
 	    Venda venda = vendaRepository.findVendaByIdVenda(validaVendaCataoPassaword.getIdVenda());
 	 
 	    if( venda == null ) return "Favor verificar, Venda não encontrada!";
-	    
-	    Cartao cartao = cartaoService.getCartaoByNumeracao( validaVendaCataoPassaword.getCartao() );
-	    venda.setCartao(cartao);
-	 
+	    	 
 	    Double limiteFunc         = limiteCredito.getLimite().doubleValue();
 	    Double valorUtilizadoFunc = limiteCredito.getValorUtilizado().doubleValue();
 	 
@@ -98,6 +97,8 @@ public class VendaService {
 	    	 return "Saldo insuficiente! ( Saldo: " + FuncoesUteis.formatarParaReal(limiteFunc - valorUtilizadoFunc) + " )";
 	    }
 		
+	    Cartao cartao = cartaoService.getCartaoByNumeracao( validaVendaCataoPassaword.getCartao() );
+	    venda.setCartao(cartao);
 	    
 	    Double valorUtilizadoAtualizada = valorUtilizadoFunc + valorVenda;
 
@@ -105,6 +106,7 @@ public class VendaService {
 	    Double valorCalcTaxaEntCalc = FuncoesUteis.truncar(( taxaEntidade.getTaxaEntidade().doubleValue() /100 ) * venda.getValorVenda().doubleValue());
 	    
 	    venda.setDescStatusVendas(StatusVendas.PAGAMENTO_APROVADO);
+	    venda.setDescRestLimiteCredito(StatusRestabeleceLimiteCredito.VENDA_REALIZADA);
 	    venda.setValorCalcTaxaEntidade(new BigDecimal(valorCalcTaxaEntCalc));
 	    venda.setTaxaEntidade(taxaEntidade);
 	    
@@ -298,6 +300,16 @@ public class VendaService {
 	public void updateStatusVendaReceb( Long idConveniados, StatusVendaReceb descStatusVendaReceb ) {
 		
 		vendaRepository.updateStatusVendaReceb( idConveniados, descStatusVendaReceb.name() );		
+
+	}
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public void updateStatusVendasFechamentoAutomatico( String anoMes ) {
+		
+		vendaRepository.updateStatusVendasFechamentoAutomatico( anoMes );		
 
 	}
 

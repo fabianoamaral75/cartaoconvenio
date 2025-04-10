@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.SecretariaMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Secretaria;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.SecretariaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.SecretariaService;
 
 @RestController
@@ -23,7 +25,7 @@ public class SecretariaController {
 	
 	@ResponseBody
 	@PostMapping(value = "/salvarSecretaria")
-	public ResponseEntity<Secretaria> salvarSecretaria( @RequestBody Secretaria secretaria ) throws ExceptionCustomizada, UnsupportedEncodingException{
+	public ResponseEntity<SecretariaDTO> salvarSecretaria( @RequestBody Secretaria secretaria ) throws ExceptionCustomizada, UnsupportedEncodingException{
 
 		if( secretaria == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Entidade. Valores vazios!");
 		
@@ -31,7 +33,9 @@ public class SecretariaController {
 		
 		secretaria = secretariaService.salvarSecretariaService(secretaria);
 		
-		return new ResponseEntity<Secretaria>(secretaria, HttpStatus.OK);		
+		SecretariaDTO dto = SecretariaMapper.INSTANCE.toDto(secretaria); 
+		
+		return new ResponseEntity<SecretariaDTO>(dto, HttpStatus.OK);		
 	}
 
 

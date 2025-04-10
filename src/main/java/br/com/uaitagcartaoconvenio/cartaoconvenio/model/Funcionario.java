@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
@@ -23,6 +22,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -49,11 +49,11 @@ public class Funcionario {
 	@Column(name = "ID_FUNCIONARIO")
 	private Long idFuncionario;
 
-	@Column(name = "DT_CRIACAO", nullable = false, insertable=true, updatable=true )
+	@Column(name = "DT_CRIACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtCriacao = Calendar.getInstance().getTime();   
 
-	@Column(name = "DT_ALTERACAO", nullable = false )
+	@Column(name = "DT_ALTERACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtAlteracao = Calendar.getInstance().getTime();   
 
@@ -72,7 +72,7 @@ public class Funcionario {
 	@OneToMany(mappedBy = "funcionario", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Cartao> cartao = new ArrayList<Cartao>();
 	
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(targetEntity = Pessoa.class)
 	@JoinColumn(name = "ID_PESSOA", nullable = true, referencedColumnName = "ID_PESSOA", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_funcionario_pessoa"))
 	private Pessoa pessoa;
@@ -95,6 +95,11 @@ public class Funcionario {
 		return "Funcionario [idFuncionario=" + idFuncionario + ", dtCriacao=" + dtCriacao + ", dtAlteracao="
 				+ dtAlteracao + ", limiteCredito=" + limiteCredito + ", salario=" + salario + ", cartao=" + cartao
 				+ ", pessoa=" + pessoa + ", secretaria=" + secretaria + ", entidade=" + entidade + "]";
+	}
+
+	@PrePersist
+	protected void onCreate() {
+	    dtCriacao = Calendar.getInstance().getTime();
 	}
 
     

@@ -2,15 +2,17 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Calendar;
 
 public class FuncoesUteis {
 	
@@ -93,6 +95,25 @@ public class FuncoesUteis {
         return formatoSaida.format(data);
     }
 
+    /**
+     * Retorna o mês anterior ao atual no formato "yyyymm"
+     * @return String no formato "yyyymm" representando o mês anterior
+     */
+    public static String getPreviousMonthFormatted() {
+        // Obtém a data atual e subtrai 1 mês
+        LocalDate previousMonthDate = LocalDate.now().minusMonths(1);
+        
+        // Define o formato desejado
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+        
+        // Retorna a data formatada
+        return previousMonthDate.format(formatter);
+    }
+
+    // Versão alternativa que recebe uma data específica como parâmetro
+    public static String getPreviousMonthFormatted(LocalDate referenceDate) {
+        return referenceDate.minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMM"));
+    }
 
     /**
      * Retorna a data atual no formato "yyyymm".
@@ -175,6 +196,63 @@ public class FuncoesUteis {
 
         // Retorna o valor truncado como double
         return bd.doubleValue();
+    }
+
+    /**
+     * Soma dias à data atual e retorna a nova data
+     * @param dias Quantidade de dias a adicionar (pode ser negativo para subtrair)
+     * @return Nova data com os dias adicionados
+     */
+    public static Date somarDiasDataAtual(int dias) {
+        // Obtém a instância do Calendar
+        Calendar calendar = Calendar.getInstance();
+        
+        // Adiciona a quantidade de dias
+        calendar.add(Calendar.DAY_OF_MONTH, dias);
+        
+        // Retorna como java.util.Date
+        return calendar.getTime();
+    }
+
+    // Versão alternativa usando Java 8+ (mais moderna)
+    public static Date somarDiasDataAtualJava8(int dias) {
+        // Converte para java.time (mais moderno) e depois volta para java.util.Date
+        java.time.LocalDate localDate = java.time.LocalDate.now().plusDays(dias);
+        return java.util.Date.from(localDate.atStartOfDay()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toInstant());
+    }
+    
+    /**
+     * Retorna a data atual formatada como string no padrão "yyyy-MM-dd HH:mm:ss"
+     * @return Data formatada como String
+     */
+    public static String getCurrentDateTimeFormatted() {
+        // Cria um objeto Date com a data/hora atual
+        Date currentDate = new Date();
+        
+        // Cria o formatador com o padrão desejado
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        
+        // Formata a data
+        return sdf.format(currentDate);
+    }
+
+    // Versão que retorna tanto a String formatada quanto o objeto Date
+    public static class DateTimeResult {
+        public final Date date;
+        public final String formatted;
+
+        public DateTimeResult(Date date, String formatted) {
+            this.date = date;
+            this.formatted = formatted;
+        }
+    }
+
+    public static DateTimeResult getCurrentDateTime() {
+        Date currentDate = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return new DateTimeResult(currentDate, sdf.format(currentDate));
     }
 
     

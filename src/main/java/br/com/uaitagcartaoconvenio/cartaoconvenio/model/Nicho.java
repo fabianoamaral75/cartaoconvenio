@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -44,7 +42,7 @@ public class Nicho implements Serializable {
 	@Column(name = "DESC_NICHO", length = 100, nullable = false)
 	private String descNicho;
 	
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(targetEntity = Conveniados.class)
 	@JoinColumn(name = "ID_CONVENIADOS", nullable = true, referencedColumnName = "ID_CONVENIADOS", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_NICHO_CONVE"))
 	private Conveniados conveniados;

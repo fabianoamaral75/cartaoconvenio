@@ -10,12 +10,15 @@ import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCartao;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.ConveniadosMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Acesso;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Cartao;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Usuario;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ConveniadosDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UauarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.UsuarioRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
 
 
 @Service
@@ -81,15 +84,19 @@ public class UsuarioService {
 	/*                  Procedimento de validação para salvar um Usuario de Pessoa Juridica para uma Conveniada                         */
 	/*                                                                                                                                  */
     /* ******************************************************************************************************************************** */
-	public UauarioDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
+//	public UauarioDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
+	public ConveniadosDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
 		
 		
 		if (userPJConveniado.getIdUsuario() == null && usuarioRepository.findByLogin(userPJConveniado.getLogin()) != null) {
 			throw new ExceptionCustomizada("Já existe o Login cadastrado: " + userPJConveniado.getLogin() );
 		}
+		
+		String cnpj = FuncoesUteis.removerCaracteresNaoNumericos(userPJConveniado.getPessoa().getPessoaJuridica().getCnpj());
+		userPJConveniado.getPessoa().getPessoaJuridica().setCnpj(cnpj);
 	
 		if (userPJConveniado.getIdUsuario() == null && usuarioRepository.pesquisaPorCpfPF(userPJConveniado.getPessoa().getPessoaJuridica().getCnpj()) != null) {
-			throw new ExceptionCustomizada("Já existe CPF cadastrado com o número: " + userPJConveniado.getPessoa().getPessoaJuridica().getCnpj());
+			throw new ExceptionCustomizada("Já existe CNPJ cadastrado com o número: " + userPJConveniado.getPessoa().getPessoaJuridica().getCnpj());
 		}
 		
 		// Trata as informações de Role de Acesso do Usuário
@@ -111,9 +118,13 @@ public class UsuarioService {
 		userPJConveniado.getPessoa().setFuncionario(null);
 		userPJConveniado = usuarioRepository.saveAndFlush( userPJConveniado );
 		
-		UauarioDTO uauarioPFDTO = getUauarioPFDTO( userPJConveniado );
+		conveniados.setPessoa(userPJConveniado.getPessoa());
 		
-		return uauarioPFDTO;
+		ConveniadosDTO dto = ConveniadosMapper.INSTANCE.toDtoWithPessoa(conveniados);
+		
+		// UauarioDTO uauarioPFDTO = getUauarioPFDTO( userPJConveniado );
+		
+		return dto;
 				
 	}
 
@@ -128,6 +139,9 @@ public class UsuarioService {
 		if (userFuncionario.getIdUsuario() == null && usuarioRepository.findByLogin(userFuncionario.getLogin()) != null) {
 			throw new ExceptionCustomizada("Já existe o Login cadastrado: " + userFuncionario.getLogin() );
 		}
+		String cpf = FuncoesUteis.removerCaracteresNaoNumericos( userFuncionario.getPessoa().getPessoaFisica().getCpf() );
+		
+		userFuncionario.getPessoa().getPessoaFisica().setCpf(cpf);
 	
 		if (userFuncionario.getIdUsuario() == null && usuarioRepository.pesquisaPorCpfPF(userFuncionario.getPessoa().getPessoaFisica().getCpf()) != null) {
 			throw new ExceptionCustomizada("Já existe CPF cadastrado com o número: " + userFuncionario.getPessoa().getPessoaFisica().getCpf());
@@ -171,7 +185,7 @@ public class UsuarioService {
 		else userFuncionario.getPessoa().getFuncionario().getSecretaria().setFuncionario(userFuncionario.getPessoa().getFuncionario());
 		
 		// Associa o Salario passado no Jeson ao Funcionario em cadastro
-		userFuncionario.getPessoa().getFuncionario().getEntidade().setFuncionario(userFuncionario.getPessoa().getFuncionario());
+//			userFuncionario.getPessoa().getFuncionario().getEntidade().setFuncionario(userFuncionario.getPessoa().getFuncionario());
 		
 		userFuncionario.getPessoa().setPessoaJuridica(null);
 		

@@ -33,7 +33,7 @@ public interface TxCalcLimitCredFuncRepositore  extends JpaRepository<TaxaCalcLi
                  + " from                               "
                  + "      TaxaCalcLimiteCreditoFunc tcc "
                  + " JOIN tcc.entidade              ent "
-                 + " JOIN ent.funcionario           fun "
+                 + " JOIN ent.listaFuncionario      fun "
                  + " JOIN fun.pessoa                pes "
                  + " where upper(trim(pes.nomePessoa)) like upper(concat('%', ?1, '%'))" )
 	List<TaxaCalcLimiteCreditoFunc> listaTaxaCalcLimiteCreditoFuncByNomeFuncionario( String nomeFuncionario ) ; 

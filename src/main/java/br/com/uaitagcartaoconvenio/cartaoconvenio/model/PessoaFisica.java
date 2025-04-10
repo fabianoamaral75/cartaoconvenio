@@ -7,7 +7,6 @@ import java.util.Date;
 import org.hibernate.validator.constraints.br.CPF;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -63,7 +62,7 @@ public class PessoaFisica implements Serializable{
 	private Pessoa pessoa;
 */
 	
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(targetEntity = Pessoa.class)
 	@JoinColumn(name = "ID_PESSOA", nullable = true, referencedColumnName = "ID_PESSOA", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_FISICA_PESSOA"))
 	private Pessoa pessoa;

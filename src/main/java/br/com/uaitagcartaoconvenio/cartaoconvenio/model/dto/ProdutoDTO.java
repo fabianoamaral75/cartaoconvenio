@@ -2,6 +2,8 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 
@@ -15,6 +17,7 @@ public class ProdutoDTO {
     @NotNull(message = "O valor do produto é obrigatório")
     private BigDecimal vlrProduto;
     
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dtCadastro;
     private Long idConveniado;
 

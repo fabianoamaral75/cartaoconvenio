@@ -7,8 +7,6 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaEntidade;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -49,11 +47,11 @@ public class TaxaEntidade implements Serializable{
 	@Column(name = "ID_TAXA_ENTIDADE")
 	private Long idTaxaEntidade;
 	
-	@Column(name = "DT_CRIACAO", nullable = false )
+	@Column(name = "DT_CRIACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtCriacao = Calendar.getInstance().getTime();
 	
-	@Column(name = "DT_ALTERACAO", nullable = false )
+	@Column(name = "DT_ALTERACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtAlteracao = Calendar.getInstance().getTime();
 
@@ -66,7 +64,7 @@ public class TaxaEntidade implements Serializable{
 	@Enumerated(EnumType.STRING)
 	private StatusTaxaEntidade statusTaxaEntidade;
 	
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(targetEntity = Entidade.class)
 	@JoinColumn(name = "ID_ENTIDADE", nullable = true, referencedColumnName = "ID_ENTIDADE", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_TAXA_ENTI_ENTIDADE"))
 	private Entidade entidade;

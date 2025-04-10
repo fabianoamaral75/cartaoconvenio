@@ -30,6 +30,8 @@ public class EntidadeService {
 			throw new ExceptionCustomizada("Já existe o CNPJ cadastrado: " + entidade.getCnpj() );
 		}
 		
+		String cnpj = FuncoesUteis.removerCaracteresNaoNumericos(entidade.getCnpj());
+		entidade.setCnpj(cnpj);
 		entidade.getTaxaEntidade().get(0).setEntidade(entidade);
 		
 		entidade.getTaxaEntidade().get(0).setStatusTaxaEntidade(StatusTaxaEntidade.ATUAL);
@@ -38,7 +40,7 @@ public class EntidadeService {
 		
 		entidade.getTaxaCalcLimiteCreditoFunc().get(0).setStatusTaxaCalcLimiteCredFuncionaro(StatusTaxaCalcLimiteCredFuncionaro.ATUAL);
 		
-		entidade.setFuncionario(null);
+		entidade.setListaFuncionario(null);
 		
 		entidade = entidadeRespository.saveAndFlush( entidade );
 		

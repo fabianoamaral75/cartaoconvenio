@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusRestabeleceLimiteCredito;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaPg;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaReceb;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendas;
@@ -70,11 +71,11 @@ public class Venda implements Serializable{
 	@Column(name = "ANO_MES", length = 6, nullable = false)
 	private String anoMes;
 	
-	@Column(name = "DT_VENDA", nullable = false )
+	@Column(name = "DT_VENDA", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtVenda = Calendar.getInstance().getTime(); 
 
-	@Column(name = "DT_ALTERACAO", nullable = false )
+	@Column(name = "DT_ALTERACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtAlteracao = Calendar.getInstance().getTime(); 
 
@@ -96,7 +97,12 @@ public class Venda implements Serializable{
 	@Column(name = "STATUS", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private StatusVendas descStatusVendas;
-	
+
+	@NotNull(message = "Status Referênte ao Limite de Crédito a Ser Restabelecido!")
+	@Column(name = "STATUS_LIMITE_CREDITO_RESTABELECIDO", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private StatusRestabeleceLimiteCredito descRestLimiteCredito;
+
 	@ManyToOne(targetEntity = Conveniados.class)
 	@JoinColumn(name = "ID_CONVENIADOS", nullable = true, referencedColumnName = "ID_CONVENIADOS", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_CONVENIADO"))
 	private Conveniados conveniados;

@@ -38,5 +38,7 @@ public interface EntidadeRespository extends JpaRepository<Entidade, Long> {
                  + " where ca.numeracao = ?1  " )
     Entidade findEntidadeByNumCartao( String numCartao ); 
 
+	@Query(value = "SELECT qty_dias_recebimento FROM entidade where id_entidade = ?1", nativeQuery = true)
+	int qtyDiasRecebimento( Long id );
 
 }

@@ -7,7 +7,8 @@ public enum StatusReceber {
 	RECEBIMENTO_BLOQUEADO ("Pagamento Bloqueado pela Entididade"), 
 	RECEBIMENTO_REJEITADO ("Pagamento Rejeitado pela Entididade"),
 	RECEBIMENTO_CANCELADO ("Pagamento Cancelado!"               ),
-	RECEBIMENTO_APROVADO  ("Pagamento Aprovado pela Entididade" );	
+	RECEBIMENTO_APROVADO  ("Pagamento Aprovado pela Entididade" ),
+	AGUARDANDO_UPLOAD_NF  ("Aguardando Upload NF da Entidade!"  );	
 	
 	private String descStatusReceber;
 

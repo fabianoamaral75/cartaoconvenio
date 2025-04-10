@@ -14,6 +14,8 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusReceber;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContasReceber;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ContasReceberDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.service.ContasReceberMappingService;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.ContasReceberService;
 
 @Controller
@@ -22,6 +24,10 @@ public class ContasReceberController {
 	
 	@Autowired
 	private ContasReceberService contasReceberService;
+		
+	@Autowired
+	private ContasReceberMappingService mappingService; // Injetado pelo Spring
+
 	
 	/******************************************************************/
 	/*                                                                */
@@ -29,14 +35,23 @@ public class ContasReceberController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getContasReceberByAnoMes/{anoMes}")
-	public ResponseEntity<List<ContasReceber>> getContasReceberByAnoMes( @PathVariable("anoMes") String anoMes ) throws ExceptionCustomizada{
+	public ResponseEntity<List<ContasReceberDTO>> getContasReceberByAnoMes( @PathVariable("anoMes") String anoMes ) throws ExceptionCustomizada{
 
 		List<ContasReceber> listaContasReceber = contasReceberService.getContasReceberByAnoMes( anoMes );
 		
 		if(listaContasReceber == null) {
 			throw new ExceptionCustomizada("Não existe Contas a Receber para o período: " + anoMes );
 		}
-		return new ResponseEntity<List<ContasReceber>>(listaContasReceber, HttpStatus.OK);		
+		
+//		List<ContasReceberDTO> dto = contasReceberMapper.toListDto(listaContasReceber);  
+		
+		// Para mapeamento básico (sem fechamentos)
+		// List<ContasReceberDTO> dtoBasico = contasReceberMapper.toListDto(listaContasReceber);
+
+		// Para mapeamento completo (com fechamentos)
+		List<ContasReceberDTO> dtoCompleto = mappingService.mapCompleteList(listaContasReceber);
+		
+		return new ResponseEntity<List<ContasReceberDTO>>(dtoCompleto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -45,7 +60,7 @@ public class ContasReceberController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getContasReceberByDtCriacao/{dtCriacaoIni}/{dtCriacaoFim}")
-	public ResponseEntity<List<ContasReceber>> getContasReceberByDtCriacao( @PathVariable("dtCriacaoIni") String dtCriacaoIni ,
+	public ResponseEntity<List<ContasReceberDTO>> getContasReceberByDtCriacao( @PathVariable("dtCriacaoIni") String dtCriacaoIni ,
 			                                                                            @PathVariable("dtCriacaoFim") String dtCriacaoFim) throws ExceptionCustomizada{
 
 		List<ContasReceber> listaContasReceber = contasReceberService.getContasReceberByDtCriacao( dtCriacaoIni, dtCriacaoFim );
@@ -53,7 +68,14 @@ public class ContasReceberController {
 		if(listaContasReceber == null) {
 			throw new ExceptionCustomizada("Não existe Contas a Receber para o período entre: " + dtCriacaoIni + " e " + dtCriacaoFim);
 		}
-		return new ResponseEntity<List<ContasReceber>>(listaContasReceber, HttpStatus.OK);		
+		
+		// List<ContasReceberDTO> dto = contasReceberMapper.toListDto(listaContasReceber);  
+		
+		// Para mapeamento completo (com fechamentos)
+		List<ContasReceberDTO> dtoCompleto = mappingService.mapCompleteList(listaContasReceber);
+
+		
+		return new ResponseEntity<List<ContasReceberDTO>>(dtoCompleto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -62,7 +84,7 @@ public class ContasReceberController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getContasReceberByDescStatusReceber/{status}")
-	public ResponseEntity<List<ContasReceber>> getContasReceberByDescStatusReceber( @PathVariable("status") String status) throws ExceptionCustomizada{
+	public ResponseEntity<List<ContasReceberDTO>> getContasReceberByDescStatusReceber( @PathVariable("status") String status) throws ExceptionCustomizada{
 
 		StatusReceber statusContaReceber = StatusReceber.valueOf(status);
 		
@@ -71,7 +93,13 @@ public class ContasReceberController {
 		if(listaContasReceber == null) {
 			throw new ExceptionCustomizada("Não existe Contas a Receber para o Status: " + StatusCicloPgVenda.valueOf(status).getDescStatusReceber() );
 		}
-		return new ResponseEntity<List<ContasReceber>>(listaContasReceber, HttpStatus.OK);		
+		
+		// List<ContasReceberDTO> dto = contasReceberMapper.toListDto(listaContasReceber);
+		// Para mapeamento completo (com fechamentos)
+		List<ContasReceberDTO> dtoCompleto = mappingService.mapCompleteList(listaContasReceber);
+
+		
+		return new ResponseEntity<List<ContasReceberDTO>>(dtoCompleto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -79,15 +107,19 @@ public class ContasReceberController {
 	/*                                                                */
 	/******************************************************************/	
 	@ResponseBody
-	@GetMapping(value = "/getCicloPagamentoVendaByIdConveniados/{idEntidade}")
-	public ResponseEntity<ContasReceber> getCicloPagamentoVendaByIdConveniados( @PathVariable("idEntidade") Long idEntidade ) throws ExceptionCustomizada{
+	@GetMapping(value = "/getContasReceberVendaByIdConveniados/{idEntidade}")
+	public ResponseEntity<List<ContasReceberDTO>> getContasReceberVendaByIdConveniados( @PathVariable("idEntidade") Long idEntidade ) throws ExceptionCustomizada{
 
-		ContasReceber contasReceber = contasReceberService.getCicloPagamentoVendaByIdConveniados( idEntidade );
+		List<ContasReceber> listaContasReceber = contasReceberService.getCicloPagamentoVendaByIdConveniados( idEntidade );
 		
-		if(contasReceber == null) {
+		if(listaContasReceber == null) {
 			throw new ExceptionCustomizada("Não existe Contas a Receber para a ID da Entidade: " + idEntidade );
 		}
-		return new ResponseEntity<ContasReceber>(contasReceber, HttpStatus.OK);		
+		
+		// Para mapeamento completo (com fechamentos)
+				List<ContasReceberDTO> dtoCompleto = mappingService.mapCompleteList(listaContasReceber);
+		
+		return new ResponseEntity<List<ContasReceberDTO>>(dtoCompleto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -96,14 +128,21 @@ public class ContasReceberController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getContasReceberByNomeEntidade/{nomeEntidade}")
-	public ResponseEntity<List<ContasReceber>> getContasReceberByNomeEntidade( @PathVariable("nomeEntidade") String nomeEntidade) throws ExceptionCustomizada{
+	public ResponseEntity<List<ContasReceberDTO>> getContasReceberByNomeEntidade( @PathVariable("nomeEntidade") String nomeEntidade) throws ExceptionCustomizada{
 
-		List<ContasReceber> listaCicloPagamentoVenda = contasReceberService.getContasReceberByNomeEntidade( nomeEntidade );
+		List<ContasReceber> listaContasReceber = contasReceberService.getContasReceberByNomeEntidade( nomeEntidade );
 		
-		if(listaCicloPagamentoVenda == null) {
+		if(listaContasReceber == null) {
 			throw new ExceptionCustomizada("Não existe Contas a Receber para a Entidade: " + nomeEntidade );
 		}
-		return new ResponseEntity<List<ContasReceber>>(listaCicloPagamentoVenda, HttpStatus.OK);		
+		
+		// List<ContasReceberDTO> dto = contasReceberMapper.toListDto(listaContasReceber);
+		
+		// Para mapeamento completo (com fechamentos)
+		List<ContasReceberDTO> dtoCompleto = mappingService.mapCompleteList(listaContasReceber);
+
+		
+		return new ResponseEntity<List<ContasReceberDTO>>(dtoCompleto, HttpStatus.OK);		
 	}
 
 }

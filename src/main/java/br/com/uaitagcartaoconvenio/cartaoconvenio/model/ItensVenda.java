@@ -3,8 +3,6 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -52,7 +50,7 @@ public class ItensVenda implements Serializable{
 	@Column(name = "VLR_TOTAL_ITEM", nullable = false)
 	private BigDecimal vlrTotalItem; 
 
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(targetEntity = Venda.class)
 	@JoinColumn(name = "ID_VENDA", referencedColumnName = "ID_VENDA", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_ITENS_VENDA_VENDA"))	
 	private Venda venda;

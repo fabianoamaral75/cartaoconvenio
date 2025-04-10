@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCartao;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.CartaoMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Cartao;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CartaoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.CartaoService;
 
 @Controller
@@ -29,14 +31,16 @@ public class CartaoController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getCartaoByIdFuncionario/{idFuncionario}")
-	public ResponseEntity<Cartao> getCartaoByIdFuncionario( @PathVariable("idFuncionario") Long idFuncionario ) throws ExceptionCustomizada{
+	public ResponseEntity<CartaoDTO> getCartaoByIdFuncionario( @PathVariable("idFuncionario") Long idFuncionario ) throws ExceptionCustomizada{
 
-		Cartao Cartao = cartaoService.getCartaoByIdFuncionario( idFuncionario );
+		Cartao cartao = cartaoService.getCartaoByIdFuncionario( idFuncionario );
 		
-		if(Cartao == null) {
+		if(cartao == null) {
 			throw new ExceptionCustomizada("Não existe Cartão para o ID do Funcionário: " + idFuncionario );
 		}
-		return new ResponseEntity<Cartao>(Cartao, HttpStatus.OK);		
+		
+		CartaoDTO dto = CartaoMapper.INSTANCE.toDto(cartao);
+		return new ResponseEntity<CartaoDTO>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -45,14 +49,17 @@ public class CartaoController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getlistaCartaoByNomePessoa/{nomePessoa}")
-	public ResponseEntity<List<Cartao>> getlistaCartaoByNomePessoa( @PathVariable("nomePessoa") String nomePessoa) throws ExceptionCustomizada{
+	public ResponseEntity<List<CartaoDTO>> getlistaCartaoByNomePessoa( @PathVariable("nomePessoa") String nomePessoa) throws ExceptionCustomizada{
 
 		List<Cartao> listaCartao = cartaoService.getlistaCartaoByNomePessoa( nomePessoa );
 		
 		if(listaCartao == null) {
 			throw new ExceptionCustomizada("Não existe Cartão para o Funcionário: " + nomePessoa );
 		}
-		return new ResponseEntity<List<Cartao>>(listaCartao, HttpStatus.OK);		
+		
+		List<CartaoDTO> dto = CartaoMapper.INSTANCE.toListDto(listaCartao); 
+		
+		return new ResponseEntity<List<CartaoDTO>>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -61,7 +68,7 @@ public class CartaoController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getlistaCartaoByIdStatus/{status}")
-	public ResponseEntity<List<Cartao>> getlistaCartaoByIdStatus( @PathVariable("status") String status) throws ExceptionCustomizada{
+	public ResponseEntity<List<CartaoDTO>> getlistaCartaoByIdStatus( @PathVariable("status") String status) throws ExceptionCustomizada{
 
 		StatusCartao statusCicloPgVenda = StatusCartao.valueOf(status);
 		
@@ -70,7 +77,10 @@ public class CartaoController {
 		if(listaCartao == null) {
 			throw new ExceptionCustomizada("Não existe Cartão para o Status: " + StatusCicloPgVenda.valueOf(status).getDescStatusReceber() );
 		}
-		return new ResponseEntity<List<Cartao>>(listaCartao, HttpStatus.OK);		
+		
+		List<CartaoDTO> dto = CartaoMapper.INSTANCE.toListDto(listaCartao); 
+		
+		return new ResponseEntity<List<CartaoDTO>>(dto, HttpStatus.OK);		
 	}
 	
 }

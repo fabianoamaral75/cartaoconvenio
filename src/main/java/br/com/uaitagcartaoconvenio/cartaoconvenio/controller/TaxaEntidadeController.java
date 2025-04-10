@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaEntidade;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.TaxaEntidadeMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaEntidade;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaEntidadeDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.TaxaEntidadeService;
 
 @Controller
@@ -28,16 +30,19 @@ public class TaxaEntidadeController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaTaxaEntidadeByStatusTaxaEntidade/{status}")
-	public ResponseEntity<List<TaxaEntidade>> getListaTaxaEntidadeByStatusTaxaEntidade( @PathVariable("status") String status) throws ExceptionCustomizada{
+	public ResponseEntity<List<TaxaEntidadeDTO>> getListaTaxaEntidadeByStatusTaxaEntidade( @PathVariable("status") String status) throws ExceptionCustomizada{
 
 		StatusTaxaEntidade statusTaxaEntidade = StatusTaxaEntidade.valueOf(status);
 		
-		List<TaxaEntidade> listaTaxaEntidade = taxaEntidadeService.getListaTaxaEntidadeByStatusTaxaEntidade( statusTaxaEntidade );
+		List<TaxaEntidade> listTaxaEntidade = taxaEntidadeService.getListaTaxaEntidadeByStatusTaxaEntidade( statusTaxaEntidade );
 		
-		if(listaTaxaEntidade == null) {
+		if(listTaxaEntidade == null) {
 			throw new ExceptionCustomizada("Não existe Taxa para a Entidade para o Status: " + StatusTaxaEntidade.valueOf(status).getDescStatusTaxaEntidade() );
 		}
-		return new ResponseEntity<List<TaxaEntidade>>(listaTaxaEntidade, HttpStatus.OK);		
+		
+		List<TaxaEntidadeDTO> dto = TaxaEntidadeMapper.INSTANCE.toListDto(listTaxaEntidade); 
+		
+		return new ResponseEntity<List<TaxaEntidadeDTO>>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -46,14 +51,17 @@ public class TaxaEntidadeController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getTaxaEntidadeByIdEntidade/{idEntidade}")
-	public ResponseEntity<List<TaxaEntidade>> getTaxaEntidadeByIdEntidade( @PathVariable("idEntidade") Long idEntidade ) throws ExceptionCustomizada{
+	public ResponseEntity<List<TaxaEntidadeDTO>> getTaxaEntidadeByIdEntidade( @PathVariable("idEntidade") Long idEntidade ) throws ExceptionCustomizada{
 
-		List<TaxaEntidade> taxaEntidade = taxaEntidadeService.getTaxaEntidadeByIdEntidade( idEntidade );
+		List<TaxaEntidade> listTaxaEntidade = taxaEntidadeService.getTaxaEntidadeByIdEntidade( idEntidade );
 		
-		if(taxaEntidade == null) {
+		if(listTaxaEntidade == null) {
 			throw new ExceptionCustomizada("Não existe Taxa para a Entidade com o ID dasta Entidade: " + idEntidade );
 		}
-		return new ResponseEntity<List<TaxaEntidade>>(taxaEntidade, HttpStatus.OK);		
+		
+		List<TaxaEntidadeDTO> dto = TaxaEntidadeMapper.INSTANCE.toListDto(listTaxaEntidade); 
+		
+		return new ResponseEntity<List<TaxaEntidadeDTO>>( dto, HttpStatus.OK);		
 	}
 
 }

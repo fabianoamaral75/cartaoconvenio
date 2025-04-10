@@ -56,4 +56,7 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
             + " where upper(trim(pe.cidade)) like upper(concat('%', ?1, '%'))" )
    List<Conveniados> listaConveniadosByCidade( String cidade) ; 
 
+	@Query(value = "SELECT qty_dias_pagamento FROM conveniados where id_conveniados = ?1", nativeQuery = true)
+	int qtyDiasPagamento( Long id );
+
 }

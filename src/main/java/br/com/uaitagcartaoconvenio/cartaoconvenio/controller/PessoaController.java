@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.PessoaMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Pessoa;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.PessoaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.PessoaService;
 
 @Controller
@@ -26,14 +28,17 @@ public class PessoaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getPessoaFisicaByCpf/{cpf}")
-	public ResponseEntity<List<Pessoa>> getPessoaFisicaByCpf( @PathVariable("cpf") String cpf ) throws ExceptionCustomizada{
+	public ResponseEntity<List<PessoaDTO>> getPessoaFisicaByCpf( @PathVariable("cpf") String cpf ) throws ExceptionCustomizada{
 
-		List<Pessoa> listaPessoa = pessoaService.getPessoaFisicaByCpf(cpf);
+		List<Pessoa> listPessoa = pessoaService.getPessoaFisicaByCpf(cpf);
 		
-		if(listaPessoa == null) {
+		if(listPessoa == null) {
 			throw new ExceptionCustomizada("Não existe a Pessoa com este CPJ: " + cpf );
 		}
-		return new ResponseEntity<List<Pessoa>>(listaPessoa, HttpStatus.OK);		
+		
+		List<PessoaDTO> dto = PessoaMapper.INSTANCE.toListDto(listPessoa); 
+		
+		return new ResponseEntity<List<PessoaDTO>>(dto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -42,14 +47,17 @@ public class PessoaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getPessoaFisicaByNome/{nomePessoa}")
-	public ResponseEntity<List<Pessoa>> getPessoaFisicaByNome( @PathVariable("nomePessoa") String nomePessoa ) throws ExceptionCustomizada{
+	public ResponseEntity<List<PessoaDTO>> getPessoaFisicaByNome( @PathVariable("nomePessoa") String nomePessoa ) throws ExceptionCustomizada{
 
-		List<Pessoa> listaPessoa = pessoaService.getPessoaFisicaByNome(nomePessoa);
+		List<Pessoa> listPessoa = pessoaService.getPessoaFisicaByNome(nomePessoa);
 		
-		if(listaPessoa == null) {
+		if(listPessoa == null) {
 			throw new ExceptionCustomizada("Não existe a Pessoa com este nome: " + nomePessoa );
 		}
-		return new ResponseEntity<List<Pessoa>>(listaPessoa, HttpStatus.OK);		
+		
+		List<PessoaDTO> dto = PessoaMapper.INSTANCE.toListDto(listPessoa); 
+		
+		return new ResponseEntity<List<PessoaDTO>>(dto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -58,14 +66,17 @@ public class PessoaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getPessoaJuridicaByCnpj/{cnpj}")
-	public ResponseEntity<List<Pessoa>> getPessoaJuridicaByCnpj( @PathVariable("cnpj") String cnpj ) throws ExceptionCustomizada{
+	public ResponseEntity<List<PessoaDTO>> getPessoaJuridicaByCnpj( @PathVariable("cnpj") String cnpj ) throws ExceptionCustomizada{
 
-		List<Pessoa> listaPessoa = pessoaService.getPessoaJuridicaByCnpj(cnpj);
+		List<Pessoa> listPessoa = pessoaService.getPessoaJuridicaByCnpj(cnpj);
 		
-		if(listaPessoa == null) {
+		if(listPessoa == null) {
 			throw new ExceptionCustomizada("Não existe a Pessoa com este CNPJ: " + cnpj );
 		}
-		return new ResponseEntity<List<Pessoa>>(listaPessoa, HttpStatus.OK);		
+		
+		List<PessoaDTO> dto = PessoaMapper.INSTANCE.toListDto(listPessoa); 
+		
+		return new ResponseEntity<List<PessoaDTO>>(dto, HttpStatus.OK);		
 	}
 	
 

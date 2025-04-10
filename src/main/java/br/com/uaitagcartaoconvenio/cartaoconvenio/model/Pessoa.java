@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -103,7 +101,7 @@ public class Pessoa implements Serializable {
 	@OneToOne(mappedBy = "pessoa", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Funcionario funcionario = new Funcionario();
 	
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(targetEntity = Usuario.class)
 	@JoinColumn(name = "ID_USUARIO", nullable = false, referencedColumnName = "ID_USUARIO", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_UUSARIO"))
 	private Usuario usuario;

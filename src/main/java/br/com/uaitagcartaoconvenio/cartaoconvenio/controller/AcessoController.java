@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.AcessoMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Acesso;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.AcessoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.AcessoService;
 
 @Controller
@@ -22,12 +24,13 @@ public class AcessoController {
 	
 	@ResponseBody                         /* Poder dar um retorno da API      */
 	@PostMapping(value = "/salvarAcesso") /*Mapeando a url para receber JSON*/
-	public ResponseEntity<Acesso> salvarAcesso( @RequestBody Acesso acesso) { /*Recebe o JSON e converte pra Objeto*/
+	public ResponseEntity<AcessoDTO> salvarAcesso( @RequestBody Acesso acesso) { /*Recebe o JSON e converte pra Objeto*/
 		
 		Acesso acessoSalvo = acessoService.saveAcesso(acesso);
+
+		AcessoDTO dto = AcessoMapper.INSTANCE.toDto(acessoSalvo);
 		
-		
-		return new ResponseEntity<Acesso>(acessoSalvo, HttpStatus.OK);
+		return new ResponseEntity<AcessoDTO>(dto, HttpStatus.OK);
 		
 	}
 	

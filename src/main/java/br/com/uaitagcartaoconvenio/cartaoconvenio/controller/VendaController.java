@@ -17,8 +17,10 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaPg;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaReceb;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendas;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.VendaMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Venda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ValidaVendaCataoPassaword;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.VendaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.VendaService;
 
 @RestController
@@ -34,14 +36,15 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@PostMapping(value = "/salvarVenda")
-	public ResponseEntity<Venda> salvarVenda( @RequestBody Venda venda ) throws ExceptionCustomizada, UnsupportedEncodingException{
+	public ResponseEntity<VendaDTO> salvarVenda( @RequestBody Venda venda ) throws ExceptionCustomizada, UnsupportedEncodingException{
 
-		if( venda == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar uma Venda. Valores vazios!");
-		
+		if( venda == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar uma Venda. Valores vazios!");		
 		
 		venda = vendaService.salvarVendaService(venda);
 		
-		return new ResponseEntity<Venda>(venda, HttpStatus.OK);		
+		VendaDTO dto = VendaMapper.INSTANCE.toDto(venda);
+		
+		return new ResponseEntity<VendaDTO>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -65,14 +68,17 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getVendaByIdVendas/{idVenda}")
-	public ResponseEntity<Venda> getVendaByIdVendas( @PathVariable("idVenda") Long idVenda ) throws ExceptionCustomizada{
+	public ResponseEntity<VendaDTO> getVendaByIdVendas( @PathVariable("idVenda") Long idVenda ) throws ExceptionCustomizada{
 
 		Venda venda = vendaService.getVendaByIdVendas(idVenda);
 		
 		if(venda == null) {
 			throw new ExceptionCustomizada("Não existe Entidades relacionada ao CNPJ: " + idVenda );
 		}
-		return new ResponseEntity<Venda>(venda, HttpStatus.OK);		
+		
+		VendaDTO dto = VendaMapper.INSTANCE.toDto(venda);
+		
+		return new ResponseEntity<VendaDTO>(dto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -81,14 +87,17 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByAnoMes/{anoMes}")
-	public ResponseEntity<List<Venda>> getListaVendaByAnoMes( @PathVariable("anoMes") String anoMes ) throws ExceptionCustomizada{
+	public ResponseEntity<List<VendaDTO>> getListaVendaByAnoMes( @PathVariable("anoMes") String anoMes ) throws ExceptionCustomizada{
 
-		List<Venda> listaVenda = vendaService.getListaVendaByAnoMes( anoMes );
+		List<Venda> listVenda = vendaService.getListaVendaByAnoMes( anoMes );
 		
-		if(listaVenda == null) {
+		if(listVenda == null) {
 			throw new ExceptionCustomizada("Não foi encontrado vendas para este período: " + anoMes);
 		}
-		return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);		
+		
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		
+		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -97,15 +106,18 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByDtVenda/{dtCriacaoIni}/{dtCriacaoFim}")
-	public ResponseEntity<List<Venda>> getListaVendaByDtVenda( @PathVariable("dtCriacaoIni") String dtCriacaoIni ,
+	public ResponseEntity<List<VendaDTO>> getListaVendaByDtVenda( @PathVariable("dtCriacaoIni") String dtCriacaoIni ,
 			                                                   @PathVariable("dtCriacaoFim") String dtCriacaoFim) throws ExceptionCustomizada{
 
-		List<Venda> listaVenda = vendaService.getListaVendaByDtVenda( dtCriacaoIni, dtCriacaoFim );
+		List<Venda> listVenda = vendaService.getListaVendaByDtVenda( dtCriacaoIni, dtCriacaoFim );
 		
-		if(listaVenda == null) {
+		if(listVenda == null) {
 			throw new ExceptionCustomizada("Não existe Venda para o período entre: " + dtCriacaoIni + " e " + dtCriacaoFim);
 		}
-		return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);		
+		
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		
+		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -114,14 +126,17 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByLoginUser/{loginUser}")
-	public ResponseEntity<List<Venda>> getListaVendaByLoginUser( @PathVariable("loginUser") String loginUser ) throws ExceptionCustomizada{
+	public ResponseEntity<List<VendaDTO>> getListaVendaByLoginUser( @PathVariable("loginUser") String loginUser ) throws ExceptionCustomizada{
 
-		List<Venda> listaVenda = vendaService.getListaVendaByLoginUser( loginUser );
+		List<Venda> listVenda = vendaService.getListaVendaByLoginUser( loginUser );
 		
-		if(listaVenda == null) {
+		if(listVenda == null) {
 			throw new ExceptionCustomizada("Não foi encontrado vendas para este Login: " + loginUser);
 		}
-		return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);		
+		
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		
+		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -130,12 +145,14 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByDescStatusVendaReceb/{status}")
-	public ResponseEntity<List<Venda>> getListaVendaByDescStatusVendaReceb(@PathVariable("status") String status ){
+	public ResponseEntity<List<VendaDTO>> getListaVendaByDescStatusVendaReceb(@PathVariable("status") String status ){
 		
 		StatusVendaReceb statusVendaReceb = StatusVendaReceb.valueOf(status);
-		List<Venda> listaVenda = vendaService.getListaVendaByDescStatusVendaReceb( statusVendaReceb );
+		List<Venda> listVenda = vendaService.getListaVendaByDescStatusVendaReceb( statusVendaReceb );
 		
-	    return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		
+	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
 
 	/******************************************************************/
@@ -144,12 +161,14 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByDescStatusVendaPg/{status}")
-	public ResponseEntity<List<Venda>> getListaVendaByDescStatusVendaPg(@PathVariable("status") String status ){
+	public ResponseEntity<List<VendaDTO>> getListaVendaByDescStatusVendaPg(@PathVariable("status") String status ){
 		
 		StatusVendaPg statusVendaPg = StatusVendaPg.valueOf(status);
-		List<Venda> listaVenda = vendaService.getListaVendaByDescStatusVendaPg( statusVendaPg );
+		List<Venda> listVenda = vendaService.getListaVendaByDescStatusVendaPg( statusVendaPg );
 		
-	    return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		
+	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
 
 	/******************************************************************/
@@ -158,12 +177,14 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByDescStatusVendas/{status}")
-	public ResponseEntity<List<Venda>> getListaVendaByDescStatusVendas(@PathVariable("status") String status ){
+	public ResponseEntity<List<VendaDTO>> getListaVendaByDescStatusVendas(@PathVariable("status") String status ){
 		
 		StatusVendas statusVenda = StatusVendas.valueOf(status);
-		List<Venda> listaVenda = vendaService.getListaVendaByDescStatusVendas( statusVenda );
+		List<Venda> listVenda = vendaService.getListaVendaByDescStatusVendas( statusVenda );
 		
-	    return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		
+	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
 
 	/******************************************************************/
@@ -172,14 +193,17 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByIdConveniados/{idConveniados}")
-	public ResponseEntity<List<Venda>> getListaVendaByIdConveniados(  @PathVariable("idConveniados") Long   idConveniados ) throws ExceptionCustomizada{
+	public ResponseEntity<List<VendaDTO>> getListaVendaByIdConveniados(  @PathVariable("idConveniados") Long   idConveniados ) throws ExceptionCustomizada{
 
-		List<Venda> listaVenda  = vendaService.getListaVendaByIdConveniados( idConveniados);
+		List<Venda> listVenda  = vendaService.getListaVendaByIdConveniados( idConveniados);
 		
-		if(listaVenda == null) {
+		if(listVenda == null) {
 			throw new ExceptionCustomizada("Não foi encontrado vendas para o ID da Conveniada: " + idConveniados);
 		}
-		return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);		
+		
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		
+		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -188,16 +212,19 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByIdConveniadosAnoMes/{idConveniados}/{anoMes}")
-	public ResponseEntity<List<Venda>> getListaVendaByIdConveniadosAnoMes(  @PathVariable("idConveniados") Long   idConveniados,
+	public ResponseEntity<List<VendaDTO>> getListaVendaByIdConveniadosAnoMes(  @PathVariable("idConveniados") Long   idConveniados,
 			                                                                @PathVariable("anoMes"       ) String anoMes 
 			                                                               ) throws ExceptionCustomizada{
 
-		List<Venda> listaVenda  = vendaService.getListaVendaByIdConveniadosAnoMes(anoMes, idConveniados);
+		List<Venda> listVenda  = vendaService.getListaVendaByIdConveniadosAnoMes(anoMes, idConveniados);
 		
-		if(listaVenda == null) {
+		if(listVenda == null) {
 			throw new ExceptionCustomizada("Não foi encontrado vendas para o período '"+ anoMes + "' e ID da Conveniada: " + idConveniados);
 		}
-		return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);		
+		
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		
+		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -206,16 +233,19 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByIdConveniadosDtVenda/{dtCriacaoIni}/{dtCriacaoFim}/{idConveniados}")
-	public ResponseEntity<List<Venda>> getListaVendaByIdConveniadosDtVenda( @PathVariable("dtCriacaoIni" ) String dtCriacaoIni,
+	public ResponseEntity<List<VendaDTO>> getListaVendaByIdConveniadosDtVenda( @PathVariable("dtCriacaoIni" ) String dtCriacaoIni,
 			                                                                @PathVariable("dtCriacaoFim" ) String dtCriacaoFim,
 			                                                                @PathVariable("idConveniados") Long   idConveniados) throws ExceptionCustomizada{
 
-		List<Venda> listaVenda = vendaService.getListaVendaByIdConveniadosDtVenda( dtCriacaoIni, dtCriacaoFim, idConveniados );
+		List<Venda> listVenda = vendaService.getListaVendaByIdConveniadosDtVenda( dtCriacaoIni, dtCriacaoFim, idConveniados );
 		
-		if(listaVenda == null) {
+		if(listVenda == null) {
 			throw new ExceptionCustomizada("Não existe Venda para o período entre: " + dtCriacaoIni + " e " + dtCriacaoFim + " do ID Conveniados: " + idConveniados );
 		}
-		return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);		
+		
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		
+		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -224,15 +254,16 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByIdConveniadosStatusVendas/{status}/{idConveniados}")
-	public ResponseEntity<List<Venda>> getListaVendaByIdConveniadosStatusVendas(@PathVariable("status") String status, @PathVariable("idConveniados") Long idConveniados )throws ExceptionCustomizada{
+	public ResponseEntity<List<VendaDTO>> getListaVendaByIdConveniadosStatusVendas(@PathVariable("status") String status, @PathVariable("idConveniados") Long idConveniados )throws ExceptionCustomizada{
 		
 		StatusVendas statusVenda = StatusVendas.valueOf(status);
-		List<Venda> listaVenda = vendaService.getListaVendaByIdConveniadosDescStatusVendas( statusVenda, idConveniados );
+		List<Venda> listVenda = vendaService.getListaVendaByIdConveniadosDescStatusVendas( statusVenda, idConveniados );
 
-		if(listaVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o status: "+ StatusVendas.valueOf(status).toString() + " do ID Conveniados: " + idConveniados );
+		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o status: "+ StatusVendas.valueOf(status).toString() + " do ID Conveniados: " + idConveniados );
 		
-
-	    return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		
+	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
 	
 	/******************************************************************/
@@ -241,14 +272,16 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByIdConveniadosStatusVendaPg/{status}/{idConveniados}")
-	public ResponseEntity<List<Venda>> getListaVendaByIdConveniadosStatusVendaPg(@PathVariable("status") String status, @PathVariable("idConveniados") Long idConveniados )throws ExceptionCustomizada{
+	public ResponseEntity<List<VendaDTO>> getListaVendaByIdConveniadosStatusVendaPg(@PathVariable("status") String status, @PathVariable("idConveniados") Long idConveniados )throws ExceptionCustomizada{
 		
 		StatusVendaPg statusVendaPg = StatusVendaPg.valueOf(status);
-		List<Venda> listaVenda = vendaService.getListaVendaByIdConveniadosDescStatusVendaPg( statusVendaPg, idConveniados );
+		List<Venda> listVenda = vendaService.getListaVendaByIdConveniadosDescStatusVendaPg( statusVendaPg, idConveniados );
 		
-		if(listaVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o status: "+ StatusVendaPg.valueOf(status).toString() + " do ID Conveniados: " + idConveniados );
+		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o status: "+ StatusVendaPg.valueOf(status).toString() + " do ID Conveniados: " + idConveniados );
 
-	    return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		
+	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
 
 	/******************************************************************/
@@ -257,14 +290,16 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByIdConveniadosStatusVendaReceb/{status}/{idConveniados}")
-	public ResponseEntity<List<Venda>> getListaVendaByIdConveniadosStatusVendaReceb(@PathVariable("status") String status, @PathVariable("idConveniados") Long idConveniados )throws ExceptionCustomizada{
+	public ResponseEntity<List<VendaDTO>> getListaVendaByIdConveniadosStatusVendaReceb(@PathVariable("status") String status, @PathVariable("idConveniados") Long idConveniados )throws ExceptionCustomizada{
 		
 		StatusVendaReceb statusVendaReceb = StatusVendaReceb.valueOf(status);
-		List<Venda> listaVenda = vendaService.getListaVendaByIdConveniadosDescStatusVendaReceb( statusVendaReceb, idConveniados );
+		List<Venda> listVenda = vendaService.getListaVendaByIdConveniadosDescStatusVendaReceb( statusVendaReceb, idConveniados );
 		
-		if(listaVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o status: "+ StatusVendaReceb.valueOf(status).toString() + " do ID Conveniados: " + idConveniados );
+		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o status: "+ StatusVendaReceb.valueOf(status).toString() + " do ID Conveniados: " + idConveniados );
 		
-	    return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		
+	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
 	
 	/******************************************************************/
@@ -273,13 +308,15 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByNomeConveniado/{nomeConveniado}")
-	public ResponseEntity<List<Venda>> getListaVendaByNomeConveniado(@PathVariable("nomeConveniado") String nomeConveniado ) throws ExceptionCustomizada{
+	public ResponseEntity<List<VendaDTO>> getListaVendaByNomeConveniado(@PathVariable("nomeConveniado") String nomeConveniado ) throws ExceptionCustomizada{
 		
-		List<Venda> listaVenda = vendaService.getListaVendaByNomeConveniado( nomeConveniado );
+		List<Venda> listVenda = vendaService.getListaVendaByNomeConveniado( nomeConveniado );
 		
-		if(listaVenda == null)  throw new ExceptionCustomizada("Não existe Venda para a Conveniado: "+ nomeConveniado );
+		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para a Conveniado: "+ nomeConveniado );
 		
-	    return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		
+	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
 
 	/******************************************************************/
@@ -288,12 +325,14 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByCartao/{numCartao}")
-	public ResponseEntity<List<Venda>> getListaVendaByCartao(@PathVariable("numCartao") String numCartao ) throws ExceptionCustomizada{
+	public ResponseEntity<List<VendaDTO>> getListaVendaByCartao(@PathVariable("numCartao") String numCartao ) throws ExceptionCustomizada{
 		
-		List<Venda> listaVenda = vendaService.getListaVendaByCartao( numCartao );
-		if(listaVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o Número do Cartão: " + numCartao );
+		List<Venda> listVenda = vendaService.getListaVendaByCartao( numCartao );
+		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o Número do Cartão: " + numCartao );
 		
-	    return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		
+	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
 
 	/******************************************************************/
@@ -302,13 +341,15 @@ public class VendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaVendaByCartao/{status}/{numCartao}")
-	public ResponseEntity<List<Venda>> getListaVendaByCartao(@PathVariable("status") String status, @PathVariable("numCartao") String numCartao ) throws ExceptionCustomizada {
+	public ResponseEntity<List<VendaDTO>> getListaVendaByCartao(@PathVariable("status") String status, @PathVariable("numCartao") String numCartao ) throws ExceptionCustomizada {
 		
 		StatusVendas statusVenda = StatusVendas.valueOf(status);
-		List<Venda> listaVenda = vendaService.getListaVendaByCartaoDescStatusVendas(statusVenda, numCartao );
-		if(listaVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o Status da Venda '" + StatusVendas.valueOf(status).getDescStatusVendas() +"' e Número do Cartão: " + numCartao );
+		List<Venda> listVenda = vendaService.getListaVendaByCartaoDescStatusVendas(statusVenda, numCartao );
+		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o Status da Venda '" + StatusVendas.valueOf(status).getDescStatusVendas() +"' e Número do Cartão: " + numCartao );
 		
-	    return new ResponseEntity<List<Venda>>(listaVenda, HttpStatus.OK);
+		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		
+	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
 
 	/******************************************************************/

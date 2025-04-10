@@ -7,8 +7,6 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaCalcLimiteCredFuncionaro;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -21,6 +19,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -53,11 +52,11 @@ public class TaxaCalcLimiteCreditoFunc implements Serializable{
 	@Column(name = "TAXA_BASE", nullable = false)
 	private BigDecimal taxaBase; 
 
-	@Column(name = "DT_CRIACAO", nullable = false, insertable=false, updatable=false )
+	@Column(name = "DT_CRIACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtCriacao = Calendar.getInstance().getTime();
 
-	@Column(name = "DT_CRIACAO", nullable = false )
+	@Column(name = "DT_ALTERACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtAlteracao = Calendar.getInstance().getTime();
 	
@@ -66,7 +65,7 @@ public class TaxaCalcLimiteCreditoFunc implements Serializable{
 	@Enumerated( EnumType.STRING)
 	private StatusTaxaCalcLimiteCredFuncionaro statusTaxaCalcLimiteCredFuncionaro;
 
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(targetEntity = Entidade.class)
 	@JoinColumn(name = "ID_ENTIDADE", nullable = true, referencedColumnName = "ID_ENTIDADE", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_ATIV_MUD"))
 	private Entidade entidade;
@@ -75,5 +74,9 @@ public class TaxaCalcLimiteCreditoFunc implements Serializable{
     public void preUpdate() {
 		dtAlteracao = Calendar.getInstance().getTime();
     }
+	@PrePersist
+	protected void onCreate() {
+	    dtCriacao = Calendar.getInstance().getTime();
+	}
 	
 }

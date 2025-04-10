@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.UsuarioMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Usuario;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ConveniadosDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UauarioDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.UsuarioService;
 
 @RestController
@@ -63,15 +66,15 @@ public class UsuarioController {
 	/******************************************************************/	
 	@ResponseBody
 	@PostMapping(value = "/salvarUsuarioPJConveniada")
-	public ResponseEntity<UauarioDTO> salvarUsuarioPJConveniada( @RequestBody Usuario userPJ ) throws ExceptionCustomizada, UnsupportedEncodingException{
+	public ResponseEntity<ConveniadosDTO> salvarUsuarioPJConveniada( @RequestBody Usuario userPJ ) throws ExceptionCustomizada, UnsupportedEncodingException{
 
 		if( userPJ == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores vazios!");
 		
 		if( userPJ.getPessoa().getPessoaFisica() == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores referente as dados da Pessoa Jurídica estão vazios!");
 		
-		UauarioDTO uauarioPFDTO = usuarioService.salvarUsuarioPJConveniada(userPJ);
+		ConveniadosDTO conveniadosDTO = usuarioService.salvarUsuarioPJConveniada(userPJ);
 		
-		return new ResponseEntity<UauarioDTO>(uauarioPFDTO, HttpStatus.OK);		
+		return new ResponseEntity<ConveniadosDTO>(conveniadosDTO, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -97,14 +100,17 @@ public class UsuarioController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getUsuarioByLogin/{login}")
-	public ResponseEntity<Usuario> getUsuarioByLogin( @PathVariable("login") String login ) throws ExceptionCustomizada{
+	public ResponseEntity<UsuarioDTO> getUsuarioByLogin( @PathVariable("login") String login ) throws ExceptionCustomizada{
 
 		Usuario usuario = usuarioService.getUsuarioByLogin(login.trim());
 		
 		if(usuario == null) {
 			throw new ExceptionCustomizada("Não existe a Usuário com este login: " + login );
 		}
-		return new ResponseEntity<Usuario>(usuario, HttpStatus.OK);		
+		
+		UsuarioDTO dto = UsuarioMapper.INSTANCE.toDto(usuario); 
+		
+		return new ResponseEntity<UsuarioDTO>(dto, HttpStatus.OK);		
 	}
 	
 }

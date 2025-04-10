@@ -7,8 +7,6 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.br.CNPJ;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -66,7 +64,7 @@ public class PessoaJuridica implements Serializable{
 	@JoinColumn(name = "ID_PESSOA", referencedColumnName = "ID_PESSOA", nullable = true,foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_pessoa_juridica_pessoa"))
 	private Pessoa pessoa;			
 */	
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(targetEntity = Pessoa.class)
 	@JoinColumn(name = "ID_PESSOA", nullable = true, referencedColumnName = "ID_PESSOA", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_JURIDICA_PESSOA"))
 	private Pessoa pessoa;

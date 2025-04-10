@@ -8,8 +8,6 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusEmtidade;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -21,7 +19,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -51,14 +49,18 @@ public class Entidade implements Serializable{
 	@Column(name = "ID_ENTIDADE")
 	private Long idEntidade;
 	
-	@Column(name = "DT_CRIACAO", nullable = false, insertable=false, updatable=false)
+	@Column(name = "DT_CRIACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtCriacao = Calendar.getInstance().getTime(); 
 
-	@Column(name = "DT_CRIACAO", nullable = false )
+	@Column(name = "DT_ALTERACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtAlteracao = Calendar.getInstance().getTime(); 
 	
+	@NotNull(message = "Quantidade de dias para o Recebimento após fechamento!")
+	@Column(name = "QTY_DIAS_RECEBIMENTO", nullable = false)
+	private Long qtyDiasRecebimento;	
+
 	@Column(name = "SITE", length = 500)
 	private String site;
 
@@ -119,9 +121,11 @@ public class Entidade implements Serializable{
 	@Enumerated(EnumType.STRING)
 	private StatusEmtidade descStatusEmtidade;
 	
-	@JsonIgnore
-	@OneToOne(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Funcionario funcionario = new Funcionario();
+//	@JsonIgnore
+//	@OneToOne(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//	private Funcionario funcionario = new Funcionario();
+	@OneToMany(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Funcionario> listaFuncionario = new ArrayList<>();
 
 	@NotNull(message = "A Taxa Base para o cáucula da analise de crédito do funcionário, deverá ser informado!")
 	@OneToMany(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -131,5 +135,10 @@ public class Entidade implements Serializable{
     public void preUpdate() {
 		dtAlteracao = Calendar.getInstance().getTime(); 
     }
+	
+	@PrePersist
+	protected void onCreate() {
+	    dtCriacao = Calendar.getInstance().getTime();
+	}
 
 }
