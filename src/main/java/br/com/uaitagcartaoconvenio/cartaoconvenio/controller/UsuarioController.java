@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.UsuarioMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Usuario;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ConveniadosDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UauarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.UsuarioService;
@@ -66,15 +65,17 @@ public class UsuarioController {
 	/******************************************************************/	
 	@ResponseBody
 	@PostMapping(value = "/salvarUsuarioPJConveniada")
-	public ResponseEntity<ConveniadosDTO> salvarUsuarioPJConveniada( @RequestBody Usuario userPJ ) throws ExceptionCustomizada, UnsupportedEncodingException{
+	public ResponseEntity<UauarioDTO> salvarUsuarioPJConveniada( @RequestBody Usuario userPJ ) throws ExceptionCustomizada, UnsupportedEncodingException{
 
 		if( userPJ == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores vazios!");
 		
 		if( userPJ.getPessoa().getPessoaFisica() == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores referente as dados da Pessoa Jurídica estão vazios!");
 		
-		ConveniadosDTO conveniadosDTO = usuarioService.salvarUsuarioPJConveniada(userPJ);
+//		ConveniadosDTO conveniadosDTO = usuarioService.salvarUsuarioPJConveniada(userPJ);
 		
-		return new ResponseEntity<ConveniadosDTO>(conveniadosDTO, HttpStatus.OK);		
+		UauarioDTO uauarioDTO = usuarioService.salvarUsuarioPJConveniada(userPJ);
+		
+		return new ResponseEntity<UauarioDTO>(uauarioDTO, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/

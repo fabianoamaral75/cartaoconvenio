@@ -11,11 +11,13 @@ import org.springframework.stereotype.Service;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCartao;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.ConveniadosMapper;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.FuncionarioMapper;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.PessoaFisicaMapper;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.PessoaJuridicaMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Acesso;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Cartao;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Usuario;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ConveniadosDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UauarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.UsuarioRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
@@ -84,8 +86,8 @@ public class UsuarioService {
 	/*                  Procedimento de validação para salvar um Usuario de Pessoa Juridica para uma Conveniada                         */
 	/*                                                                                                                                  */
     /* ******************************************************************************************************************************** */
-//	public UauarioDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
-	public ConveniadosDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
+	public UauarioDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
+//	public ConveniadosDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
 		
 		
 		if (userPJConveniado.getIdUsuario() == null && usuarioRepository.findByLogin(userPJConveniado.getLogin()) != null) {
@@ -120,11 +122,11 @@ public class UsuarioService {
 		
 		conveniados.setPessoa(userPJConveniado.getPessoa());
 		
-		ConveniadosDTO dto = ConveniadosMapper.INSTANCE.toDtoWithPessoa(conveniados);
+//		ConveniadosDTO dto = ConveniadosMapper.INSTANCE.toDtoWithPessoa(conveniados);
 		
-		// UauarioDTO uauarioPFDTO = getUauarioPFDTO( userPJConveniado );
+	    UauarioDTO uauarioPFDTO = getUauarioPFDTO( userPJConveniado );
 		
-		return dto;
+		return uauarioPFDTO;
 				
 	}
 
@@ -259,10 +261,11 @@ public class UsuarioService {
 		uauarioPFDTO.getPessoa().setEmail       ( user.getPessoa().getEmail()      );
 		uauarioPFDTO.getPessoa().setTelefone    ( user.getPessoa().getTelefone()   );
 
-		uauarioPFDTO.getPessoa().setPessoaFisica(user.getPessoa().getPessoaFisica());
-		uauarioPFDTO.getPessoa().setPessoaJuridica(user.getPessoa().getPessoaJuridica());
-		uauarioPFDTO.getPessoa().setConveniados(user.getPessoa().getConveniados());
-		uauarioPFDTO.getPessoa().setFuncionario(user.getPessoa().getFuncionario());
+		uauarioPFDTO.getPessoa().setPessoaFisica  ( PessoaFisicaMapper.INSTANCE.toDto( user.getPessoa().getPessoaFisica()     ) );
+		uauarioPFDTO.getPessoa().setPessoaJuridica( PessoaJuridicaMapper.INSTANCE.toDto( user.getPessoa().getPessoaJuridica() ) );
+		uauarioPFDTO.getPessoa().setConveniados   ( ConveniadosMapper.INSTANCE.toResumoDto(user.getPessoa().getConveniados()  ) );
+		uauarioPFDTO.getPessoa().setFuncionario   ( FuncionarioMapper.INSTANCE.toResumoDto( user.getPessoa().getFuncionario() ) );
+
 		
 		return uauarioPFDTO;		
 	}

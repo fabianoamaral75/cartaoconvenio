@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Acesso;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Pessoa;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,6 +22,6 @@ public class UauarioDTO {
 	private String dtCriacao;
 	private String dataAtualSenha;
 	private List<Acesso> acesso = new ArrayList<Acesso>();
-	private Pessoa pessoa = new Pessoa(); 
+	private PessoaDTO pessoa = new PessoaDTO(); 
 
 }
