@@ -5,8 +5,6 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.validation.constraints.NotNull;
-
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaEntidade;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -24,6 +22,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
