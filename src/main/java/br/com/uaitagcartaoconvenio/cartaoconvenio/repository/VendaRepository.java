@@ -380,6 +380,18 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
    		                            + "   AND status  = 'PAGAMENTO_APROVADO' " )
    void updateStatusVendasFechamentoAutomatico( String anoMes );		
 
+   /******************************************************************/
+   /*                                                                */
+   /*                                                                */
+   /******************************************************************/	
+   @Modifying(flushAutomatically = true)
+   @Query(nativeQuery = true, value = "UPDATE                                     "
+   		                            + " venda SET                                 "
+   		                            + "   status = 'AGUARDANDO_FECHAMENTO_MANUAL' "
+   		                            + " WHERE ano_mes = ?1                        "
+   		                            + "   AND status  = 'PAGAMENTO_APROVADO'      " )
+   void updateStatusVendasFechamentoManual( String anoMes );		
+
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */

@@ -13,9 +13,26 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Calendar;
+import java.time.YearMonth;
 
 public class FuncoesUteis {
+
 	
+    public static boolean isValidYearMonth(String dateStr) {
+        if (dateStr == null || dateStr.length() != 6) {
+            return false;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+
+        try {
+            YearMonth.parse(dateStr, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
     public static String removerCaracteresNaoNumericos(String input) {
         // Substitui todos os caracteres não numéricos por uma string vazia
         return input.replaceAll("[^0-9]", "");

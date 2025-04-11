@@ -58,13 +58,13 @@ public class FecahementoCicloService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	public String fechamentoCiclo( )  {
+	public String fechamentoCiclo( String anoMesAnterior, Boolean execManual )  {
 		
-		String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
+		// String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
 		if( !vendaRepository.isStatusVendaFechamento(anoMesAnterior) ) return "NÃO EXISTE CICLO PARA SER PROCESSADO PARA O PERÍODO: " + anoMesAnterior;
 	    
 		// verifica se já existe um Ciclo de fechamento para o pagamento e recebimento.
-		validaFechamentoCiclo();
+		validaFechamentoCiclo( anoMesAnterior );
 		
 		String msnFechamento = "FECHAMENTO_AUTOMATICO_OK";
 		// Gera as informaçoes do ciclo de pagamento para as conveniadas
@@ -74,9 +74,9 @@ public class FecahementoCicloService {
 		// Gera as informaçoes do ciclo de controle de recebimento das Encitidades.
 		List<ContasReceber> listaCicloReceberVenda = new ArrayList<ContasReceber>();
 		try {
-			listaCicloPagamentoVenda      = fechamentoConveniado( msnFechamento ); 
-			listaRestabelecerLimitCredito = restabelecerLimiteCreditoFuncionarios( msnFechamento );
-	        listaCicloReceberVenda        = fechamentoEntidade( msnFechamento );
+			listaCicloPagamentoVenda      = this.fechamentoConveniado( msnFechamento, anoMesAnterior ); 
+			listaRestabelecerLimitCredito = this.restabelecerLimiteCreditoFuncionarios( msnFechamento, anoMesAnterior );
+	        listaCicloReceberVenda        = this.fechamentoEntidade( msnFechamento, anoMesAnterior, execManual );
 			
 		}catch (Exception e) {
 			 msnFechamento = e.getMessage();
@@ -85,16 +85,15 @@ public class FecahementoCicloService {
 	   		 if( listaRestabelecerLimitCredito.size() > 0 ) restabelecerLimiteCreditoFuncionariosRollback( listaRestabelecerLimitCredito );
     		 if( listaCicloReceberVenda.size()        > 0 ) contasReceberService.deletarListaCiclos(listaCicloReceberVenda);
 		}
- 		return msnFechamento;
-		
+ 		return msnFechamento;		
 	}
 	
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	public void validaFechamentoCiclo() {
-		String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
+	public void validaFechamentoCiclo( String anoMesAnterior ) {
+		// String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
 		if( cicloPagamentoVendaService.existCicloFechamentoPagamento(anoMesAnterior) ) cicloPagamentoVendaService.updateCancelamentoStatusCicloPagamentoVenda( anoMesAnterior );
 		if( contasReceberService.existCicloFechamentoRecebimento(anoMesAnterior)     ) contasReceberService.updateCancelamentoStatusCicloRecebimentoVenda    ( anoMesAnterior );
 		vendaRepository.updateStatusVendaReprocessamentoFechamento( anoMesAnterior );
@@ -104,9 +103,9 @@ public class FecahementoCicloService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	private List<RestabelecerLimitCreditoDTO> restabelecerLimiteCreditoFuncionarios( String msn ) {
+	private List<RestabelecerLimitCreditoDTO> restabelecerLimiteCreditoFuncionarios( String msn, String anoMesAnterior ) {
 		
-		String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
+		// String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
 		List<RestabelecerLimitCreditoDTO> listaRestabelecerLimitCredito = limitecreditoService.listaRestabelecerLimiteCredito(anoMesAnterior);
 		
 		for(RestabelecerLimitCreditoDTO lrlc : listaRestabelecerLimitCredito) {
@@ -134,12 +133,12 @@ public class FecahementoCicloService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	private List<CicloPagamentoVenda> fechamentoConveniado( String msn ) {
+	private List<CicloPagamentoVenda> fechamentoConveniado( String msn, String anoMesAnterior ) {
 		
 		msn = null;
 		List<CicloPagamentoVenda> listaCicloPagamentoVenda = new ArrayList<CicloPagamentoVenda>();
 		try {
-			String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
+			// String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
 			List<DadosFechamentoPagamentoCicloDTO> listaVendasFechamento = vendaRepository.listaFechamentoVendaPorMesAutomatica( anoMesAnterior ) ;		 
 
 			for( DadosFechamentoPagamentoCicloDTO lv: listaVendasFechamento ) {
@@ -196,11 +195,11 @@ public class FecahementoCicloService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	private List<ContasReceber> fechamentoEntidade( String msn ){
+	private List<ContasReceber> fechamentoEntidade( String msn, String anoMesAnterior, Boolean execManual ){
 		
 		msn = null;
 		Long idEntidade = 0L;
-		String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
+		// String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
 		List<ContasReceber> listaContasReceberVenda =  new ArrayList<ContasReceber>();
 		try {
 			
@@ -244,7 +243,8 @@ public class FecahementoCicloService {
 		    if( listaContasReceberVenda != null ) {
 				// Atualiza Status referente ao fechamento dos recebimentod (Fechamento) das Entidades.
 				vendaRepository.updateStatusVendaRecebFechamentoAutomatico( anoMesAnterior );
-				vendaRepository.updateStatusVendasFechamentoAutomatico( anoMesAnterior );
+				if( execManual )vendaRepository.updateStatusVendasFechamentoManual( anoMesAnterior ); 
+				else vendaRepository.updateStatusVendasFechamentoAutomatico( anoMesAnterior );
 			    		     	
 		    }else {
 		    	msn = "Error: erro na gerração do cilco de contadas a pagar!\n" + msn;	
