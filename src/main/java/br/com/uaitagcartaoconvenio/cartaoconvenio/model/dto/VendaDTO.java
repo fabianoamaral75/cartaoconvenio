@@ -1,6 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -37,10 +38,10 @@ public class VendaDTO {
     private StatusVendaPg descStatusVendaPg;
     private StatusVendas descStatusVendas;
     private StatusRestabeleceLimiteCredito descRestLimiteCredito;
-    private ConveniadosResumoDTO conveniados;
-    private TaxaConveiniadosResumoDTO taxaConveiniados;
-    private TaxaEntidadeResumoDTO taxaEntidade;
-    private CartaoResumoDTO cartao;
-    private List<ItensVendaDTO> itensVenda;
+    private ConveniadosResumoDTO conveniados = new ConveniadosResumoDTO();
+    private TaxaConveiniadosResumoDTO taxaConveiniados = new TaxaConveiniadosResumoDTO();
+    private TaxaEntidadeResumoDTO taxaEntidade = new TaxaEntidadeResumoDTO();
+    private CartaoResumoDTO cartao = new CartaoResumoDTO();
+    private List<ItensVendaDTO> itensVenda = new ArrayList<ItensVendaDTO>();
 
 }

@@ -1,6 +1,8 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.repository;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.FechamentoConvItensVendas;
 
 @Repository
 @Transactional
@@ -114,6 +117,57 @@ public interface CicloPagamentoVendaRepository extends JpaRepository<CicloPagame
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(nativeQuery = true, value = "UPDATE ciclo_pagamento_venda SET status = 'PAGAMENTO_CANCELADO' WHERE ano_mes = :anoMes and status IN ( 'AGUARDANDO_PAGAMENTO', 'AGUARDANDO_UPLOAD_NF' )" )
     int updateStatusCicloPagamentoVenda(  @Param("anoMes") String anoMes);
+
+  	/******************************************************************/
+  	/*                                                                */
+  	/*                                                                */
+  	/******************************************************************/	
+    @Query("SELECT cp FROM CicloPagamentoVenda cp LEFT JOIN FETCH cp.fechamentoConvItensVendas WHERE cp.idCicloPagamentoVenda = :id")
+    Optional<CicloPagamentoVenda> findByIdWithFechamentosPagamentos(@Param("id") Long id);
+
+    /******************************************************************/
+  	/*                                                                */
+  	/*                                                                */
+  	/******************************************************************/	
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(nativeQuery = true, value = "UPDATE ciclo_pagamento_venda SET status = 'PAGAMENTO_APROVADO' WHERE id_ciclo_pagamento_venda = :id")
+    int updateStatusCicloPagamentoAprovado(  @Param("id") Long id);
+ 
+  	/******************************************************************/
+  	/*                                                                */
+  	/*                                                                */
+  	/******************************************************************/	
+    @Query(nativeQuery = true, value = " SELECT EXISTS ( select 1 from ciclo_pagamento_venda cp where cp.id_ciclo_pagamento_venda = :id and cp.status = 'PAGAMENTO_APROVADO')")
+    Boolean isStatusCicloFinalizarFechamentoOK(  @Param("id") Long id);
+
+
+    /******************************************************************/
+    /*                                                                */
+    /*                                                                */
+    /******************************************************************/	
+    @Modifying
+    @Query("UPDATE CicloPagamentoVenda cp                                                        "
+         + "   SET                                                                               " 
+         + "     cp.dtPagamento          = :dtPg                                               , " 
+         + "     cp.descStatusPagamento  = :status                                             , " 
+         + "     cp.observacao           = CONCAT(COALESCE(cp.observacao, ''), :novaObservacao), " 
+         + "     cp.dtAlteracao          = CURRENT_TIMESTAMP                                   , "
+         + "     cp.docAutenticacaoBanco = :doc                                                  " 
+         + " WHERE cp.idCicloPagamentoVenda = :id                                                ")
+    int atualizarPagamento( @Param("id") Long idContasPagamento, @Param("novaObservacao") String novaObservacao, @Param("status") StatusCicloPgVenda status, @Param("doc") String doc, @Param("dtPg") Date dtPg );
+
+    /******************************************************************/
+    /*                                                                */
+    /*                                                                */
+    /******************************************************************/	
+    @Query(value = "select fciv                                 "
+                 + " from                                       "
+                 + "       CicloPagamentoVenda cp               "
+                 + "  JOIN cp.fechamentoConvItensVendas  fciv   "
+                 + " where cp.idCicloPagamentoVenda = ?1        "
+                 + "   and cp.descStatusPagamento = 'PAGAMENTO' " )
+  	List<FechamentoConvItensVendas> listaCicloPagamentoVendaByIdCR( Long id ); 
+
 
 }
 

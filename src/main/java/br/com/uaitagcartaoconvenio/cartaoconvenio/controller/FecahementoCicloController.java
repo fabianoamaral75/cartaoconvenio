@@ -35,7 +35,7 @@ public class FecahementoCicloController {
 	@PostMapping(value = "/fechamentoCicloManual/{anoMes}") 
 	public ResponseEntity<String> fechamentoCicloManual( @PathVariable("anoMes") String anoMes ) throws ExceptionCustomizada { 
 		
-		if( FuncoesUteis.isValidYearMonth(anoMes) ) throw new ExceptionCustomizada("Favor informar um período valido: " + anoMes );
+		if( !FuncoesUteis.isValidYearMonth(anoMes) ) throw new ExceptionCustomizada("Favor informar um período valido: " + anoMes );
 		
 		String retornoMensagem = fecahementoCicloService.fechamentoCiclo( anoMes, true);
 		return new ResponseEntity<String>(retornoMensagem, HttpStatus.OK);

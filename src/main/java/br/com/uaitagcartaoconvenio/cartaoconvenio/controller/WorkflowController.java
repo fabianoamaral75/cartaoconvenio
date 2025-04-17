@@ -1,8 +1,9 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.controller;
 
-import java.net.URI;
+
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,11 +25,18 @@ public class WorkflowController {
         this.workflowService = workflowService;
     }
 
-    @PostMapping
-    public ResponseEntity<WorkflowInformativoDTO> criar(@RequestBody WorkflowInformativoDTO dto) {
-        WorkflowInformativoDTO saved = workflowService.criarWorkflow(dto);
-        return ResponseEntity.created(URI.create("/salvarWorkflowInformativo/" + saved.getIdWorkflowInformativo()))
-                .body(saved);
+    @ResponseBody
+	@PostMapping(value = "/salvarWorkflowInformativo") 
+    public ResponseEntity<WorkflowInformativoDTO> criar(@RequestBody WorkflowInformativoDTO dto) {    	
+    	
+ 		WorkflowInformativoDTO saved = workflowService.criarWorkflow(dto);
+ 		
+ 		saved = workflowService.criarWorkflow(saved);
+        
+       // return ResponseEntity.created(URI.create("/salvarWorkflowInformativo/" + saved.getIdWorkflowInformativo())).body(saved);
+       
+        return new ResponseEntity<WorkflowInformativoDTO>(saved, HttpStatus.OK);
+        
     }
 
     @ResponseBody

@@ -1,6 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -38,8 +39,8 @@ public class CicloPagamentoVendaDTO {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dataUpload;
     private StatusCicloPgVenda descStatusPagamento;
-    private ConveniadosResumoDTO conveniados;
-    private TaxaConveiniadosResumoDTO taxaConveiniados;
-    private List<FechamentoConvItensVendasDTO> fechamentoConvItensVendas;
+    private ConveniadosResumoDTO conveniados = new ConveniadosResumoDTO();
+    private TaxaConveiniadosResumoDTO taxaConveiniados = new TaxaConveiniadosResumoDTO();
+    private List<FechamentoConvItensVendasDTO> fechamentoConvItensVendas = new ArrayList<FechamentoConvItensVendasDTO>();
 
 }

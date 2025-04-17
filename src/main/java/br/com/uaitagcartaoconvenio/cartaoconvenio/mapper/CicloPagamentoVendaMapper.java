@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CicloPagamentoVendaDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ConveniadosResumoDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaConveiniadosResumoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ConveniadosRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TaxaConveiniadosRepository;
 
@@ -56,12 +58,19 @@ public class CicloPagamentoVendaMapper {
         dto.setDataUpload           ( cicloPagamentoVenda.getDataUpload()            );
         dto.setDescStatusPagamento  ( cicloPagamentoVenda.getDescStatusPagamento()   );
         
+         // Inicializa ConveniadosResumoDTO se existir na entidade
         if (cicloPagamentoVenda.getConveniados() != null) {
-            dto.getConveniados().setIdConveniados(cicloPagamentoVenda.getConveniados().getIdConveniados());
+            ConveniadosResumoDTO conveniadosDTO = new ConveniadosResumoDTO();
+            conveniadosDTO.setIdConveniados(cicloPagamentoVenda.getConveniados().getIdConveniados());
+            conveniadosDTO.setNome(cicloPagamentoVenda.getConveniados().getPessoa().getNomePessoa()); // Assumindo que Conveniados tem um "nome"
+            dto.setConveniados(conveniadosDTO);
         }
         
+        // Inicializa TaxaConveiniadosResumoDTO se existir na entidade
         if (cicloPagamentoVenda.getTaxaConveiniados() != null) {
-            dto.getTaxaConveiniados().setIdTaxaConveiniados(cicloPagamentoVenda.getTaxaConveiniados().getIdTaxaConveiniados());
+            TaxaConveiniadosResumoDTO taxaDTO = new TaxaConveiniadosResumoDTO();
+            taxaDTO.setIdTaxaConveiniados(cicloPagamentoVenda.getTaxaConveiniados().getIdTaxaConveiniados());
+            dto.setTaxaConveiniados(taxaDTO);
         }
        
         return dto;

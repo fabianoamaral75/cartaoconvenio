@@ -29,6 +29,9 @@ public class VendaController {
 	
 	@Autowired
 	private VendaService vendaService;
+	
+	@Autowired
+	private VendaMapper vendaMapper; // Injete o mapper
 
 	/******************************************************************/
 	/*                                                                */
@@ -42,7 +45,7 @@ public class VendaController {
 		
 		venda = vendaService.salvarVendaService(venda);
 		
-		VendaDTO dto = VendaMapper.INSTANCE.toDto(venda);
+		VendaDTO dto = vendaMapper.toDto(venda);
 		
 		return new ResponseEntity<VendaDTO>(dto, HttpStatus.OK);		
 	}
@@ -76,7 +79,7 @@ public class VendaController {
 			throw new ExceptionCustomizada("Não existe Entidades relacionada ao CNPJ: " + idVenda );
 		}
 		
-		VendaDTO dto = VendaMapper.INSTANCE.toDto(venda);
+		VendaDTO dto = vendaMapper.toDto(venda);
 		
 		return new ResponseEntity<VendaDTO>(dto, HttpStatus.OK);		
 	}
@@ -95,7 +98,7 @@ public class VendaController {
 			throw new ExceptionCustomizada("Não foi encontrado vendas para este período: " + anoMes);
 		}
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda); 
 		
 		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
@@ -115,7 +118,7 @@ public class VendaController {
 			throw new ExceptionCustomizada("Não existe Venda para o período entre: " + dtCriacaoIni + " e " + dtCriacaoFim);
 		}
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda); 
 		
 		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
@@ -134,7 +137,7 @@ public class VendaController {
 			throw new ExceptionCustomizada("Não foi encontrado vendas para este Login: " + loginUser);
 		}
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda); 
 		
 		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
@@ -150,7 +153,7 @@ public class VendaController {
 		StatusVendaReceb statusVendaReceb = StatusVendaReceb.valueOf(status);
 		List<Venda> listVenda = vendaService.getListaVendaByDescStatusVendaReceb( statusVendaReceb );
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda); 
 		
 	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
@@ -166,7 +169,7 @@ public class VendaController {
 		StatusVendaPg statusVendaPg = StatusVendaPg.valueOf(status);
 		List<Venda> listVenda = vendaService.getListaVendaByDescStatusVendaPg( statusVendaPg );
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda); 
 		
 	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
@@ -182,7 +185,7 @@ public class VendaController {
 		StatusVendas statusVenda = StatusVendas.valueOf(status);
 		List<Venda> listVenda = vendaService.getListaVendaByDescStatusVendas( statusVenda );
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda); 
 		
 	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
@@ -201,7 +204,7 @@ public class VendaController {
 			throw new ExceptionCustomizada("Não foi encontrado vendas para o ID da Conveniada: " + idConveniados);
 		}
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda); 
 		
 		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
@@ -222,7 +225,7 @@ public class VendaController {
 			throw new ExceptionCustomizada("Não foi encontrado vendas para o período '"+ anoMes + "' e ID da Conveniada: " + idConveniados);
 		}
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda); 
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda); 
 		
 		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
@@ -243,7 +246,7 @@ public class VendaController {
 			throw new ExceptionCustomizada("Não existe Venda para o período entre: " + dtCriacaoIni + " e " + dtCriacaoFim + " do ID Conveniados: " + idConveniados );
 		}
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda);
 		
 		return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		
 	}
@@ -261,7 +264,7 @@ public class VendaController {
 
 		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o status: "+ StatusVendas.valueOf(status).toString() + " do ID Conveniados: " + idConveniados );
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda);
 		
 	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
@@ -279,7 +282,7 @@ public class VendaController {
 		
 		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o status: "+ StatusVendaPg.valueOf(status).toString() + " do ID Conveniados: " + idConveniados );
 
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda);
 		
 	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
@@ -297,7 +300,7 @@ public class VendaController {
 		
 		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o status: "+ StatusVendaReceb.valueOf(status).toString() + " do ID Conveniados: " + idConveniados );
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda);
 		
 	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
@@ -314,7 +317,7 @@ public class VendaController {
 		
 		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para a Conveniado: "+ nomeConveniado );
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda);
 		
 	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
@@ -330,7 +333,7 @@ public class VendaController {
 		List<Venda> listVenda = vendaService.getListaVendaByCartao( numCartao );
 		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o Número do Cartão: " + numCartao );
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda);
 		
 	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}
@@ -347,7 +350,7 @@ public class VendaController {
 		List<Venda> listVenda = vendaService.getListaVendaByCartaoDescStatusVendas(statusVenda, numCartao );
 		if(listVenda == null)  throw new ExceptionCustomizada("Não existe Venda para o Status da Venda '" + StatusVendas.valueOf(status).getDescStatusVendas() +"' e Número do Cartão: " + numCartao );
 		
-		List<VendaDTO> dto = VendaMapper.INSTANCE.toListDto(listVenda);
+		List<VendaDTO> dto = vendaMapper.toListDto(listVenda);
 		
 	    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);
 	}

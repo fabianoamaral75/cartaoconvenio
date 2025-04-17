@@ -1,6 +1,8 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Date;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusReceber;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContasReceber;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.FechamentoEntContasReceber;
 
 @Repository
 @Transactional
@@ -110,8 +113,53 @@ public interface ContasReceberRepository extends JpaRepository<ContasReceber, Lo
   	/******************************************************************/	
     @Query(nativeQuery = true, value = " SELECT EXISTS ( select 1  from CICLO_PAGAMENTO_VENDA cp where cp.ano_mes = :anoMes and cp.STATUS = 'PAGAMENTO' )")
     Boolean isStatusCicloRecebimentoVenda(  @Param("anoMes") String anoMes);
-   
-    
-   
-	
+       
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@Query(value = "select fecr                                "
+                 + " from                                      "
+                 + "       ContasReceber cp                    "
+                 + "  JOIN cp.fechamentoEntContasReceber  fecr "
+                 + " where cp.idContasReceber = ?1             "
+                 + "   and cp.descStatusReceber = 'RECEBIDO'   " )
+	List<FechamentoEntContasReceber> listaFechamentoEntContasReceberByIdCR( Long id ); 
+  
+  	/******************************************************************/
+  	/*                                                                */
+  	/*                                                                */
+  	/******************************************************************/	
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(nativeQuery = true, value = "UPDATE contas_receber SET status = 'RECEBIMENTO_APROVADO' WHERE id_contas_receber = :id")
+    int updateStatusCicloRecebimentoAprovado(  @Param("id") Long id);
+
+  	/******************************************************************/
+  	/*                                                                */
+  	/*                                                                */
+  	/******************************************************************/	
+    @Query(nativeQuery = true, value = " SELECT EXISTS ( select 1 from contas_receber cr where cr.id_contas_receber = :id and cr.status = 'RECEBIMENTO_APROVADO')")
+    Boolean isStatusCicloFinalizarFechamentoOK(  @Param("id") Long id);
+
+  	/******************************************************************/
+  	/*                                                                */
+  	/*                                                                */
+  	/******************************************************************/	
+    @Modifying
+    @Query("UPDATE ContasReceber cr                                                              "
+    	 + "   SET                                                                               " 
+         + "     cr.dtEfetivaRecebimento = :dtPg                                               , " 
+         + "     cr.descStatusReceber    = :status                                             , " 
+         + "     cr.observacao           = CONCAT(COALESCE(cr.observacao, ''), :novaObservacao), " 
+         + "     cr.dtAlteracao          = CURRENT_TIMESTAMP                                   , "
+         + "     cr.docAutenticacaoBanco = :doc                                                  " 
+         + " WHERE cr.idContasReceber = :id                                                      ")
+    int atualizarRecebimento( @Param("id") Long idContasReceber, @Param("novaObservacao") String novaObservacao, @Param("status") StatusReceber status, @Param("doc") String doc, @Param("dtPg") Date dtPg );
+
+  	/******************************************************************/
+  	/*                                                                */
+  	/*                                                                */
+  	/******************************************************************/	
+    @Query("SELECT cr FROM ContasReceber cr LEFT JOIN FETCH cr.fechamentoEntContasReceber WHERE cr.idContasReceber = :id")
+    Optional<ContasReceber> findByIdWithFechamentos(@Param("id") Long id);
 }

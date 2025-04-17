@@ -312,5 +312,35 @@ public class VendaService {
 		vendaRepository.updateStatusVendasFechamentoAutomatico( anoMes );		
 
 	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    public int atualizarVendasFechamentoConcluidoRecebimento(List<Long> idsVendas) {
+        // Divide em lotes para evitar muito consumo de memória
+    	int totalUpdate = 0;
+        int batchSize = 1000;
+        for (int i = 0; i < idsVendas.size(); i += batchSize) {
+            List<Long> batch = idsVendas.subList(i, Math.min(i + batchSize, idsVendas.size()));
+            totalUpdate += vendaRepository.atualizarStatusVendaRecebEmMassa(batch, StatusVendaReceb.VENDA_RECEBIDA);
+        }
+        return totalUpdate;
+    }
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    public int atualizarVendasFechamentoConcluidoPG(List<Long> idsVendas) {
+        // Divide em lotes para evitar muito consumo de memória
+    	int totalUpdate = 0;
+        int batchSize = 1000;
+        for (int i = 0; i < idsVendas.size(); i += batchSize) {
+            List<Long> batch = idsVendas.subList(i, Math.min(i + batchSize, idsVendas.size()));
+            totalUpdate += vendaRepository.atualizarStatusVendaPgEmMassa(batch, StatusVendaPg.VENDA_PAGA);
+        }
+        return totalUpdate;
+    }
 
 }

@@ -8,16 +8,60 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Calendar;
-import java.time.YearMonth;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class FuncoesUteis {
+    private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("yyyyMM");
+    private static final DateTimeFormatter OUTPUT_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-	
+
+	public static Map<String, String> getFirstAndLastDayOfMonthSafe(String yyyyMM) {
+	    try {
+	        if (yyyyMM == null || !yyyyMM.matches("\\d{6}")) {
+	            throw new IllegalArgumentException("Formato deve ser yyyyMM com 6 dígitos");
+	        }
+	        
+	        YearMonth yearMonth = YearMonth.parse(yyyyMM, INPUT_FORMAT);
+	        LocalDate now = LocalDate.now();
+	        
+	        // Valida se o mês não é no futuro
+	        if (yearMonth.isAfter(YearMonth.from(now))) {
+	            throw new IllegalArgumentException("Mês não pode ser no futuro");
+	        }
+	        
+	        Map<String, String> result = new HashMap<>();
+	        result.put("primeiroDia", yearMonth.atDay(1).format(OUTPUT_FORMAT));
+	        result.put("ultimoDia", yearMonth.atEndOfMonth().format(OUTPUT_FORMAT));
+	        
+	        return result;
+	    } catch (Exception e) {
+	        // Retorna valores padrão em caso de erro
+	        Map<String, String> fallback = new HashMap<>();
+	        fallback.put("primeiroDia", "01/01/1970");
+	        fallback.put("ultimoDia", "01/01/1970");
+	        return fallback;
+	    }
+	}
+    /**
+     * Retorna a data e hora atuais no formato dd/MM/yyyy HH:mm:ss
+     * @return String com a data formatada
+     */
+    public static String getCurrentDateTimeBrasil() {
+        // Define o formato desejado
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        
+        // Obtém a data/hora atual e formata
+        return LocalDateTime.now().format(formatter);
+    }
+    
     public static boolean isValidYearMonth(String dateStr) {
         if (dateStr == null || dateStr.length() != 6) {
             return false;
@@ -156,7 +200,8 @@ public class FuncoesUteis {
      */
     public static String formatarParaReal(double valor) {
         // Cria um formatador de moeda para o local brasileiro
-        NumberFormat formatador = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+        @SuppressWarnings("deprecation")
+		NumberFormat formatador = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
         // Formata o valor e retorna como string
         return formatador.format(valor);
@@ -174,7 +219,8 @@ public class FuncoesUteis {
         String valorLimpo = valorMoeda.replace("R$", "").trim();
 
         // Cria um formatador de número para o local brasileiro
-        NumberFormat formatador = NumberFormat.getNumberInstance(new Locale("pt", "BR"));
+        @SuppressWarnings("deprecation")
+		NumberFormat formatador = NumberFormat.getNumberInstance(new Locale("pt", "BR"));
 
         // Faz o parsing da string para um Number e converte para BigDecimal
         return new BigDecimal(formatador.parse(valorLimpo).toString());
@@ -192,7 +238,8 @@ public class FuncoesUteis {
         String valorLimpo = valorMoeda.replace("R$", "").trim();
 
         // Cria um formatador de número para o local brasileiro
-        NumberFormat formatador = NumberFormat.getNumberInstance(new Locale("pt", "BR"));
+        @SuppressWarnings("deprecation")
+		NumberFormat formatador = NumberFormat.getNumberInstance(new Locale("pt", "BR"));
 
         // Faz o parsing da string para um número
         return formatador.parse(valorLimpo).doubleValue();
@@ -272,5 +319,21 @@ public class FuncoesUteis {
         return new DateTimeResult(currentDate, sdf.format(currentDate));
     }
 
-    
+    /**
+     * Converte Date para String no formato dd/MM/yyyy HH:mm:ss (Java 8+)
+     * @param data - Objeto Date a ser formatado
+     * @return String com a data formatada
+     */
+    public static String dateToString(Date data) {
+        if (data == null) {
+            return null;
+        }
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        return data.toInstant()
+                  .atZone(ZoneId.systemDefault())
+                  .toLocalDateTime()
+                  .format(formatter);
+    }
+   
 }

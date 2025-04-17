@@ -61,6 +61,9 @@ public class ContasReceber implements Serializable{
 	@Column(name = "DT_PREVISAO_RECEBIMENTO", columnDefinition = "DATE")
 	private Date dtPrevisaoRecebimento;  
 
+	@Column(name = "DT_EFETIVA_RECEBIMENTO", columnDefinition = "TIMESTAMP")
+	private Date dtEfetivaRecebimento;  
+
 	@NotNull(message = "O Ano e Mês referência deverá ser informado!")
 	@Column(name = "ANO_MES", length = 6, nullable = false)
 	private String anoMes;
@@ -106,7 +109,7 @@ public class ContasReceber implements Serializable{
 	@JoinColumn(name = "ID_ENTIDADE", referencedColumnName = "ID_ENTIDADE", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CONTAS_RECEBER_ENTIDADE"))
 	private Entidade entidade = new Entidade();
 
-	@OneToMany(mappedBy = "contasReceber", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "contasReceber", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<FechamentoEntContasReceber> fechamentoEntContasReceber = new ArrayList<FechamentoEntContasReceber>();
 
 	@PreUpdate

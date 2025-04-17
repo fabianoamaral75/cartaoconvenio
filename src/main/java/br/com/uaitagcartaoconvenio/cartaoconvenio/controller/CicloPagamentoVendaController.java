@@ -9,9 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,10 +24,13 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.CicloPagamentoVendaInterfaceMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CicloPagamentoVendaDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.RegistroRecebimentoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.CicloPagamentoVendaRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.CicloPagamentoVendaService;
+import jakarta.validation.Valid;
 
 @Controller
+@Validated // Habilita validação no controller
 public class CicloPagamentoVendaController {
 
 	@Autowired
@@ -188,5 +194,19 @@ public class CicloPagamentoVendaController {
 	            .contentType(MediaType.APPLICATION_PDF)
 	            .body(fileContent);
 	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/
+    @PutMapping("/registrarPagamento/{id}")
+    
+    public ResponseEntity<String> registrarRecebimento( @PathVariable Long id, @Valid @RequestBody RegistroRecebimentoDTO registro) {
+    	
+        cicloPagamentoVendaService.registrarPagamento(id, registro.getObservacao(), registro.getDocDeposito(), registro.getDtPagamento() );
+        
+        return ResponseEntity.ok("REGISTRAR_PAGAMENTO_OK");
+    }
+	
 
 }

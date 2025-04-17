@@ -1,6 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.controller;
 
 import java.util.List;
+import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,13 +9,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusReceber;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContasReceber;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ContasReceberDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.RegistroRecebimentoDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ContasReceberRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.ContasReceberMappingService;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.ContasReceberService;
 
@@ -26,8 +36,10 @@ public class ContasReceberController {
 	private ContasReceberService contasReceberService;
 		
 	@Autowired
-	private ContasReceberMappingService mappingService; // Injetado pelo Spring
+	private ContasReceberMappingService mappingService; 
 
+	@Autowired
+	private ContasReceberRepository contasReceberRepository;
 	
 	/******************************************************************/
 	/*                                                                */
@@ -144,5 +156,51 @@ public class ContasReceberController {
 		
 		return new ResponseEntity<List<ContasReceberDTO>>(dtoCompleto, HttpStatus.OK);		
 	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@PostMapping(value = "/uploadNFEntidades/{idCicloCrVenda}")
+	public ResponseEntity<List<ContasReceberDTO>> uploadPdfsContasReceber( 
+			                                            @RequestParam("files") MultipartFile[] files, 
+			                                            @PathVariable("idCicloCrVenda") Long idCicloCrVenda ) throws ExceptionCustomizada{
+		
+        List<ContasReceberDTO> dtos = contasReceberService.processarUpload( files, idCicloCrVenda );
+        return ResponseEntity.ok(dtos);
+        
+	}
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/
+	@GetMapping("/downloadNFEntidade/{id}")
+	public ResponseEntity<byte[]> downloadDocumento(@PathVariable Long id) {
+		ContasReceber documento = contasReceberRepository.findById(id)
+	            .orElseThrow(() -> new RuntimeException("Documento não encontrado"));
+
+	    byte[] fileContent = Base64.getDecoder().decode(documento.getConteudoBase64());
+
+	    return ResponseEntity.ok()
+	            .header(HttpHeaders.CONTENT_DISPOSITION, 
+	                    "attachment; filename=\"" + documento.getNomeArquivo() + "\"")
+	            .contentType(MediaType.APPLICATION_PDF)
+	            .body(fileContent);
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/
+    @PutMapping("/registrarRecebimento/{id}")
+    public ResponseEntity<String> registrarRecebimento( @PathVariable Long id, @RequestBody RegistroRecebimentoDTO registro) {
+        
+        contasReceberService.registrarRecebimento(id, registro.getObservacao(), registro.getDocDeposito(), registro.getDtPagamento() );
+        
+        return ResponseEntity.ok("REGISTRAR_RECEBIMENTO_OK");
+    }
+
 
 }

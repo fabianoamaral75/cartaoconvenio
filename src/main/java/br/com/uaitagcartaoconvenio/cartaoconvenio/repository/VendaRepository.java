@@ -17,8 +17,9 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendas;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.LimiteCredito;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaEntidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Venda;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.DadosFechamentoPagamentoCicloDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.DadosFechamentoRecebimentoCicloDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.projection.DadosFechamentoPagamentoCicloProjection;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.projection.DadosFechamentoRecebimentoCicloProjection;
 
 @Repository
 @Transactional
@@ -337,7 +338,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
    /*                                                                */
    /******************************************************************/	
    @Query(nativeQuery = true, value = " SELECT EXISTS (  SELECT 1 FROM public.venda  WHERE ano_mes = ?1                                        "
-   		                            + "                     AND STATUS                    IN ( 'PAGAMENTO_APROVADO', 'AGUARDANDO_FECHAMENTO' ) "
+   		                            + "                     AND STATUS                    IN ( 'PAGAMENTO_APROVADO', 'AGUARDANDO_FECHAMENTO', 'AGUARDANDO_FECHAMENTO_MANUAL' ) "
    		                            + "                     AND STATUS_VENDA_RECEBIDA NOT IN ( 'VENDA_RECEBIDA'    , 'FECHAMENTO_CONCLUIDO'  ) "
    		                            + "                     AND STATUS_VENDA_PAGA     NOT IN ( 'VENDA_PAGA'        , 'FECHAMENTO_CONCLUIDO'  ) "
    		                            + "               )                                                                                        " )
@@ -395,7 +396,8 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */
-	/******************************************************************/	
+	/******************************************************************/
+/*   
     @Transactional(readOnly = true)
     @Query(value = "SELECT                                                             "
                  + "    ven.ano_mes AS anoMes                                        , "
@@ -413,7 +415,29 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
                  + "    ven.id_taxa_conveiniados                                       ", 
          nativeQuery = true)
     List<DadosFechamentoPagamentoCicloDTO> listaFechamentoVendaPorMesAutomatica(@Param("anoMes") String anoMes);
-    
+*/
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/
+   @Transactional(readOnly = true)
+   @Query(value = "SELECT                                                             "
+                + "    ven.ano_mes AS anoMes                                        , "
+                + "    SUM(ven.valor_venda) AS somatorioValorVenda                  , "
+                + "    SUM(ven.valor_calc_taxa_conveniado) AS somatorioVlrCalcTxConv, "
+                + "    ven.id_conveniados AS idConveniados                          , "
+                + "    ven.id_taxa_conveiniados AS idTaxaConveiniados                 "
+                + " FROM public.venda ven                                             "
+                + " WHERE ven.ano_mes           = :anoMes                             "
+                + "   AND ven.status            = 'PAGAMENTO_APROVADO'                "
+                + "   AND ven.status_venda_paga = 'AGUARDANDO_PAGAMENTO'              " 
+                + " GROUP BY                                                          "
+                + "    ven.ano_mes,                                                   "
+                + "    ven.id_conveniados,                                            "
+                + "    ven.id_taxa_conveiniados                                       ", 
+        nativeQuery = true)
+   List<DadosFechamentoPagamentoCicloProjection> listaFechamentoVendaPorMesAutomatica(@Param("anoMes") String anoMes);  
+   
     /******************************************************************/
 	/*                                                                */
 	/*                                                                */
@@ -438,7 +462,50 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 			     + "     ven.ano_mes                                                "
 			     + "   , fun.id_entidade                                            "
 			     + "   , ven.id_taxa_entidade                                       " , nativeQuery = true )
-    List<DadosFechamentoRecebimentoCicloDTO> listaFechamentoRecebimentoPorMesAutomatica( String anoMes ) ;  
-
+    List<DadosFechamentoRecebimentoCicloDTO> listaFechamentoRecebimentoPorMesAutomatica( String anoMes ) ;
+    
+    /******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    @Transactional(readOnly = true)
+    @Query(value = " select                                                         "
+                 + "     ven.ano_mes AS anoMes                                      "
+                 + "   , sum(ven.valor_venda) AS somatorioValorVenda                "
+                 + "   , sum(ven.valor_calc_taxa_entidade) AS somatorioVlrCalcTxEnt "
+                 + "   , fun.id_entidade AS idEntidade                              "
+                 + "   , ven.id_taxa_entidade AS idTaxaEntidade                     "
+                 + "  FROM                                                          "
+                 + "      venda       ven                                           "
+                 + "    , cartao      car                                           "
+                 + "    , funcionario fun                                           "
+                 + " WHERE ven.ano_mes               = ?1                           "
+                 + "   AND ven.status                = 'PAGAMENTO_APROVADO'         "
+                 + "   AND ven.status_venda_recebida = 'AGURARDANDO_RECEBIMENTO'    "
+                 + "   AND car.id_cartao             = ven.id_cartao                "
+                 + "   AND fun.id_funcionario        = car.id_funcionario           "
+                 + " GROUP BY                                                       "
+                 + "     ven.ano_mes                                                "
+                 + "   , fun.id_entidade                                            "
+                 + "   , ven.id_taxa_entidade                                       ", 
+         nativeQuery = true)
+    List<DadosFechamentoRecebimentoCicloProjection> listaFechamentoRecebimentoPorMes(String anoMes); 
+    
+    /******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    @Modifying(flushAutomatically = true)
+    @Query("UPDATE Venda v SET v.descStatusVendaPg = :status,  v.dtAlteracao = CURRENT_TIMESTAMP WHERE v.idVenda IN :ids")
+    int atualizarStatusVendaPgEmMassa(@Param("ids") List<Long> ids, @Param("status") StatusVendaPg status);
+    
+    /******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    @Modifying(flushAutomatically = true)
+    @Query("UPDATE Venda v SET v.descStatusVendaReceb = :status,  v.dtAlteracao = CURRENT_TIMESTAMP WHERE v.idVenda IN :ids")
+    int atualizarStatusVendaRecebEmMassa(@Param("ids") List<Long> ids, @Param("status") StatusVendaReceb status);
+    
 }
 

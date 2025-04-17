@@ -111,17 +111,17 @@ public class Venda implements Serializable{
 	@JoinColumn(name = "ID_TAXA_CONVEINIADOS", referencedColumnName = "ID_TAXA_CONVEINIADOS", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_TX_CONVEINIADO"))
 	private TaxaConveiniados taxaConveiniados;
 
-	@NotNull(message = "O Taxa configurada para desconto aplicada para a Prefeitura deverá ser informada!")
+//	@NotNull(message = "A Taxa configurada para desconto aplicada para a Prefeitura deverá ser informada!")
 	@ManyToOne(targetEntity = TaxaEntidade.class)
 	@JoinColumn(name = "ID_TAXA_ENTIDADE", referencedColumnName = "ID_TAXA_ENTIDADE", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_TX_ENTIDADE"))
 	private TaxaEntidade taxaEntidade;
 
-	@NotNull(message = "O Cartão do funcionario realizador da compra deverá ser informada!")
+//	@NotNull(message = "O Cartão do funcionario realizador da compra deverá ser informada!")
 	@ManyToOne(targetEntity = Cartao.class)
 	@JoinColumn(name = "ID_CARTAO", referencedColumnName = "ID_CARTAO", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_CARTAO"))
 	private Cartao cartao;
 
-	@OneToMany(mappedBy = "venda", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "venda", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<ItensVenda> itensVenda = new ArrayList<ItensVenda>();
 	
 	@PreUpdate

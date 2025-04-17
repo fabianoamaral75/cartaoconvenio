@@ -118,5 +118,16 @@ public class ConveniadosService {
 		return listaConveniados;
 		
 	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public Conveniados getConveniadoId( Long id )  {				
+		Conveniados conveniados = conveniadosRepository.findById(id).orElse(null);
+		return conveniados;
+		
+	}
+
 
 }
