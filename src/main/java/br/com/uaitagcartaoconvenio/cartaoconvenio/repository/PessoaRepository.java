@@ -1,9 +1,11 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,5 +34,19 @@ public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
                  + " where pj.cnpj = ?1        " )
     List<Pessoa> listaPessoaJuridicaByCnpj( String cnpj) ;  
 
+    @Query("SELECT f FROM Pessoa f WHERE f.conveniados.idConveniados = :idConveniado and f.pessoaJuridica != null")
+    Optional<Pessoa> findPessoaByIdConveniado(@Param("idConveniado") Long idConveniado);
+    
+  	/******************************************************************/
+  	/*                                                                */
+  	/*                                                                */
+  	/******************************************************************/	
+    @Query(nativeQuery = true, 
+    		value = "SELECT pe.*                       "
+    		      + "  FROM pessoa pe                  "
+    		      + "  ,    pessoa_juridica pj         "
+    		      + " where pe.id_conveniados = :id    "
+    		      + "   and pj.id_pessoa = pe.id_pessoa")
+    Optional<Pessoa> getPessoaConveniadaPJ(  @Param("id") Long id);
 
 }

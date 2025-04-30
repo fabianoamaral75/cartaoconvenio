@@ -1,5 +1,6 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,15 +18,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "idFuncionario")
 public class FuncionarioDTO {
+    
     private Long idFuncionario;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dtCriacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dtAlteracao;
-    private LimiteCreditoResumoDTO limiteCredito;
-    private SalarioResumoDTO salario;
-    private List<CartaoResumoDTO> cartao;
-    private PessoaResumoDTO pessoa;
-    private SecretariaResumoDTO secretaria;
-    private EntidadeResumoDTO entidade;
+    private LimiteCreditoResumoDTO limiteCredito = new LimiteCreditoResumoDTO();
+    private SalarioResumoDTO       salario       = new SalarioResumoDTO();
+    private List<CartaoDTO>        cartao        = new ArrayList<CartaoDTO>();
+    private PessoaResumoDTO        pessoa        = new PessoaResumoDTO();
+    private SecretariaResumoDTO    secretaria    = new SecretariaResumoDTO();
+    private EntidadeResumoDTO      entidade      = new EntidadeResumoDTO();
+     
 }

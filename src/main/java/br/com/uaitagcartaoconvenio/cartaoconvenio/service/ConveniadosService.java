@@ -16,6 +16,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
 
 @Service
 public class ConveniadosService {
+	
 	@Autowired
 	private ConveniadosRepository conveniadosRepository;
 	

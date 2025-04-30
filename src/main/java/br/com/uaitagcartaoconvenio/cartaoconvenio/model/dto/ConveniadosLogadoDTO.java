@@ -1,8 +1,5 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -13,11 +10,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "idSalario")
-public class SalarioResumoDTO {
-	private Long idSalario;
-	private BigDecimal valorLiquido;
-	private BigDecimal valorBruto;
-	private Date dtCriacao;
-	private Date dtAlteracao;
+@EqualsAndHashCode(of = "idConveniados")
+public class ConveniadosLogadoDTO {
+    private Long idConveniados;
+    private String nomeConveniado;
+
 }

@@ -4,9 +4,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCartao;
@@ -14,17 +22,31 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.ConveniadosMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.FuncionarioMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.PessoaFisicaMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.PessoaJuridicaMapper;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.UsuarioMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Acesso;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Cartao;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Funcionario;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Pessoa;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Usuario;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.UsuarioAcesso;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CartaoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UauarioDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioAcessoDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioLogadoDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ConveniadosRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.FuncionarioRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.PessoaRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.UsuarioRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
 
 
+
 @Service
-public class UsuarioService {
+@Primary
+@Transactional
+public class UsuarioService implements UserDetailsService{
 
 
 	@Autowired
@@ -42,18 +64,31 @@ public class UsuarioService {
 	@Autowired
 	private CartaoService cartaoService;
 	
+	@Autowired
+	private ConveniadosRepository conveniadosRepository;
+	
+	@Autowired
+	private FuncionarioRepository funcionarioRepository;
+	
+	@Autowired
+	private PessoaRepository pessoaRepository;
+	
+	
     /* ******************************************************************************************************************************** */
 	/*                                                                                                                                  */
 	/*        Procedimento de validação para salvar um Usuario de Pessoa Fisica para a diministração e manutenção do sistema            */
 	/*                                                                                                                                  */
     /* ******************************************************************************************************************************** */
-	public UauarioDTO salvarUsuarioPF( Usuario userPF ) throws ExceptionCustomizada {
+	public UsuarioDTO salvarUsuarioPF( Usuario userPF ) throws ExceptionCustomizada {
 		
 		
-		if (userPF.getIdUsuario() == null && usuarioRepository.findByLogin(userPF.getLogin()) != null) {
+		if (userPF.getIdUsuario() != null && usuarioRepository.findByLogin(userPF.getLogin()) != null) {
 			throw new ExceptionCustomizada("Já existe o Login cadastrado: " + userPF.getLogin() );
 		}
-	
+
+		String cpf = FuncoesUteis.removerCaracteresNaoNumericos(userPF.getPessoa().getPessoaFisica().getCpf());
+		userPF.getPessoa().getPessoaFisica().setCpf(cpf);
+
 		if (userPF.getIdUsuario() == null && usuarioRepository.pesquisaPorCpfPF(userPF.getPessoa().getPessoaFisica().getCpf()) != null) {
 			throw new ExceptionCustomizada("Já existe CPF cadastrado com o número: " + userPF.getPessoa().getPessoaFisica().getCpf());
 		}
@@ -64,7 +99,7 @@ public class UsuarioService {
 			userPF.getUsuarioAcesso().get(i).setUsuario(userPF);
 		}
 				
-		if( userPF.getPessoa() == null ) throw new ExceptionCustomizada("ERRO não foi informado os dados 'Referente a Pessoa Pessoa Fisíca'!");
+		if( userPF.getPessoa() == null ) throw new ExceptionCustomizada("ERRO não foi informado os dados Referente a Pessoa Pessoa Fisíca'!");
 
 		userPF.getPessoa().setUsuario(userPF);
 		userPF.getPessoa().setPessoaFisica(userPF.getPessoa().getPessoaFisica());
@@ -73,11 +108,16 @@ public class UsuarioService {
 		userPF.getPessoa().setFuncionario(null);
 		userPF.getPessoa().setPessoaJuridica(null);
 		
+		String encryptedPass = new BCryptPasswordEncoder().encode(userPF.getPassword());
+		userPF.setSenha(encryptedPass);		
+		
 		userPF = usuarioRepository.saveAndFlush( userPF );
 		
-		UauarioDTO uauarioPFDTO = getUauarioPFDTO( userPF );
+		UsuarioDTO dto = UsuarioMapper.INSTANCE.toDto(userPF);
 		
-		return uauarioPFDTO;
+//		UauarioDTO uauarioPFDTO = getUauarioPFDTO( userPF );
+		
+		return dto;
 				
 	}
 
@@ -86,11 +126,11 @@ public class UsuarioService {
 	/*                  Procedimento de validação para salvar um Usuario de Pessoa Juridica para uma Conveniada                         */
 	/*                                                                                                                                  */
     /* ******************************************************************************************************************************** */
-	public UauarioDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
+	public UsuarioDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
 //	public ConveniadosDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
 		
 		
-		if (userPJConveniado.getIdUsuario() == null && usuarioRepository.findByLogin(userPJConveniado.getLogin()) != null) {
+		if (userPJConveniado.getIdUsuario() != null && usuarioRepository.findByLogin(userPJConveniado.getLogin()) != null) {
 			throw new ExceptionCustomizada("Já existe o Login cadastrado: " + userPJConveniado.getLogin() );
 		}
 		
@@ -100,6 +140,10 @@ public class UsuarioService {
 		if (userPJConveniado.getIdUsuario() == null && usuarioRepository.pesquisaPorCpfPF(userPJConveniado.getPessoa().getPessoaJuridica().getCnpj()) != null) {
 			throw new ExceptionCustomizada("Já existe CNPJ cadastrado com o número: " + userPJConveniado.getPessoa().getPessoaJuridica().getCnpj());
 		}
+		
+		String tel = FuncoesUteis.removerCaracteresNaoNumericos( userPJConveniado.getPessoa().getTelefone() );
+		userPJConveniado.getPessoa().setTelefone(tel);
+		
 		
 		// Trata as informações de Role de Acesso do Usuário
 		if( userPJConveniado.getUsuarioAcesso().size() == 0 ) throw new ExceptionCustomizada("ERRO não foi informado o 'O(s) Role de Acesso do Usuário'!");	
@@ -118,27 +162,29 @@ public class UsuarioService {
 		userPJConveniado.getPessoa().setConveniados( conveniados );
 		userPJConveniado.getPessoa().setPessoaFisica(null);
 		userPJConveniado.getPessoa().setFuncionario(null);
+		
+		String encryptedPass = new BCryptPasswordEncoder().encode(userPJConveniado.getPassword());
+		userPJConveniado.setSenha(encryptedPass);		
+
 		userPJConveniado = usuarioRepository.saveAndFlush( userPJConveniado );
 		
 		conveniados.setPessoa(userPJConveniado.getPessoa());
 		
-//		ConveniadosDTO dto = ConveniadosMapper.INSTANCE.toDtoWithPessoa(conveniados);
+		UsuarioDTO dto = UsuarioMapper.INSTANCE.toDto(userPJConveniado);
 		
-	    UauarioDTO uauarioPFDTO = getUauarioPFDTO( userPJConveniado );
-		
-		return uauarioPFDTO;
+		return dto;
 				
 	}
 
 	
     /* ******************************************************************************************************************************** */
 	/*                                                                                                                                  */
-	/*                  Procedimento de validação para salvar um Usuario de Pessoa Juridica para uma Conveniada                         */
+	/*                  Procedimento de validação para salvar um Usuario do tipo Funcionário para uma Entidade.                         */
 	/*                                                                                                                                  */
     /* ******************************************************************************************************************************** */
-	public UauarioDTO salvarUsuarioFuncionario( Usuario userFuncionario ) throws ExceptionCustomizada {
+	public UsuarioDTO salvarUsuarioFuncionario( Usuario userFuncionario ) throws ExceptionCustomizada {
 
-		if (userFuncionario.getIdUsuario() == null && usuarioRepository.findByLogin(userFuncionario.getLogin()) != null) {
+		if (userFuncionario.getIdUsuario() != null && usuarioRepository.findByLogin(userFuncionario.getLogin()) != null) {
 			throw new ExceptionCustomizada("Já existe o Login cadastrado: " + userFuncionario.getLogin() );
 		}
 		String cpf = FuncoesUteis.removerCaracteresNaoNumericos( userFuncionario.getPessoa().getPessoaFisica().getCpf() );
@@ -178,6 +224,7 @@ public class UsuarioService {
 		// Gera uma numeração para o Novo Cartão.
 		cartao.setNumeracao(cartaoService.getNovoCartao());
 		cartao.setStatusCartao(StatusCartao.ATIVO);
+		cartao.setDtValidade( FuncoesUteis.somarAnosADataAtual(5) ); // indica 5 anos para a data de validação do cartão
 		userFuncionario.getPessoa().getFuncionario().getCartao().add(cartao);
 		
 		/* Valista se o Funcionario esta associado a uma Secreária ou é um Funcionario lotado diretamente na Prefeitura */
@@ -191,9 +238,66 @@ public class UsuarioService {
 		
 		userFuncionario.getPessoa().setPessoaJuridica(null);
 		
+		String encryptedPass = new BCryptPasswordEncoder().encode(userFuncionario.getPassword());
+		userFuncionario.setSenha(encryptedPass);		
+		
 		userFuncionario = usuarioRepository.saveAndFlush( userFuncionario );
 		
-		UauarioDTO uauarioPFDTO = getUauarioPFDTO( userFuncionario );
+//		UauarioDTO uauarioPFDTO = getUauarioPFDTO( userFuncionario );
+		UsuarioDTO dto = UsuarioMapper.INSTANCE.toDto(userFuncionario);		
+		return dto;
+
+	}
+
+    /* ******************************************************************************************************************************** */
+	/*                                                                                                                                  */
+	/*                  Procedimento de validação para salvar um Usuario do tipo Pessoa Física para uma Conveniada.                     */
+	/*                                                                                                                                  */
+    /* ******************************************************************************************************************************** */
+	public UsuarioDTO salvarUsuarioPFConveniada( Usuario userPFConveniada ) throws ExceptionCustomizada {
+
+		if (userPFConveniada.getIdUsuario() != null && usuarioRepository.findByLogin(userPFConveniada.getLogin()) != null) {
+			throw new ExceptionCustomizada("Já existe o Login cadastrado para: " + userPFConveniada.getLogin() );
+		}
+		String cpf = FuncoesUteis.removerCaracteresNaoNumericos( userPFConveniada.getPessoa().getPessoaFisica().getCpf() );
+		
+		userPFConveniada.getPessoa().getPessoaFisica().setCpf(cpf);
+	
+		if (userPFConveniada.getIdUsuario() == null && usuarioRepository.pesquisaPorCpfPF(userPFConveniada.getPessoa().getPessoaFisica().getCpf()) != null) {
+			throw new ExceptionCustomizada("Já existe CPF cadastrado com o número: " + userPFConveniada.getPessoa().getPessoaFisica().getCpf());
+		}
+		
+		// Trata as informações de Role de Acesso do Usuário
+		if( userPFConveniada.getUsuarioAcesso().size() == 0 ) throw new ExceptionCustomizada("ERRO não foi informado o 'O(s) Role de Acesso do Usuário'!");	
+		for( int i = 0; i < userPFConveniada.getUsuarioAcesso().size(); i++ ) {
+			userPFConveniada.getUsuarioAcesso().get(i).setUsuario(userPFConveniada);
+		}
+				
+		if( userPFConveniada.getPessoa() == null ) throw new ExceptionCustomizada("ERRO não foi informado os dados 'Referente a Pessoa Pessoa Fisíca'!");
+
+		userPFConveniada.getPessoa().setUsuario(userPFConveniada);
+		
+		// Valida as informaçoes referente aos dados da Pesoa Fisica
+		userPFConveniada.getPessoa().setPessoaFisica(userPFConveniada.getPessoa().getPessoaFisica());
+		userPFConveniada.getPessoa().getPessoaFisica().setPessoa(userPFConveniada.getPessoa());
+
+		if( userPFConveniada.getPessoa().getConveniados().getIdConveniados() == null ) 
+			throw new ExceptionCustomizada("ERRO não foi informado os dados 'Referente a Pessoa Pessoa Fisíca'!");
+			
+		Conveniados conveniados = conveniadosRepository.findById( userPFConveniada.getPessoa().getConveniados().getIdConveniados() )
+	            .orElseThrow(() -> new UsernameNotFoundException("ID da Conveniada não encontrado"));
+
+		userPFConveniada.getPessoa().setConveniados( conveniados );
+		userPFConveniada.getPessoa().setFuncionario   (null);
+		userPFConveniada.getPessoa().setPessoaJuridica(null);
+		
+		String encryptedPass = new BCryptPasswordEncoder().encode(userPFConveniada.getPassword());
+		userPFConveniada.setSenha(encryptedPass);		
+		
+		userPFConveniada = usuarioRepository.saveAndFlush( userPFConveniada );
+		
+//		UauarioDTO uauarioPFDTO = getUauarioPFDTO( userPFConveniada );
+		UsuarioDTO uauarioPFDTO = UsuarioMapper.INSTANCE.toDto(userPFConveniada);
 		
 		return uauarioPFDTO;
 
@@ -205,7 +309,8 @@ public class UsuarioService {
 	/******************************************************************/
 	public UauarioDTO pesquisaUsuarioPFByLongin(String login ) {
 		
-		Usuario userPF = usuarioRepository.findByLogin(login);
+	//	Usuario userPF = usuarioRepository.findByLogin(login);
+		Usuario userPF = usuarioRepository.findByLogin(login).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + login));
 		
 		UauarioDTO uauarioPFDTO = getUauarioPFDTO( userPF );
 		return uauarioPFDTO;
@@ -276,9 +381,178 @@ public class UsuarioService {
 	/******************************************************************/	
 	public Usuario getUsuarioByLogin( String login )  {
 		
-		Usuario usuario = usuarioRepository.findByLogin( login );
+//		Usuario usuario = usuarioRepository.BuscaByLogin( login );
+		Usuario usuario = usuarioRepository.findByLogin(login).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + login));
 		
 		return usuario;		
+	}
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+	    Usuario usuario = usuarioRepository.findByLogin(username)
+	            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+	    
+	    // Carrega explicitamente as relações necessárias
+	    Hibernate.initialize(usuario.getUsuarioAcesso());
+	    if (usuario.getUsuarioAcesso() != null) {
+	        for (UsuarioAcesso ua : usuario.getUsuarioAcesso()) {
+	            Hibernate.initialize(ua.getAcesso());
+	        }
+	    }
+	    
+	    return usuario;
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public String atualizaPass( String login, String pass ) {
+		
+		String retorno = "Senha atualizada com sucesso e enviada por e-mail!";
+		
+		if(!usuarioRepository.isLogin(login)) retorno = "Usuário não encontrado!";
+		
+		String encryptedPass = new BCryptPasswordEncoder().encode( pass.trim() );
+		
+		
+		usuarioRepository.updatePass(login, encryptedPass);
+
+		return retorno;
+		
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    public UsuarioLogadoDTO validaUserLogado( Long idUserLogado ) {
+    	Usuario userlogado = usuarioRepository.findById( idUserLogado )
+	            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+    	
+    	UsuarioLogadoDTO usuarioLogado = new UsuarioLogadoDTO();
+    	
+    	usuarioLogado.setIdUsuario( userlogado.getIdUsuario() );
+    	usuarioLogado.setLogin    ( userlogado.getLogin()     );
+    	usuarioLogado.setSenha    ( userlogado.getSenha()     );  	
+
+    	// Carrega os tipos de acessos do Usuário.
+		for( int i = 0; i < userlogado.getUsuarioAcesso().size(); i++ ) {
+			UsuarioAcessoDTO usuarioAcesso = new UsuarioAcessoDTO();
+			usuarioAcesso.setIdUsuarioAcesso( userlogado.getUsuarioAcesso().get(i).getIdUsuarioAcesso() );
+						
+			usuarioAcesso.getAcesso().setIdAcesso  ( userlogado.getUsuarioAcesso().get(i).getAcesso().getIdAcesso()   );
+			usuarioAcesso.getAcesso().setDescAcesso( userlogado.getUsuarioAcesso().get(i).getAcesso().getDescAcesso() );
+			
+			usuarioAcesso.getUsuario().setIdUsuario( userlogado.getUsuarioAcesso().get(i).getUsuario().getIdUsuario()  );
+			usuarioAcesso.getUsuario().setLogin    ( userlogado.getUsuarioAcesso().get(i).getUsuario().getLogin() );
+			
+			usuarioLogado.getUsuarioAcesso().add(usuarioAcesso);
+		}
+		
+		// Info. pertinentes aos Usuários.
+		usuarioLogado.getPessoa().setIdPessoa  ( userlogado.getPessoa().getIdPessoa()   );
+		usuarioLogado.getPessoa().setNomePessoa( userlogado.getPessoa().getNomePessoa() );
+   	
+    	// verifica o tipo de unsuario logado (User de Sistema / User Conveniado / User Entidade)
+		
+		if( userlogado.getPessoa().getConveniados() != null ) { // User do tipo Conveniado
+			usuarioLogado.setIsConveniada ( true  );
+			usuarioLogado.setIsUserSistema( false );
+			usuarioLogado.setIsEntidade   ( false );
+			
+			
+			Pessoa pessoaConveniadoPJ = pessoaRepository.getPessoaConveniadaPJ( userlogado.getPessoa().getConveniados().getIdConveniados() )
+		            .orElseThrow(() -> new UsernameNotFoundException("Pessoa da Conveiada não encontrado"));
+
+//			Conveniados conveniado = conveniadosRepository.findById( userlogado.getPessoa().getConveniados().getIdConveniados() )
+//		            .orElseThrow(() -> new UsernameNotFoundException("Pessoa da Conveiada não encontrado"));
+			
+			usuarioLogado.getPessoa().getConveniados().setIdConveniados ( userlogado.getPessoa().getConveniados().getIdConveniados() );
+			usuarioLogado.getPessoa().getConveniados().setNomeConveniado( pessoaConveniadoPJ.getNomePessoa()                     );
+			
+		}else {
+			
+			Optional<Funcionario> funcionario = funcionarioRepository.findByIdPessoa( userlogado.getPessoa().getIdPessoa() );
+			funcionario.ifPresentOrElse(
+				    f -> { /* código se existir */ 
+							usuarioLogado.setIsConveniada ( false  );
+							usuarioLogado.setIsUserSistema( false );
+							usuarioLogado.setIsEntidade   ( true );
+							
+							usuarioLogado.getPessoa().getFuncionario().setIdFuncionario( funcionario.get().getIdFuncionario() );
+							usuarioLogado.getPessoa().getFuncionario().setDtCriacao    ( funcionario.get().getDtCriacao()     );
+							usuarioLogado.getPessoa().getFuncionario().setDtAlteracao  ( funcionario.get().getDtAlteracao()   );
+							// Info. sobre limite de credito usuario logado
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setIdLimiteCredito( funcionario.get().getLimiteCredito().getIdLimiteCredito() );
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setLimite         ( funcionario.get().getLimiteCredito().getLimite()          );
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setValorUtilizado ( funcionario.get().getLimiteCredito().getValorUtilizado()  );
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtCriacao      ( funcionario.get().getLimiteCredito().getDtCriacao()       );
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtAlteracao    ( funcionario.get().getLimiteCredito().getDtAlteracao()     );
+							// Info. sobre salario usuario logado
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setIdSalario   ( funcionario.get().getSalario().getIdSalario()    );
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setValorBruto  ( funcionario.get().getSalario().getValorBruto()   );
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setValorLiquido( funcionario.get().getSalario().getValorLiquido() );
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setDtCriacao   ( funcionario.get().getSalario().getDtCriacao()    );
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setDtAlteracao ( funcionario.get().getSalario().getDtAlteracao()  );
+							// Info. sobre a pessoa, neste caso não será necessario. informado acima no objeto
+							usuarioLogado.getPessoa().getFuncionario().setPessoa(null);
+							// Info. sobre a Secretária caso o funcionário perteça a uma.
+							usuarioLogado.getPessoa().getFuncionario().getSecretaria().setIdSecretaria  ( funcionario.get().getSecretaria().getIdSecretaria()   );
+							usuarioLogado.getPessoa().getFuncionario().getSecretaria().setNomeSecretaria( funcionario.get().getSecretaria().getNomeSecretaria() );
+							// Info. dos cartões do usuario logado. Cartões Desativados e Ativo.
+							for( Cartao carta : funcionario.get().getCartao() ) {
+								CartaoDTO cartaoDTO = new CartaoDTO();
+								cartaoDTO.setIdCartao    ( carta.getIdCartao()     );
+								cartaoDTO.setNumeracao   ( carta.getNumeracao()    );
+								cartaoDTO.setDtCriacao   ( carta.getDtCriacao()    );
+								cartaoDTO.setDtAlteracao ( carta.getDtAlteracao()  );
+								cartaoDTO.setDtValidade  ( carta.getDtValidade()   );
+								cartaoDTO.setStatusCartao( carta.getStatusCartao() );
+								usuarioLogado.getPessoa().getFuncionario().getCartao().add(cartaoDTO);
+							}
+							
+							usuarioLogado.getPessoa().getFuncionario().getEntidade().setIdEntidade  ( funcionario.get().getEntidade().getIdEntidade()   );
+							usuarioLogado.getPessoa().getFuncionario().getEntidade().setNomeEntidade( funcionario.get().getEntidade().getNomeEntidade() );
+							
+							usuarioLogado.getPessoa().getEntidade().setIdEntidade  ( funcionario.get().getEntidade().getIdEntidade()   );
+							usuarioLogado.getPessoa().getEntidade().setNomeEntidade( funcionario.get().getEntidade().getNomeEntidade() );
+				    	
+				    },
+				    () -> { /* código se não existir */ 
+						usuarioLogado.setIsConveniada ( false );
+						usuarioLogado.setIsUserSistema( true  );
+						usuarioLogado.setIsEntidade   ( false );
+				    }
+				);
+	
+		}
+		
+		
+		if( userlogado.getPessoa().getPessoaFisica() != null ) {
+			
+			usuarioLogado.getPessoa().getPessoaFisica().setIdPessoaFisica( userlogado.getPessoa().getPessoaFisica().getIdPessoaFisica() );
+			usuarioLogado.getPessoa().getPessoaFisica().setDtNascimento  ( userlogado.getPessoa().getPessoaFisica().getDtNascimento()   );
+			usuarioLogado.getPessoa().getPessoaFisica().setCpf           ( userlogado.getPessoa().getPessoaFisica().getCpf()            );
+			usuarioLogado.getPessoa().getPessoaFisica().setPessoa(null);
+			
+		}else  if( userlogado.getPessoa().getPessoaJuridica() != null ) {
+			
+			usuarioLogado.getPessoa().getPessoaJuridica().setIdPessoa     ( userlogado.getPessoa().getPessoaJuridica().getIdPessoaJuridica() );
+			usuarioLogado.getPessoa().getPessoaJuridica().setCnpj         ( userlogado.getPessoa().getPessoaJuridica().getCnpj()             );
+			usuarioLogado.getPessoa().getPessoaJuridica().setInscEstadual ( userlogado.getPessoa().getPessoaJuridica().getInscEstadual()     );
+			usuarioLogado.getPessoa().getPessoaJuridica().setInscMunicipal( userlogado.getPessoa().getPessoaJuridica().getInscMunicipal()    );
+			usuarioLogado.getPessoa().getPessoaJuridica().setNomeFantasia ( userlogado.getPessoa().getPessoaJuridica().getNomeFantasia()     );			
+			usuarioLogado.getPessoa().getPessoaJuridica().setRazaoSocial  ( userlogado.getPessoa().getPessoaJuridica().getRazaoSocial()      );
+			usuarioLogado.getPessoa().getPessoaJuridica().setIdPessoa     ( userlogado.getPessoa().getIdPessoa());
+		}
+		
+		return usuarioLogado;
 	}
 	
 	

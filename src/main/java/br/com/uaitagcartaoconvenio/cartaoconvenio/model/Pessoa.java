@@ -79,26 +79,18 @@ public class Pessoa implements Serializable {
 	@NotNull(message = "O Telefone da Pessoa da Entidade deverá ser informado!")
 	@Column(name = "TELEFONE", length = 13, nullable = false)
 	private String telefone;
-/*
-	@JsonIgnoreProperties(allowGetters = true)
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "ID_PESSOA_FISICA", referencedColumnName = "ID_PESSOA_FISICA", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_pessoa_pes_fisica"))
-	private PessoaFisica pessoaFisica;	
-	
-	@JsonIgnoreProperties(allowGetters = true)
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "ID_PESSOA_JURIDICA", referencedColumnName = "ID_PESSOA_JURIDICA", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_pessoa_pes_juridica"))
-	private PessoaJuridica pessoaJuridica;	
-*/
 	
 	@OneToOne(mappedBy = "pessoa", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private PessoaFisica pessoaFisica = new PessoaFisica();
+	private PessoaFisica pessoaFisica;
+//	private PessoaFisica pessoaFisica = new PessoaFisica();
 
 	@OneToOne(mappedBy = "pessoa", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private PessoaJuridica pessoaJuridica = new PessoaJuridica();
+	private PessoaJuridica pessoaJuridica;
+//	private PessoaJuridica pessoaJuridica = new PessoaJuridica();
 		
 	@OneToOne(mappedBy = "pessoa", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Funcionario funcionario = new Funcionario();
+	private Funcionario funcionario;
+//	private Funcionario funcionario = new Funcionario();
 	
 //	@JsonIgnore
 	@ManyToOne(targetEntity = Usuario.class)
@@ -110,5 +102,11 @@ public class Pessoa implements Serializable {
 	@JoinColumn(name = "ID_CONVENIADOS", referencedColumnName = "ID_CONVENIADOS", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_CONVENIADOS"))
 	private Conveniados conveniados;
 	
-	
+	// Em Pessoa.java
+	public void setPessoaFisica(PessoaFisica pessoaFisica) {
+	    this.pessoaFisica = pessoaFisica;
+	    if (pessoaFisica != null) {
+	        pessoaFisica.setPessoa(this);
+	    }
+	}	
 }

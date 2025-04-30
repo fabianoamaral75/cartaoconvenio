@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,20 +42,28 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
                  + " JOIN pe.pessoaJuridica pj "
                  + " where pj.cnpj = ?1        " )
    Conveniados conveniadosByCnpj( String cnpj) ;  
-
+/*
    @Query(value = " select con                "
                 + " from                      "
                 + "      Conveniados      con "
                 + " JOIN con.pessoa        pe "
                 + " where upper(trim(pe.nomePessoa)) like upper(concat('%', ?1, '%'))" )
    List<Conveniados> listaConveniadosByNome( String nome) ; 
-
-   @Query(value = "select con                   "
-            + " from                      "
-            + "      Conveniados      con "
-            + " JOIN con.pessoa        pe "
-            + " where upper(trim(pe.cidade)) like upper(concat('%', ?1, '%'))" )
+*/   
+   @Query("SELECT c FROM Conveniados c WHERE UPPER(c.pessoa.nomePessoa) LIKE UPPER(CONCAT('%', :nome, '%'))")
+   List<Conveniados> listaConveniadosByNome(@Param("nome") String nome);
+   
+/*
+   @Query(value = "select con                 "
+                + " from                      "
+                + "      Conveniados      con "
+                + " JOIN con.pessoa        pe "
+                + " where upper(trim(pe.cidade)) like upper(concat('%', ?1, '%'))" )
    List<Conveniados> listaConveniadosByCidade( String cidade) ; 
+ */
+   
+   @Query("SELECT c FROM Conveniados c WHERE c.pessoa.cidade = :cidade")
+   List<Conveniados> listaConveniadosByCidade(@Param("cidade") String cidade);
 
 	@Query(value = "SELECT qty_dias_pagamento FROM conveniados where id_conveniados = ?1", nativeQuery = true)
 	int qtyDiasPagamento( Long id );

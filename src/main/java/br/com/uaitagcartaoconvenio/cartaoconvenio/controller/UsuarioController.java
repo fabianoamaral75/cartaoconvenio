@@ -17,6 +17,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.UsuarioMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Usuario;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UauarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioLogadoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.UsuarioService;
 
 @RestController
@@ -26,21 +27,26 @@ public class UsuarioController {
 	private UsuarioService usuarioService;
 	
 	
-	/******************************************************************/
-	/*                                                                */
-	/*                                                                */
-	/******************************************************************/	
+    /**
+     * Salvar um Usuario de Pessoa Fisica para a diministração e manutenção do sistema
+     *    - 1)	Usuário ADMIN Master do Sistema
+     *    - 2)	Usuário USER do Sistema
+     *
+     * @param Objeto Usuario, contendo todas as informações de um usuário.
+     * @return Objeto DTO do tipo usuário PF "uauarioPFDTO".
+     * @throws ExceptionCustomizada Se os Valores referente as dados da Pessoa Fisica estiverem vazios.
+     */
 	@ResponseBody
 	@PostMapping(value = "/salvarUsuarioPessoaFisica")
-	public ResponseEntity<UauarioDTO> salvarUsuarioPessoaFisica( @RequestBody Usuario userPF ) throws ExceptionCustomizada, UnsupportedEncodingException{
+	public ResponseEntity<UsuarioDTO> salvarUsuarioPessoaFisica( @RequestBody Usuario userPF ) throws ExceptionCustomizada, UnsupportedEncodingException{
 
 		if( userPF == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores vazios!");
 		
 		if( userPF.getPessoa().getPessoaFisica() == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores referente as dados da Pessoa Fisica estão vazios!");
 		
-		UauarioDTO uauarioPFDTO = usuarioService.salvarUsuarioPF(userPF);
+		UsuarioDTO dto = usuarioService.salvarUsuarioPF(userPF);
 		
-		return new ResponseEntity<UauarioDTO>(uauarioPFDTO, HttpStatus.OK);		
+		return new ResponseEntity<UsuarioDTO>(dto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -59,40 +65,69 @@ public class UsuarioController {
 		return new ResponseEntity<UauarioDTO>(uauarioPFDTO, HttpStatus.OK);		
 	}
 
-	/******************************************************************/
-	/*                                                                */
-	/*                                                                */
-	/******************************************************************/	
+    /**
+     * Salvar um Usuario de Pessoa Juridica para uma Conveniada
+     *    - 1)  Usuário ADMIN Conveniado Master
+     *
+     * @param Objeto Usuario, contendo todas as informações de um usuário.
+     * @return Objeto DTO do tipo usuário "UsuarioDTO".
+     * @throws ExceptionCustomizada Se os Valores referente as dados da Pessoa Fisica estiverem vazios.
+     */
 	@ResponseBody
 	@PostMapping(value = "/salvarUsuarioPJConveniada")
-	public ResponseEntity<UauarioDTO> salvarUsuarioPJConveniada( @RequestBody Usuario userPJ ) throws ExceptionCustomizada, UnsupportedEncodingException{
+	public ResponseEntity<UsuarioDTO> salvarUsuarioPJConveniada( @RequestBody Usuario userPJ ) throws ExceptionCustomizada, UnsupportedEncodingException{
 
 		if( userPJ == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores vazios!");
+	
+		if( userPJ.getPessoa().getPessoaJuridica() == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores referente as dados da Pessoa Jurídica estão vazios!");
 		
-		if( userPJ.getPessoa().getPessoaFisica() == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores referente as dados da Pessoa Jurídica estão vazios!");
+		UsuarioDTO uauarioDTO = usuarioService.salvarUsuarioPJConveniada(userPJ);
 		
-//		ConveniadosDTO conveniadosDTO = usuarioService.salvarUsuarioPJConveniada(userPJ);
-		
-		UauarioDTO uauarioDTO = usuarioService.salvarUsuarioPJConveniada(userPJ);
-		
-		return new ResponseEntity<UauarioDTO>(uauarioDTO, HttpStatus.OK);		
+		return new ResponseEntity<UsuarioDTO>(uauarioDTO, HttpStatus.OK);		
 	}
 	
-	/******************************************************************/
-	/*                                                                */
-	/*                                                                */
-	/******************************************************************/	
+    /**
+     * Salvar um Usuario do tipo Funcionário para uma Entidade.
+     *    - 1)  Usuário ADMIN / USER Entidade (Funcionário Entidade)
+     *
+     * @param Objeto Usuario, contendo todas as informações de um usuário.
+     * @return Objeto DTO do tipo usuário "uauarioDTO".
+     * @throws ExceptionCustomizada Se os Valores referente as dados da Pessoa Fisica estiverem vazios.
+     */
 	@ResponseBody
 	@PostMapping(value = "/salvarUserFuncionario")
-	public ResponseEntity<UauarioDTO> salvarUserFuncionario( @RequestBody Usuario userFunc ) throws ExceptionCustomizada, UnsupportedEncodingException{
+	public ResponseEntity<UsuarioDTO> salvarUserFuncionario( @RequestBody Usuario userFunc ) throws ExceptionCustomizada, UnsupportedEncodingException{
 
 		if( userFunc == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores vazios!");
 		
-		if( userFunc.getPessoa().getPessoaFisica() == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores referente as dados da Pessoa Jurídica estão vazios!");
+		if( userFunc.getPessoa().getPessoaFisica() == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores referente as dados da Pessoa Física estão vazios!");
 		
-		UauarioDTO uauarioPFDTO = usuarioService.salvarUsuarioFuncionario(userFunc);
+		UsuarioDTO uauarioPFDTO = usuarioService.salvarUsuarioFuncionario(userFunc);
 		
-		return new ResponseEntity<UauarioDTO>(uauarioPFDTO, HttpStatus.OK);		
+		return new ResponseEntity<UsuarioDTO>(uauarioPFDTO, HttpStatus.OK);		
+	}
+
+    /**
+     * Salvar um Usuario do tipo Pessoa Física para uma Conveniada.
+     *    - 1)	Usuário ADMIN Conveniado
+     *    - 2)	Usuário USER Conveniado
+     *    - 3)	Usuário USER Conveniado (Vendedor)
+     *
+     * @param Objeto Usuario, contendo todas as informações de um usuário.
+     * @return Objeto DTO do tipo usuário "uauarioDTO".
+     * @throws ExceptionCustomizada Se os Valores referente as dados da Pessoa Fisica estiverem vazios.
+     */
+	@ResponseBody
+	@PostMapping(value = "/salvarUsuarioPFConveniada")
+	public ResponseEntity<UsuarioDTO> salvarUsuarioPFConveniada( @RequestBody Usuario userPFConveniada ) throws ExceptionCustomizada, UnsupportedEncodingException{
+
+		if( userPFConveniada == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores vazios!");
+		
+		if( userPFConveniada.getPessoa().getPessoaFisica() == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Usuário. Valores referente as dados da Pessoa Física estão vazios!");
+		
+		UsuarioDTO uauarioPFDTO = usuarioService.salvarUsuarioPFConveniada(userPFConveniada);
+		
+		return new ResponseEntity<UsuarioDTO>(uauarioPFDTO, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -112,6 +147,23 @@ public class UsuarioController {
 		UsuarioDTO dto = UsuarioMapper.INSTANCE.toDto(usuario); 
 		
 		return new ResponseEntity<UsuarioDTO>(dto, HttpStatus.OK);		
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getUsuarioLogado/{idUserLogado}")
+	public ResponseEntity<UsuarioLogadoDTO> getUsuarioLogado( @PathVariable("idUserLogado") Long idUserLogado ) throws ExceptionCustomizada{
+
+		UsuarioLogadoDTO usuarioLogado = usuarioService.validaUserLogado( idUserLogado );
+		
+		if(usuarioLogado == null) {
+			throw new ExceptionCustomizada("Não existe o ID do Usuário: " + usuarioLogado );
+		}
+		
+		return new ResponseEntity<UsuarioLogadoDTO>(usuarioLogado, HttpStatus.OK);		
 	}
 	
 }

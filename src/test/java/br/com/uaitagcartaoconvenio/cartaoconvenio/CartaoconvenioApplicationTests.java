@@ -26,7 +26,7 @@ public class CartaoconvenioApplicationTests {
 	public void cadatastraAcesso() {
 		
 		Acesso acesso = new Acesso();
-		acesso.setDescAcesso(RoleAcesso.CONVENIADA_ADMI);
+		acesso.setDescAcesso(RoleAcesso.ADMIN_CONVENIADA);
 		acessoService.saveAcesso(acesso);
 	}
 

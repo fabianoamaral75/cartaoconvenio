@@ -335,5 +335,26 @@ public class FuncoesUteis {
                   .toLocalDateTime()
                   .format(formatter);
     }
+    
+    /**
+     * Soma um número de anos à data atual e retorna como java.util.Date
+     * @param anos Número de anos a serem somados (pode ser negativo para subtrair)
+     * @return Data atual com os anos adicionados
+     */
+    public static Date somarAnosADataAtual(int anos) {
+        // Obtém a data atual no fuso horário do sistema
+        LocalDate dataAtual = LocalDate.now();
+        
+        // Adiciona os anos (funciona com valores negativos para subtrair)
+        LocalDate dataResultante = dataAtual.plusYears(anos);
+        
+        // Converte LocalDate para java.util.Date
+        return Date.from(
+            dataResultante.atStartOfDay()       // Converte para LocalDateTime (meia-noite)
+            .atZone(ZoneId.systemDefault())    // Adiciona fuso horário
+            .toInstant()                        // Converte para Instant
+        );
+    }
+
    
 }

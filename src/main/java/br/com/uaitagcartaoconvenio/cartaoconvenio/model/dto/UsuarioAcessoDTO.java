@@ -2,8 +2,8 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
 public class UsuarioAcessoDTO {
     private Long idUsuarioAcesso;
-    private AcessoResumoDTO acesso;
-    private UsuarioResumoDTO usuario;
+    private AcessoResumoDTO acesso   = new AcessoResumoDTO();
+    private UsuarioResumoDTO usuario = new UsuarioResumoDTO();
 
     // Getters e Setters
     public Long getIdUsuarioAcesso() {
