@@ -427,13 +427,32 @@ public class UsuarioService implements UserDetailsService{
 		
 	}
 	
+	
+	 public UsuarioLogadoDTO validaUserLogadoByIdOrLogin( Long idUserLogado, String login ) {
+
+		 Usuario userlogado = new Usuario();
+		 if( idUserLogado > 0 && login == null) {
+			 userlogado = usuarioRepository.findById( idUserLogado )
+			            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+		 }else {
+				
+			 userlogado = usuarioRepository.findByLogin(login).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+		 }
+		 UsuarioLogadoDTO usuarioLogado =  validaUserLogado( userlogado );
+		 
+		 
+		 
+		 return usuarioLogado;		 
+	 }
+	
+	
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-    public UsuarioLogadoDTO validaUserLogado( Long idUserLogado ) {
-    	Usuario userlogado = usuarioRepository.findById( idUserLogado )
-	            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+    public UsuarioLogadoDTO validaUserLogado( Usuario userlogado ) {
+//    	Usuario userlogado = usuarioRepository.findById( idUserLogado )
+//	            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
     	
     	UsuarioLogadoDTO usuarioLogado = new UsuarioLogadoDTO();
     	

@@ -154,10 +154,10 @@ public class UsuarioController {
 	/*                                                                */
 	/******************************************************************/	
 	@ResponseBody
-	@GetMapping(value = "/getUsuarioLogado/{idUserLogado}")
-	public ResponseEntity<UsuarioLogadoDTO> getUsuarioLogado( @PathVariable("idUserLogado") Long idUserLogado ) throws ExceptionCustomizada{
+	@GetMapping(value = "/getUsuarioLogadoById/{idUserLogado}")
+	public ResponseEntity<UsuarioLogadoDTO> getUsuarioLogadoById( @PathVariable("idUserLogado") Long idUserLogado ) throws ExceptionCustomizada{
 
-		UsuarioLogadoDTO usuarioLogado = usuarioService.validaUserLogado( idUserLogado );
+		UsuarioLogadoDTO usuarioLogado = usuarioService.validaUserLogadoByIdOrLogin( idUserLogado, null );
 		
 		if(usuarioLogado == null) {
 			throw new ExceptionCustomizada("Não existe o ID do Usuário: " + usuarioLogado );
@@ -165,5 +165,25 @@ public class UsuarioController {
 		
 		return new ResponseEntity<UsuarioLogadoDTO>(usuarioLogado, HttpStatus.OK);		
 	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getUsuarioLogadoByLogin/{login}")
+	public ResponseEntity<UsuarioLogadoDTO> getUsuarioLogadoByLogin( @PathVariable("login") String login ) throws ExceptionCustomizada{
+		
+		UsuarioLogadoDTO usuarioLogado = usuarioService.validaUserLogadoByIdOrLogin( 0L, login );
+		
+		if(usuarioLogado == null) {
+			throw new ExceptionCustomizada("Não existe o ID do Usuário: " + usuarioLogado );
+		}
+		
+		return new ResponseEntity<UsuarioLogadoDTO>(usuarioLogado, HttpStatus.OK);		
+	}
+	
+	
+	// public Usuario validaUserLogadoByIdOrLogin( Long idUserLogado, String login )
 	
 }
