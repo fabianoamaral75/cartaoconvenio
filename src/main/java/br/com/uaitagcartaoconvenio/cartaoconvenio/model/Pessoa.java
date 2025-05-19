@@ -109,4 +109,45 @@ public class Pessoa implements Serializable {
 	        pessoaFisica.setPessoa(this);
 	    }
 	}	
+	// Métodos para gerenciar relacionamentos bidirecionais
+	public void setUsuario(Usuario usuario) {
+	    // Verifica se já está configurado corretamente
+	    if (this.usuario == usuario) {
+	        return;
+	    }
+	    
+	    // Remove o relacionamento anterior
+	    if (this.usuario != null) {
+	        Usuario oldUsuario = this.usuario;
+	        this.usuario = null;
+	        oldUsuario.setPessoa(null);
+	    }
+	    
+	    // Configura o novo relacionamento
+	    this.usuario = usuario;
+	    if (usuario != null && usuario.getPessoa() != this) {
+	        usuario.setPessoa(this);
+	    }
+	}
+
+	public void setConveniados(Conveniados conveniados) {
+	    if (this.conveniados != null) {
+	        this.conveniados.setPessoa(null);
+	    }
+	    this.conveniados = conveniados;
+	    if (conveniados != null && conveniados.getPessoa() != this) {
+	        conveniados.setPessoa(this);
+	    }
+	}
+
+	public void setPessoaJuridica(PessoaJuridica pessoaJuridica) {
+	    if (this.pessoaJuridica != null) {
+	        this.pessoaJuridica.setPessoa(null);
+	    }
+	    this.pessoaJuridica = pessoaJuridica;
+	    if (pessoaJuridica != null) {
+	        pessoaJuridica.setPessoa(this);
+	    }
+	}	
+	
 }

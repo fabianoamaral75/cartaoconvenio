@@ -12,8 +12,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "idTaxaConveiniados")
-public class TaxaConveiniadosResumoDTO {
-	private Long idTaxaConveiniados;
+@EqualsAndHashCode(of = "idTaxaConveniados")
+public class TaxaConveniadosResumoDTO {
+	private Long idTaxaConveniados;
 	private BigDecimal taxa;
 }

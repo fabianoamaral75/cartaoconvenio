@@ -7,5 +7,5 @@ public interface DadosFechamentoPagamentoCicloProjection {
     BigDecimal getSomatorioValorVenda();
     BigDecimal getSomatorioVlrCalcTxConv();
     Long getIdConveniados();
-    Long getIdTaxaConveiniados();
+    Long getIdTaxaConveniados();
 }

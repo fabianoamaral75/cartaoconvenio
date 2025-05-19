@@ -40,7 +40,7 @@ public class CicloPagamentoVendaDTO {
     private Date dataUpload;
     private StatusCicloPgVenda descStatusPagamento;
     private ConveniadosResumoDTO conveniados = new ConveniadosResumoDTO();
-    private TaxaConveiniadosResumoDTO taxaConveiniados = new TaxaConveiniadosResumoDTO();
+    private TaxaConveniadosResumoDTO taxaConveniados = new TaxaConveniadosResumoDTO();
     private List<FechamentoConvItensVendasDTO> fechamentoConvItensVendas = new ArrayList<FechamentoConvItensVendasDTO>();
-
+    private List<CicloTaxaExtraDTO> taxasExtras = new ArrayList<>(); // Novo campo
 }

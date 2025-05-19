@@ -26,7 +26,7 @@ public class VendaService {
 	private VendaRepository vendaRepository;
 	
 	@Autowired
-	private TaxaConveiniadosService taxaConveiniadosService;
+	private TaxaConveniadosService taxaConveniadosService;
 	
 	@Autowired
 	private CartaoService cartaoService;
@@ -55,9 +55,9 @@ public class VendaService {
 			venda.getItensVenda().get(ca).setVenda(venda);
 		
 		// Seta a Taxa Atual da Conveiniada
-		venda.setTaxaConveiniados( taxaConveiniadosService.getTaxaConveiniadosAtualByIdConveniados(venda.getConveniados().getIdConveniados()) );
+		venda.setTaxaConveniados( taxaConveniadosService.getTaxaConveniadosAtualByIdConveniados(venda.getConveniados().getIdConveniados()) );
 		
-		Double valorCalcTaxaConvCalculado = FuncoesUteis.truncar( ( venda.getTaxaConveiniados().getTaxa().doubleValue() / 100) * venda.getValorVenda().doubleValue() );
+		Double valorCalcTaxaConvCalculado = FuncoesUteis.truncar( ( venda.getTaxaConveniados().getTaxa().doubleValue() / 100) * venda.getValorVenda().doubleValue() );
 		
 		venda.setValorCalcTaxaConveniado(new BigDecimal(  valorCalcTaxaConvCalculado ));
 		venda.setAnoMes(FuncoesUteis.getDataAtualFormatoYYYMM());

@@ -57,7 +57,7 @@ public class PreparaInfoEmail {
         row.put("periodo"  , obj.getAnoMes());
         row.put("valor"    , currencyFormat.format( obj.getValorCiclo()                   ) );
         row.put("taxaValor", currencyFormat.format( obj.getValorCalcTaxaConveniadoCiclo() ) );
-        row.put("taxaPercentual", formatPercent(obj.getTaxaConveiniados().getTaxa()));
+        row.put("taxaPercentual", formatPercent(obj.getTaxaConveniados().getTaxa()));
         
         return row;
     }

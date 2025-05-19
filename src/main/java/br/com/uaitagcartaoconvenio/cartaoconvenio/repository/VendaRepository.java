@@ -397,25 +397,6 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/
-/*   
-    @Transactional(readOnly = true)
-    @Query(value = "SELECT                                                             "
-                 + "    ven.ano_mes AS anoMes                                        , "
-                 + "    SUM(ven.valor_venda) AS somatorioValorVenda                  , "
-                 + "    SUM(ven.valor_calc_taxa_conveniado) AS somatorioVlrCalcTxConv, "
-                 + "    ven.id_conveniados AS idConveniados                          , "
-                 + "    ven.id_taxa_conveiniados AS idTaxaConveiniados                 "
-                 + " FROM public.venda ven                                             "
-                 + " WHERE ven.ano_mes           = :anoMes                             "
-                 + "   AND ven.status            = 'PAGAMENTO_APROVADO'                "
-                 + "   AND ven.status_venda_paga = 'AGUARDANDO_PAGAMENTO'              " 
-                 + " GROUP BY                                                          "
-                 + "    ven.ano_mes,                                                   "
-                 + "    ven.id_conveniados,                                            "
-                 + "    ven.id_taxa_conveiniados                                       ", 
-         nativeQuery = true)
-    List<DadosFechamentoPagamentoCicloDTO> listaFechamentoVendaPorMesAutomatica(@Param("anoMes") String anoMes);
-*/
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */
@@ -426,7 +407,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
                 + "    SUM(ven.valor_venda) AS somatorioValorVenda                  , "
                 + "    SUM(ven.valor_calc_taxa_conveniado) AS somatorioVlrCalcTxConv, "
                 + "    ven.id_conveniados AS idConveniados                          , "
-                + "    ven.id_taxa_conveiniados AS idTaxaConveiniados                 "
+                + "    ven.id_taxa_conveiniados AS idTaxaConveniados                  "
                 + " FROM public.venda ven                                             "
                 + " WHERE ven.ano_mes           = :anoMes                             "
                 + "   AND ven.status            = 'PAGAMENTO_APROVADO'                "

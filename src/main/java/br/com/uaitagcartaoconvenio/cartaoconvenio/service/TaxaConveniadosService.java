@@ -6,19 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveiniados;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TaxaConveiniadosRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveniados;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TaxaConveniadosRepository;
 
 @Service
-public class TaxaConveiniadosService {
+public class TaxaConveniadosService {
 
 	
 	@Autowired
-	private TaxaConveiniadosRepository taxaConveiniadosRepository;
+	private TaxaConveniadosRepository taxaConveniadosRepository;
 	
-	public TaxaConveiniados salvarTaxaConveiniados(TaxaConveiniados txConveiniados) {
+	public TaxaConveniados salvarTaxaConveniados(TaxaConveniados txConveiniados) {
 		
-		taxaConveiniadosRepository.saveAndFlush(txConveiniados);
+		taxaConveniadosRepository.saveAndFlush(txConveiniados);
 
 		return txConveiniados;
 		
@@ -28,11 +28,11 @@ public class TaxaConveiniadosService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	public TaxaConveiniados getTaxaConveiniadosByIdConveniados( Long idConveniados )  {
+	public TaxaConveniados getTaxaConveniadosByIdConveniados( Long idConveniados )  {
 		
-		TaxaConveiniados taxaConveiniados = taxaConveiniadosRepository.taxaConveiniadosByIdConveniados( idConveniados );
+		TaxaConveniados taxaConveniados = taxaConveniadosRepository.taxaConveniadosByIdConveniados( idConveniados );
 		
-		return taxaConveiniados;
+		return taxaConveniados;
 		
 	}
 	
@@ -40,11 +40,11 @@ public class TaxaConveiniadosService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	public List<TaxaConveiniados> getListaTaxaConveiniadosByStatusTaxaConv( StatusTaxaConv descStatusTaxaCon )  {
+	public List<TaxaConveniados> getListaTaxaConveniadosByStatusTaxaConv( StatusTaxaConv descStatusTaxaCon )  {
 		
-		List<TaxaConveiniados> listaTaxaConveiniados = taxaConveiniadosRepository.listaTaxaConveiniadosByStatusTaxaConv( descStatusTaxaCon );
+		List<TaxaConveniados> listaTaxaConveniados = taxaConveniadosRepository.listaTaxaConveniadosByStatusTaxaConv( descStatusTaxaCon );
 		
-		return listaTaxaConveiniados;
+		return listaTaxaConveniados;
 		
 	}
 
@@ -52,11 +52,11 @@ public class TaxaConveiniadosService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	public TaxaConveiniados getTaxaConveiniadosAtualByIdConveniados( Long idConveniados )  {
+	public TaxaConveniados getTaxaConveniadosAtualByIdConveniados( Long idConveniados )  {
 		
-		TaxaConveiniados taxaConveiniados = taxaConveiniadosRepository.taxaConveiniadosAtualByIdConveniados( idConveniados );
+		TaxaConveniados taxaConveniados = taxaConveniadosRepository.taxaConveniadosAtualByIdConveniados( idConveniados );
 		
-		return taxaConveiniados;
+		return taxaConveniados;
 		
 	}
 

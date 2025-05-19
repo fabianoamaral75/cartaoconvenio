@@ -1,6 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,12 +24,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.CicloPagamentoVendaMapper;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.CicloTaxaExtraMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloTaxaExtra;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.FechamentoConvItensVendas;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaExtraConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CicloPagamentoVendaDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CicloTaxaExtraDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ContatoWorkflowDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.WorkflowInformativoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.CicloPagamentoVendaRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.CicloTaxaExtraRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TaxaExtraConveniadaRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.BusinessException;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.EmailFechamentoException;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.EmailService;
@@ -53,6 +60,15 @@ public class CicloPagamentoVendaService {
 	
 	@Autowired
 	private VendaService vendaService;
+	
+	@Autowired
+	private TaxaExtraConveniadaRepository taxaExtraConveniadaRepository;
+	
+	@Autowired
+	private CicloTaxaExtraRepository cicloTaxaExtraRepository;
+	
+	@Autowired
+	private CicloTaxaExtraMapper cicloTaxaExtraMapper;
 
 	
 	private static final Logger logger = LogManager.getLogger(ContasReceberService.class);
@@ -444,5 +460,25 @@ public class CicloPagamentoVendaService {
 		return cicloPagamentoVendaRepository.updateStatusCicloPagamentoVenda( anoMes );		
 	}
 
-
+	/******************************************************************/
+	/*                                                                */
+	/*            Exemplo de Uso no Service                           */
+	/*                                                                */
+	/******************************************************************/	
+	public CicloTaxaExtraDTO associarTaxaExtraACiclo(Long cicloId, Long taxaId, BigDecimal valorTaxaExtra) {
+	    CicloPagamentoVenda ciclo = cicloPagamentoVendaRepository.findById(cicloId)
+	            .orElseThrow(() -> new EntityNotFoundException("Ciclo não encontrado"));
+	    TaxaExtraConveniada taxa = taxaExtraConveniadaRepository.findById(taxaId)
+	            .orElseThrow(() -> new EntityNotFoundException("Taxa extra não encontrada"));
+	    
+	    CicloTaxaExtra cicloTaxaExtra = CicloTaxaExtra.builder()
+	            .cicloPagamentoVenda(ciclo)
+	            .taxaExtraConveniada(taxa)
+	            .valorTaxaExtra(valorTaxaExtra)
+	            .build();
+	    
+	    cicloTaxaExtra = cicloTaxaExtraRepository.save(cicloTaxaExtra);
+//	    return CicloTaxaExtraMapper.INSTANCE.toDTO(cicloTaxaExtra);
+	    return cicloTaxaExtraMapper.toDTO(cicloTaxaExtra); 
+	}
 }

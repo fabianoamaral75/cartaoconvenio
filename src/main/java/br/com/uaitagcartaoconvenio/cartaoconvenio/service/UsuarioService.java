@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -18,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCartao;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusConveniada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.ConveniadosMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.FuncionarioMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.PessoaFisicaMapper;
@@ -25,11 +29,17 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.PessoaJuridicaMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.UsuarioMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Acesso;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Cartao;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContratoConveniado;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Funcionario;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.PeriodoCobrancaTaxa;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Pessoa;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.PessoaJuridica;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveniados;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaExtraConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Usuario;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.UsuarioAcesso;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.VigenciaContratoConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CartaoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UauarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioAcessoDTO;
@@ -54,10 +64,10 @@ public class UsuarioService implements UserDetailsService{
 	
 	@Autowired
 	private AcessoService acessoService;
-	
+/*	
 	@Autowired
 	private ConveniadosService conveniadosService;
-	
+*/	
 	@Autowired
     private TxCalcLimitCredFuncService txCalcLimitCredFuncService;
 	
@@ -73,6 +83,10 @@ public class UsuarioService implements UserDetailsService{
 	@Autowired
 	private PessoaRepository pessoaRepository;
 	
+//	@Autowired
+//	private ConveniadosService conveniadosService;
+	
+	private static final Logger logger = LogManager.getLogger(UsuarioService.class);
 	
     /* ******************************************************************************************************************************** */
 	/*                                                                                                                                  */
@@ -126,9 +140,165 @@ public class UsuarioService implements UserDetailsService{
 	/*                  Procedimento de validação para salvar um Usuario de Pessoa Juridica para uma Conveniada                         */
 	/*                                                                                                                                  */
     /* ******************************************************************************************************************************** */
+	@Transactional
+	public UsuarioDTO salvarUsuarioPJConveniada(Usuario userPJConveniado) throws ExceptionCustomizada {
+	    try {
+	        // 1. Validações iniciais
+	        validarDadosUsuario(userPJConveniado);
+	        
+	        // 2. Configurar e salvar Usuario primeiro (sem Pessoa ainda)
+	        configurarUsuarioBasico(userPJConveniado);
+	        Usuario usuarioSalvo = usuarioRepository.save(userPJConveniado);
+	        
+	        // 3. Configurar Pessoa e PessoaJuridica
+	        Pessoa pessoa = userPJConveniado.getPessoa();
+//	        configurarPessoaEJuridica(pessoa, usuarioSalvo);
+	        
+	        // 4. Configurar Conveniados
+	        Conveniados conveniados = pessoa.getConveniados();
+	        if (conveniados != null) {
+	            configurarConveniado(conveniados, pessoa);
+	            conveniados = conveniadosRepository.save(conveniados);
+	            // pessoa.setConveniados(conveniados);
+	        }
+	        
+	        // 5. Salvar Pessoa (que agora tem Usuario persistido e Conveniados persistido)
+	        Pessoa pessoaSalva = pessoaRepository.save(pessoa);
+	        
+	        // 6. Atualizar Usuario com Pessoa persistida
+	        usuarioSalvo.setPessoa(pessoaSalva);
+	        usuarioRepository.save(usuarioSalvo);
+	        
+	        return UsuarioMapper.INSTANCE.toDto(usuarioSalvo);
+	    } catch (Exception e) {
+	        logger.error("Erro ao salvar usuário PJ conveniada", e);
+	        throw new ExceptionCustomizada("Erro ao salvar usuário: " + e.getMessage());
+	    }
+	}
+
+	private void validarDadosUsuario(Usuario usuario) throws ExceptionCustomizada {
+	    if (usuario == null || usuario.getPessoa() == null || usuario.getPessoa().getPessoaJuridica() == null) {
+	        throw new ExceptionCustomizada("Dados obrigatórios não informados");
+	    }
+	    
+	    // Validações de CNPJ, login, etc.
+	    String cnpj = FuncoesUteis.removerCaracteresNaoNumericos(usuario.getPessoa().getPessoaJuridica().getCnpj());
+	    usuario.getPessoa().getPessoaJuridica().setCnpj(cnpj);
+	    
+	    if (usuarioRepository.findByLogin(usuario.getLogin()).isPresent() ) {
+	        throw new ExceptionCustomizada("Já existe um usuário com este login");
+	    }
+	    
+	    if (usuarioRepository.pesquisaPorCpfPF(cnpj) != null) {
+	        throw new ExceptionCustomizada("CNPJ já cadastrado");
+	    }
+	    
+	    if (usuario.getUsuarioAcesso().isEmpty()) {
+	        throw new ExceptionCustomizada("Pelo menos um role de acesso deve ser informado");
+	    }
+	}
+
+	private void configurarUsuarioBasico(Usuario usuario) {
+	    // Configurar senha criptografada
+	    usuario.setSenha(new BCryptPasswordEncoder().encode(usuario.getSenha()));
+	    
+	    // Configurar UsuarioAcesso
+	    usuario.getUsuarioAcesso().forEach(ua -> ua.setUsuario(usuario));
+	    
+	    usuario.getPessoa().setUsuario(usuario);
+	    usuario.getPessoa().setPessoaJuridica(usuario.getPessoa().getPessoaJuridica());
+	    usuario.getPessoa().getPessoaJuridica().setPessoa(usuario.getPessoa());
+
+	    
+        // Limpa relacionamentos não utilizados
+	    usuario.getPessoa().setPessoaFisica(null);
+	    usuario.getPessoa().setFuncionario(null);
+
+
+	}
+
+	private void configurarPessoaEJuridica(Pessoa pessoa, Usuario usuario) {
+	    // Configurar Usuario na Pessoa
+//	    pessoa.setUsuario(usuario);
+	    
+	    // Configurar PessoaJuridica
+	    PessoaJuridica pj = pessoa.getPessoaJuridica();
+	    pj.setPessoa(pessoa);
+	    
+	    // Limpar relacionamentos não utilizados
+	    pessoa.setPessoaFisica(null);
+	    pessoa.setFuncionario(null);
+	    
+	    // Limpar relacionamento com Conveniados temporariamente
+	//    Conveniados conveniados = pessoa.getConveniados();
+	//    pessoa.setConveniados(null);
+	    
+
+	}
+
+	private void configurarConveniado(Conveniados conveniados, Pessoa pessoa) {
+	    // Configurar pessoa no conveniado
+//	    conveniados.setPessoa(pessoa);
+	    
+	    // Configurar status padrão
+	    conveniados.setDescStatusConveniada(StatusConveniada.AGUARDANDO_CONFIRMACAO);
+	    
+	    // Configurar taxas conveniados
+	    if (conveniados.getTaxaConveniados() == null || conveniados.getTaxaConveniados().isEmpty()) {
+	        TaxaConveniados taxa = new TaxaConveniados();
+	        taxa.setDescStatusTaxaCon(StatusTaxaConv.ATUAL);
+	        taxa.setConveniados(conveniados);
+	        conveniados.setTaxaConveniados(List.of(taxa));
+	    } else {
+	    	conveniados.getTaxaConveniados().forEach(t -> {
+	    		t.setDescStatusTaxaCon(StatusTaxaConv.ATUAL);
+	    	    t.setConveniados(conveniados);    	    
+	    	});
+	    }
+	    
+	    // Configurar taxas extras
+	    if (conveniados.getTaxaExtraConveniada() != null) {
+	        for (TaxaExtraConveniada taxaExtra : conveniados.getTaxaExtraConveniada()) {
+	            taxaExtra.setConveniados(conveniados);
+	            
+	            // Configurar período de cobrança
+	            PeriodoCobrancaTaxa periodo = taxaExtra.getPeriodoCobrancaTaxa();
+	            if (periodo != null) {
+	                periodo.setTaxaExtraConveniada(taxaExtra);
+	                
+	                // Validar datas do período
+	                if (periodo.getDataInicio().isAfter(periodo.getDataFim())) {
+	                    throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
+	                }
+	            }
+	        }
+	    }
+	    
+	    // Configurar contratos
+	    if (conveniados.getContratoConveniado() != null) {
+	        for (ContratoConveniado contrato : conveniados.getContratoConveniado()) {
+	            contrato.setConveniados(conveniados);
+	            
+	            // Configurar vigencias
+	            if (contrato.getVigencias() != null) {
+	                for (VigenciaContratoConveniada vigencia : contrato.getVigencias()) {
+	                    vigencia.setContratoConveniado(contrato);
+	                    
+	                    // Validações de datas
+	                    if (vigencia.getDataInicio() == null || vigencia.getDataFinal() == null) {
+	                        throw new IllegalArgumentException("Datas de vigência são obrigatórias");
+	                    }
+	                    if (vigencia.getDataInicio().isAfter(vigencia.getDataFinal())) {
+	                        throw new IllegalArgumentException("Data de início não pode ser posterior à data final");
+	                    }
+	                }
+	            }
+	        }
+	    }
+	}
+	
+	/*	
 	public UsuarioDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
-//	public ConveniadosDTO salvarUsuarioPJConveniada( Usuario userPJConveniado ) throws ExceptionCustomizada {
-		
 		
 		if (userPJConveniado.getIdUsuario() != null && usuarioRepository.findByLogin(userPJConveniado.getLogin()) != null) {
 			throw new ExceptionCustomizada("Já existe o Login cadastrado: " + userPJConveniado.getLogin() );
@@ -164,7 +334,7 @@ public class UsuarioService implements UserDetailsService{
 		userPJConveniado.getPessoa().setFuncionario(null);
 		
 		String encryptedPass = new BCryptPasswordEncoder().encode(userPJConveniado.getPassword());
-		userPJConveniado.setSenha(encryptedPass);		
+		userPJConveniado.setSenha(encryptedPass);
 
 		userPJConveniado = usuarioRepository.saveAndFlush( userPJConveniado );
 		
@@ -175,7 +345,7 @@ public class UsuarioService implements UserDetailsService{
 		return dto;
 				
 	}
-
+*/
 	
     /* ******************************************************************************************************************************** */
 	/*                                                                                                                                  */

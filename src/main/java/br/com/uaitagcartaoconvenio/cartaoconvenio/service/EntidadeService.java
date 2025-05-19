@@ -109,5 +109,13 @@ public class EntidadeService {
 		return listaEntidades;
 		
 	}	
+	
+	
+	
+	public Entidade findByIdEntity( Long id )  {
+		return entidadeRespository.findById(id).orElseThrow(() -> new RuntimeException("Entidade nã0 encontrado para o ID: " + id));
+		
+	}
+	
 
 }

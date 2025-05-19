@@ -17,7 +17,7 @@ public class DadosFechamentoPagamentoCicloDTO {
 	private BigDecimal somatorioValorVenda;
 	private BigDecimal somatorioVlrCalcTxConv;
 	private Long idConveniados;
-	private Long idTaxaConveiniados;
+	private Long idTaxaConveniados;
 
 
 }

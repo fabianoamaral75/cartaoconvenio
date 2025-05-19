@@ -4,6 +4,7 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
  *   Modelo de DTO para todo o projeto.
  */
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -47,4 +48,8 @@ public class ContratoConveniadoDTO {
 
     @Schema(description = "ID do conveniado associado", example = "1")
     private Long idConveniados;
+    
+    private List<VigenciaContratoConveniadaDTO> vigencias;
+    
+
 }

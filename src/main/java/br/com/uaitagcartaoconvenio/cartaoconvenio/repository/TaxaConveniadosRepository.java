@@ -8,31 +8,31 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveiniados;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveniados;
 
 @Repository
 @Transactional
-public interface TaxaConveiniadosRepository extends JpaRepository<TaxaConveiniados, Long>{
+public interface TaxaConveniadosRepository extends JpaRepository<TaxaConveniados, Long>{
 	
 
 	@Query(value = "select tc                     "
                  + " from                         "
-                 + "      TaxaConveiniados tc     "
+                 + "      TaxaConveniados tc     "
                  + " JOIN tc.conveniados   con    "
                  + " where con.idConveniados = ?1 " )
-	TaxaConveiniados taxaConveiniadosByIdConveniados( Long idConveniados ) ; 
+	TaxaConveniados taxaConveniadosByIdConveniados( Long idConveniados ) ; 
 	
 	@Query(value = "select tc                        "
-                 + " from TaxaConveiniados tc        "
+                 + " from TaxaConveniados tc        "
                  + " where tc.descStatusTaxaCon = ?1 " )
-    List<TaxaConveiniados> listaTaxaConveiniadosByStatusTaxaConv( StatusTaxaConv descStatusTaxaCon ); 
+    List<TaxaConveniados> listaTaxaConveniadosByStatusTaxaConv( StatusTaxaConv descStatusTaxaCon ); 
 
 	@Query(value = "select tc                            "
                  + " from                                "
-                 + "      TaxaConveiniados tc            "
+                 + "      TaxaConveniados tc            "
                  + " JOIN tc.conveniados   con           "
                  + " where con.idConveniados = ?1        "
                  + "   and tc.descStatusTaxaCon = 'ATUAL'" )
-    TaxaConveiniados taxaConveiniadosAtualByIdConveniados( Long idConveniados ) ; 
+    TaxaConveniados taxaConveniadosAtualByIdConveniados( Long idConveniados ) ; 
 
 }

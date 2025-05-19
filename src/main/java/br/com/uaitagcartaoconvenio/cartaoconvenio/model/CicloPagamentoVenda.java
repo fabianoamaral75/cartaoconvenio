@@ -102,12 +102,16 @@ public class CicloPagamentoVenda implements Serializable{
 	private Conveniados conveniados;
 	
 	@NotNull(message = "O Tipo da mudança deve(m) ser informado!")
-	@ManyToOne(targetEntity = TaxaConveiniados.class)
+	@ManyToOne(targetEntity = TaxaConveniados.class)
 	@JoinColumn(name = "ID_TAXA_CONVEINIADOS", referencedColumnName = "ID_TAXA_CONVEINIADOS", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CICLO_PG_VENDA_TX_CONVEINIADOS"))
-	private TaxaConveiniados taxaConveiniados;
+	private TaxaConveniados taxaConveniados;
 	
 	@OneToMany(mappedBy = "cicloPagamentoVenda", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<FechamentoConvItensVendas> fechamentoConvItensVendas = new ArrayList<FechamentoConvItensVendas>();
+	
+	// Adicione este campo à classe existente
+	@OneToMany(mappedBy = "cicloPagamentoVenda", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<CicloTaxaExtra> taxasExtras = new ArrayList<CicloTaxaExtra>();
 	
 	@PreUpdate
     public void preUpdate() {
@@ -117,5 +121,28 @@ public class CicloPagamentoVenda implements Serializable{
 	@PrePersist
 	protected void onCreate() {
 	    dtCriacao = Calendar.getInstance().getTime();
+	}
+	
+	public void adicionarTaxaExtra(TaxaExtraConveniada taxa, BigDecimal valorTaxaExtra) {
+	    CicloTaxaExtra cicloTaxaExtra = CicloTaxaExtra.builder()
+	            .cicloPagamentoVenda(this)
+	            .taxaExtraConveniada(taxa)
+	            .valorTaxaExtra(valorTaxaExtra)
+	            .build();
+	    taxasExtras.add(cicloTaxaExtra);
+	    taxa.getCiclosPagamento().add(cicloTaxaExtra);
+	}
+
+	public void removerTaxaExtra(TaxaExtraConveniada taxa) {
+	    CicloTaxaExtra cicloTaxaExtra = taxasExtras.stream()
+	            .filter(ct -> ct.getTaxaExtraConveniada().equals(taxa))
+	            .findFirst()
+	            .orElse(null);
+	    if (cicloTaxaExtra != null) {
+	        taxasExtras.remove(cicloTaxaExtra);
+	        taxa.getCiclosPagamento().remove(cicloTaxaExtra);
+	        cicloTaxaExtra.setCicloPagamentoVenda(null);
+	        cicloTaxaExtra.setTaxaExtraConveniada(null);
+	    }
 	}
 }

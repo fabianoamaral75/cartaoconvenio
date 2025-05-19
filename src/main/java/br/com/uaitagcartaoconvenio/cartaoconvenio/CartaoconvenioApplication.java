@@ -19,7 +19,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @EnableAsync
-@SpringBootApplication
+//@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "br.com.uaitagcartaoconvenio")
 @EntityScan(basePackages = "br.com.uaitagcartaoconvenio.cartaoconvenio.model")
 @ComponentScan(basePackages = {"br.*"})
 @EnableJpaRepositories(basePackages = {"br.com.uaitagcartaoconvenio.cartaoconvenio.repository"})

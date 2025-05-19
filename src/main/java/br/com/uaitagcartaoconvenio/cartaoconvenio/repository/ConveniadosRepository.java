@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveiniados;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveniados;
 
 @Repository
 @Transactional
@@ -18,15 +18,15 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
 	
 	@Query(value = "select tx                             "
 			     + "  from Conveniados con                "
-			     + "   join con.taxaConveiniados tx       "
+			     + "   join con.taxaConveniados tx       "
 			     + " where con.idConveniados = ?1         "
 			     + "   and tx.descStatusTaxaCon = 'ATUAL' " 
 			     )
-    TaxaConveiniados findTxConvByIdconv(Long idConv);
+    TaxaConveniados findTxConvByIdconv(Long idConv);
 	
 	@Modifying(flushAutomatically = true)
 	@Query(nativeQuery = true, value = "UPDATE taxa_conveiniados SET status = 'DESATUALIZADA' WHERE id_taxa_conveiniados = ?1")
-	void updateStatusTaxaConveiniados(Long id);		
+	void updateStatusTaxaConveniados(Long id);		
 	
 	@Query(value = "select con                    "
 		         + "  from Conveniados con        "

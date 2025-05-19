@@ -4,7 +4,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.VigenciaContratoConveniadaMapper;
@@ -15,14 +14,13 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/vigencias-contrato")
 @RequiredArgsConstructor
 public class VigenciaContratoConveniadaController {
     
     private final VigenciaContratoConveniadaService service;
     private final VigenciaContratoConveniadaMapper mapper;
     
-    @PostMapping
+    @PostMapping(value = "/salvarVigenciaContratoConveniada")
     public ResponseEntity<VigenciaContratoConveniadaDTO> create(
             @RequestBody VigenciaContratoConveniadaDTO dto) {
         VigenciaContratoConveniada entity = mapper.toEntity(dto);
@@ -30,7 +28,7 @@ public class VigenciaContratoConveniadaController {
         return ResponseEntity.ok(mapper.toDTO(savedEntity));
     }
     
-    @GetMapping("/{id}")
+    @GetMapping(value = "/getVigenciaContratoConveniadaById/{id}")
     public ResponseEntity<VigenciaContratoConveniadaDTO> getById(@PathVariable Long id) {        
         
         VigenciaContratoConveniada entity = service.findById(id);

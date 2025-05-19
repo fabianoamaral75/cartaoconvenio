@@ -34,17 +34,17 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of ="idTaxaConveiniados")
+@EqualsAndHashCode(of ="idTaxaConveniados")
 @SequenceGenerator(name = "seq_tx_conveiniados", sequenceName = "seq_tx_conveiniados", allocationSize = 1, initialValue = 1)
 @Table(name = "TAXA_CONVEINIADOS")
-public class TaxaConveiniados implements Serializable{
+public class TaxaConveniados implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_tx_conveiniados")
 	@Column(name = "ID_TAXA_CONVEINIADOS")
-	private Long idTaxaConveiniados;
+	private Long idTaxaConveniados;
 	
 	@Column(name = "DT_CRIACAO", nullable = false, columnDefinition = "TIMESTAMP" )
 	@Temporal(TemporalType.TIMESTAMP)

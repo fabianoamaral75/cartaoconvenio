@@ -88,14 +88,27 @@ public class Conveniados implements Serializable {
 
 	@NotNull(message = "A Taxa de Desconto da Conveniada deverá ser informado!")
 	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<TaxaConveiniados> taxaConveiniados = new ArrayList<TaxaConveiniados>();
+	private List<TaxaConveniados> taxaConveniados = new ArrayList<TaxaConveniados>();
 
 	@OneToOne(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Pessoa pessoa = new Pessoa();
+//	private Pessoa pessoa = new Pessoa();
+	private Pessoa pessoa; // Remova o = new Pessoa()
 
 	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ContratoConveniado> cartao = new ArrayList<ContratoConveniado>();
-		
+
+	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<TaxaExtraConveniada> taxaExtraConveniada = new ArrayList<TaxaExtraConveniada>();
+
+	@OneToMany(mappedBy = "conveniados", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ContratoConveniado> contratoConveniado = new ArrayList<ContratoConveniado>();
+
+    // Método auxiliar para adicionar contrato
+    public void adicionarContrato(ContratoConveniado contrato) {
+        contratoConveniado.add(contrato);
+        contrato.setConveniados(this);
+    }	
+	
 	@PreUpdate
     public void preUpdate() {
 		dtAlteracao = Calendar.getInstance().getTime();
@@ -107,5 +120,15 @@ public class Conveniados implements Serializable {
         dtAlteracao = Calendar.getInstance().getTime();
     }
 
-
+ // Método para gerenciar relacionamento bidirecional
+    public void setPessoa(Pessoa pessoa) {
+        if (this.pessoa != null) {
+            this.pessoa.setConveniados(null);
+        }
+        this.pessoa = pessoa;
+        if (pessoa != null && pessoa.getConveniados() != this) {
+            pessoa.setConveniados(this);
+        }
+    }
+    
 }

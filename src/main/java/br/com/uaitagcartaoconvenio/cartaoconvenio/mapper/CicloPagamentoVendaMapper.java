@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CicloPagamentoVendaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ConveniadosResumoDTO;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaConveiniadosResumoDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaConveniadosResumoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ConveniadosRepository;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TaxaConveiniadosRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TaxaConveniadosRepository;
 
 @Component
 public class CicloPagamentoVendaMapper {
@@ -16,7 +16,7 @@ public class CicloPagamentoVendaMapper {
     private ConveniadosRepository conveniadosRepository;
     
     @Autowired
-    private TaxaConveiniadosRepository taxaConveiniadosRepository;
+    private TaxaConveniadosRepository taxaConveniadosRepository;
 
     // Converte DTO para Entidade
     public CicloPagamentoVenda toEntity(CicloPagamentoVendaDTO dto) {
@@ -37,8 +37,8 @@ public class CicloPagamentoVendaMapper {
         	cicloPagamentoVenda.setConveniados(conveniadosRepository.findById(dto.getConveniados().getIdConveniados()).orElse(null));
         }
         
-        if (dto.getTaxaConveiniados().getIdTaxaConveiniados() != null) {
-        	cicloPagamentoVenda.setTaxaConveiniados( taxaConveiniadosRepository.findById(dto.getTaxaConveiniados().getIdTaxaConveiniados() ).orElse(null)  );
+        if (dto.getTaxaConveniados().getIdTaxaConveniados() != null) {
+        	cicloPagamentoVenda.setTaxaConveniados( taxaConveniadosRepository.findById(dto.getTaxaConveniados().getIdTaxaConveniados() ).orElse(null)  );
         }
         
         return cicloPagamentoVenda;
@@ -66,11 +66,11 @@ public class CicloPagamentoVendaMapper {
             dto.setConveniados(conveniadosDTO);
         }
         
-        // Inicializa TaxaConveiniadosResumoDTO se existir na entidade
-        if (cicloPagamentoVenda.getTaxaConveiniados() != null) {
-            TaxaConveiniadosResumoDTO taxaDTO = new TaxaConveiniadosResumoDTO();
-            taxaDTO.setIdTaxaConveiniados(cicloPagamentoVenda.getTaxaConveiniados().getIdTaxaConveiniados());
-            dto.setTaxaConveiniados(taxaDTO);
+        // Inicializa TaxaConveniadosResumoDTO se existir na entidade
+        if (cicloPagamentoVenda.getTaxaConveniados() != null) {
+            TaxaConveniadosResumoDTO taxaDTO = new TaxaConveniadosResumoDTO();
+            taxaDTO.setIdTaxaConveniados(cicloPagamentoVenda.getTaxaConveniados().getIdTaxaConveniados());
+            dto.setTaxaConveniados(taxaDTO);
         }
        
         return dto;

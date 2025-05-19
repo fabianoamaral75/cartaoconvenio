@@ -70,4 +70,15 @@ public class ContratoConveniado implements Serializable{
 	@OneToMany(mappedBy = "contratoConveniado", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<VigenciaContratoConveniada> vigencias = new ArrayList<VigenciaContratoConveniada>();
 
+    // Método auxiliar para adicionar vigências mantendo a consistência
+    public void adicionarVigencia(VigenciaContratoConveniada vigencia) {
+        vigencia.setContratoConveniado(this);
+        this.vigencias.add(vigencia);
+    }
+    
+    // Método auxiliar para remover vigências
+    public void removerVigencia(VigenciaContratoConveniada vigencia) {
+        this.vigencias.remove(vigencia);
+        vigencia.setContratoConveniado(null);
+    }
 }

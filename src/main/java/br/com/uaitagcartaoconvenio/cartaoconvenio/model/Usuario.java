@@ -151,11 +151,24 @@ public class Usuario implements UserDetails{
 				+ "]";
 	}
 
+	// Método para gerenciar o relacionamento bidirecional
 	public void setPessoa(Pessoa pessoa) {
+	    // Verifica se já está configurado corretamente
+	    if (this.pessoa == pessoa) {
+	        return;
+	    }
+	    
+	    // Remove o relacionamento anterior
+	    if (this.pessoa != null) {
+	        Pessoa oldPessoa = this.pessoa;
+	        this.pessoa = null;
+	        oldPessoa.setUsuario(null);
+	    }
+	    
+	    // Configura o novo relacionamento
 	    this.pessoa = pessoa;
-	    if (pessoa != null) {
+	    if (pessoa != null && pessoa.getUsuario() != this) {
 	        pessoa.setUsuario(this);
 	    }
-	}   	
-	
+	}
 }

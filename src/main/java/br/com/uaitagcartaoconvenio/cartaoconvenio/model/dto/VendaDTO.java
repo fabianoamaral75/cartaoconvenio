@@ -39,7 +39,7 @@ public class VendaDTO {
     private StatusVendas descStatusVendas;
     private StatusRestabeleceLimiteCredito descRestLimiteCredito;
     private ConveniadosResumoDTO conveniados = new ConveniadosResumoDTO();
-    private TaxaConveiniadosResumoDTO taxaConveiniados = new TaxaConveiniadosResumoDTO();
+    private TaxaConveniadosResumoDTO taxaConveniados = new TaxaConveniadosResumoDTO();
     private TaxaEntidadeResumoDTO taxaEntidade = new TaxaEntidadeResumoDTO();
     private CartaoResumoDTO cartao = new CartaoResumoDTO();
     private List<ItensVendaDTO> itensVenda = new ArrayList<ItensVendaDTO>();

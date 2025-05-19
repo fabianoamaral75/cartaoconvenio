@@ -32,7 +32,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.projection.DadosFech
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.projection.DadosFechamentoRecebimentoCicloProjection;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ConveniadosRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.EntidadeRespository;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TaxaConveiniadosRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TaxaConveniadosRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.VendaRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.BusinessException;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.EmailFechamentoException;
@@ -56,7 +56,7 @@ public class FecahementoCicloService {
 	private ConveniadosRepository conveniadosRepository;
 	
 	@Autowired
-	private TaxaConveiniadosRepository taxaConveiniadosRepository;
+	private TaxaConveniadosRepository taxaConveniadosRepository;
 	
 	@Autowired
 	private EntidadeRespository entidadeRespository;
@@ -232,7 +232,7 @@ public class FecahementoCicloService {
 				cPgVenda.setValorCiclo                  ( lv.getSomatorioValorVenda()                                                  );
 				cPgVenda.setValorCalcTaxaConveniadoCiclo( lv.getSomatorioVlrCalcTxConv()                                               );
 				cPgVenda.setConveniados                 ( conveniadosRepository.findById(lv.getIdConveniados()).orElse(null)           );
-				cPgVenda.setTaxaConveiniados            ( taxaConveiniadosRepository.findById(lv.getIdTaxaConveiniados()).orElse(null) );
+				cPgVenda.setTaxaConveniados             ( taxaConveniadosRepository.findById(lv.getIdTaxaConveniados()).orElse(null)   );
 
 				List<Venda> listaVenda = vendaRepository.listaVendaByIdConveniadosStatusAnoMes(anoMes, StatusVendas.PAGAMENTO_APROVADO, lv.getIdConveniados() );
 				List<FechamentoConvItensVendas> listaFciv =  new ArrayList<FechamentoConvItensVendas>();
@@ -365,7 +365,7 @@ public class FecahementoCicloService {
                 proj.getSomatorioValorVenda(),
                 proj.getSomatorioVlrCalcTxConv(),
                 proj.getIdConveniados(),
-                proj.getIdTaxaConveiniados()))
+                proj.getIdTaxaConveniados()))
             .collect(Collectors.toList());
     }
 
