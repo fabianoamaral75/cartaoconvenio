@@ -65,10 +65,6 @@ public class Conveniados implements Serializable {
 	@NotNull(message = "Indica quantos mês deverá ser realizado o pagamento após fechamento!")
 	@Column(name = "MES_PAGAMENTO_POS_FECHAMENTO", nullable = false, columnDefinition = "bigint default 0")
 	private Long mesPagamentoPosFechamento;	
-	
-	@NotNull(message = "Indica quantos mês deverá ser realizado o pagamento após fechamento!")
-	@Column(name = "MES_PAGAMENTO_POS_FECHAMENTO", nullable = false, columnDefinition = "bigint default 0")
-	private Long mesPagamentoPosFechamento;	
 		
 	@Column(name = "SITE", length = 500)
 	private String site;
