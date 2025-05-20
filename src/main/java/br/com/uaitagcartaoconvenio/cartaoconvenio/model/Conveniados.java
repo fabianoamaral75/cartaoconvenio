@@ -58,9 +58,13 @@ public class Conveniados implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date  dtAlteracao = Calendar.getInstance().getTime();
 
-        @NotNull(message = "Dias a ser realizado o pagamento após fechamento!")
+	@NotNull(message = "Dias a ser realizado o pagamento após fechamento!")
 	@Column(name = "DIA_PAGAMENTO", nullable = false, columnDefinition = "bigint default 0")
 	private Long diaPagamento;	
+	
+	@NotNull(message = "Indica quantos mês deverá ser realizado o pagamento após fechamento!")
+	@Column(name = "MES_PAGAMENTO_POS_FECHAMENTO", nullable = false, columnDefinition = "bigint default 0")
+	private Long mesPagamentoPosFechamento;	
 	
 	@NotNull(message = "Indica quantos mês deverá ser realizado o pagamento após fechamento!")
 	@Column(name = "MES_PAGAMENTO_POS_FECHAMENTO", nullable = false, columnDefinition = "bigint default 0")
