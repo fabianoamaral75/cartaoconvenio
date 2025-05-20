@@ -105,7 +105,7 @@ public interface ContasReceberRepository extends JpaRepository<ContasReceber, Lo
   	/******************************************************************/	
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(nativeQuery = true, value = "UPDATE contas_receber SET status = 'RECEBIMENTO_CANCELADO' WHERE ano_mes = :anoMes and status IN( 'AGUARDANDO_RECEBIMENTO', 'AGUARDANDO_UPLOAD_NF' )")
-    int updateStatusCicloRecebimentoVenda(  @Param("anoMes") String anoMes);
+    int updateStatusCicloRecebimentoVenda( @Param("anoMes") String anoMes );
     
   	/******************************************************************/
   	/*                                                                */

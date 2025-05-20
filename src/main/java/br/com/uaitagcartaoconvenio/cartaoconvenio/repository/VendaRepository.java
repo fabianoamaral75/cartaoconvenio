@@ -326,10 +326,10 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
    /*                                                                */
    /******************************************************************/	
    @Query(nativeQuery = true, value = " select count(1) from venda                      "
-   		                            + "  where ano_mes = ?                              "
+   		                            + "  where ano_mes = :anoMes                              "
    		                            + "    and STATUS_VENDA_RECEBIDA = 'VENDA_RECEBIDA' "
    		                            + "     or STATUS_VENDA_PAGA     = 'VENDA_PAGA'     " )
-   void isStatusVendaReprocessamentoFechamento( String anoMes );	
+   void isStatusVendaReprocessamentoFechamento( @Param("anoMes") String anoMes );	
    
    
    
