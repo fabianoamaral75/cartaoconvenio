@@ -34,7 +34,6 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Funcionario;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.PeriodoCobrancaTaxa;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Pessoa;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.PessoaJuridica;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaExtraConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Usuario;
@@ -216,7 +215,7 @@ public class UsuarioService implements UserDetailsService{
 
 
 	}
-
+/*
 	private void configurarPessoaEJuridica(Pessoa pessoa, Usuario usuario) {
 	    // Configurar Usuario na Pessoa
 //	    pessoa.setUsuario(usuario);
@@ -235,7 +234,7 @@ public class UsuarioService implements UserDetailsService{
 	    
 
 	}
-
+*/
 	private void configurarConveniado(Conveniados conveniados, Pessoa pessoa) {
 	    // Configurar pessoa no conveniado
 //	    conveniados.setPessoa(pessoa);
