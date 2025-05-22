@@ -26,7 +26,9 @@ public interface EntidadeMapper {
 
     EntidadeMapper INSTANCE = Mappers.getMapper(EntidadeMapper.class);
 
-    // Mapeamento principal de Entidade para DTO
+    // Adicione estas anotações para evitar referências circulares
+     @Mapping(target = "secretaria.funcionario", ignore = true)
+     @Mapping(target = "listaFuncionario.secretaria", ignore = true)
      EntidadeDTO toDTO(Entidade entidade);
      
      List<EntidadeDTO> toDTO(List<Entidade> entidades);
@@ -35,6 +37,8 @@ public interface EntidadeMapper {
      Entidade toEntity(EntidadeDTO dto);
 
     // Mapeamentos para objetos aninhados
+ //   @Mapping(target = "entidade", ignore = true)
+    @Mapping(target = "funcionario", ignore = true)
     SecretariaResumoDTO secretariaToSecretariaResumoDTO(Secretaria secretaria);
     @Mapping(target = "entidade", ignore = true)
     Secretaria secretariaResumoDTOToSecretaria(SecretariaResumoDTO dto);
@@ -42,6 +46,8 @@ public interface EntidadeMapper {
     TaxaEntidadeResumoDTO taxaEntidadeToTaxaEntidadeResumoDTO(TaxaEntidade taxaEntidade);
     TaxaEntidade taxaEntidadeResumoDTOToTaxaEntidade(TaxaEntidadeResumoDTO dto);
 
+ //   @Mapping(target = "secretaria", ignore = true)
+//    @Mapping(target = "entidade", ignore = true)
     FuncionarioResumoDTO funcionarioToFuncionarioResumoDTO(Funcionario funcionario);
     Funcionario funcionarioResumoDTOToFuncionario(FuncionarioResumoDTO dto);
 
