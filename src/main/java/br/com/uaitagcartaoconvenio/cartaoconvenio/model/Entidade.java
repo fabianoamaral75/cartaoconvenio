@@ -56,9 +56,13 @@ public class Entidade implements Serializable{
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dtAlteracao = Calendar.getInstance().getTime(); 
 	
-	@NotNull(message = "Quantidade de dias para o Recebimento após fechamento!")
-	@Column(name = "QTY_DIAS_RECEBIMENTO", nullable = false)
-	private Long qtyDiasRecebimento;	
+	@NotNull(message = "Dia do mês programado para o recebimento da Entidade, após fechamento!")
+	@Column(name = "DIA_RECEBIMENTO", nullable = false, columnDefinition = "bigint default 0")
+	private Long diaRecebimento;	
+	
+	@NotNull(message = "Indica em quantos mês deverá ser programado o recebimento, após fechamento!")
+	@Column(name = "MES_RECEBIMENTO_POS_FECHAMENTO", nullable = false, columnDefinition = "bigint default 0")
+	private Long mesRecebimentoPosFechamento;	
 
 	@Column(name = "SITE", length = 500)
 	private String site;
@@ -106,8 +110,7 @@ public class Entidade implements Serializable{
 	@NotNull(message = "O Bairro do Logradoro da Entidade deverá ser informado!")
 	@Column(name = "BAIRRO", length = 100, nullable = false)
 	private String bairro;
-	
-	
+		
 	@OneToMany(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Secretaria> secretaria = new ArrayList<Secretaria>();
 	
@@ -129,7 +132,10 @@ public class Entidade implements Serializable{
 	@NotNull(message = "A Taxa Base para o cáucula da analise de crédito do funcionário, deverá ser informado!")
 	@OneToMany(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<TaxaCalcLimiteCreditoFunc> taxaCalcLimiteCreditoFunc = new ArrayList<TaxaCalcLimiteCreditoFunc>();  
-	
+
+	@OneToMany(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<ContratoEntidade> contratoEntidade = new ArrayList<ContratoEntidade>();
+
 	@PreUpdate
     public void preUpdate() {
 		dtAlteracao = Calendar.getInstance().getTime(); 

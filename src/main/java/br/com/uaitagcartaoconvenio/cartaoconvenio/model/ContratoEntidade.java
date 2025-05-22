@@ -2,12 +2,14 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -51,18 +53,18 @@ public class ContratoEntidade {
     @Column(name = "OBSERVACAO", columnDefinition = "TEXT")
     private String observacao;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID_ENTIDADE", nullable = false)
+	@ManyToOne(targetEntity = Entidade.class)
+	@JoinColumn(name = "ID_ENTIDADE", nullable = true, referencedColumnName = "ID_ENTIDADE", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CONTRATO_ENT_ENTIDADE"))
     private Entidade entidade;
 
     @OneToMany(mappedBy = "contratoEntidade", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ArqContratoEntidade> arquivos;
+    private List<ArqContratoEntidade> arquivos = new ArrayList<ArqContratoEntidade>();
 
     @OneToMany(mappedBy = "contratoEntidade", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VigenciaContratoEntidade> vigencias;
+    private List<VigenciaContratoEntidade> vigencias = new ArrayList<VigenciaContratoEntidade>();
 
     @OneToMany(mappedBy = "contratoEntidade", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ServicoContrato> servicos;
+    private List<ServicoContrato> servicos = new ArrayList<ServicoContrato>();
 
     @PrePersist
     protected void onCreate() {

@@ -3,8 +3,10 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,7 +29,10 @@ public class ArqContratoEntidade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_ARQ_CONTRATO_ENTIDADE")
     private Long idArqContratoEntidade;
-    
+ 
+    @Column(name = "CAMINHO_ARQUIVO", length = 200)
+    private String caminhoArquivo;
+
     @Column(name = "ARQ_CONTRATO", length = 200)
     private String arqContrato;
     
@@ -40,8 +45,8 @@ public class ArqContratoEntidade {
     @Column(name = "DT_UPLOAD", nullable = false)
     private LocalDateTime dtUpload;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID_CONTRATO_ENTIDADE", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ContratoEntidade.class)
+    @JoinColumn(name = "ID_CONTRATO_ENTIDADE", nullable = true, referencedColumnName = "ID_CONTRATO_ENTIDADE", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_ARQ_CONTRATO_ENTIDADE"))
     private ContratoEntidade contratoEntidade;
     
     @PrePersist

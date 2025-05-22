@@ -1,8 +1,11 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.excecoes;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
@@ -15,17 +18,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
-    private record ErrorResponse(
+/*
+    private record ErrorResponse1(
         String timestamp,
         int status,
         String error,
         String message,
         String path
     ) {}
-
+*/
     // Tratamento para validação de campos
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -79,6 +86,27 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
  */   
     
+    @ExceptionHandler(ExceptionCustomizada.class)
+    public ResponseEntity<ErrorResponse> handleExceptionCustomizada(ExceptionCustomizada ex, 
+                                                                 HttpServletRequest request) {
+    	
+    	long timestamp = System.currentTimeMillis();
+
+    	// Criar formato desejado
+    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+    	// Converter
+    	String dataFormatada = sdf.format(new Date(timestamp));
+
+        ErrorResponse error = new ErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            request.getRequestURI(), // Adiciona o path da requisição
+            dataFormatada
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
     
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Object> handleResourceNotFoundException(

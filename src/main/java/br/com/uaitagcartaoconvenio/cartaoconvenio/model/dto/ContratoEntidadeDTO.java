@@ -1,10 +1,10 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -36,13 +36,10 @@ public class ContratoEntidadeDTO {
     @NotNull(message = "O ID da entidade é obrigatório")
     private Long idEntidade;
 
-    @NotEmpty(message = "A lista de arquivos não pode estar vazia")
-    private List<Long> idArquivos;
-
-    @NotEmpty(message = "A lista de vigências não pode estar vazia")
-    private List<Long> idVigencias;
-
-    @NotEmpty(message = "A lista de serviços não pode estar vazia")
-    private List<Long> idServicos;
+    private List<ArqContratoEntidadeDTO> arquivos = new ArrayList<ArqContratoEntidadeDTO>();
+    
+    private List<VigenciaContratoEntidadeDTO> vigencias = new ArrayList<VigenciaContratoEntidadeDTO>();
+    
+    private List<ServicoContratoDTO> servicos = new ArrayList<ServicoContratoDTO>();
     
 }

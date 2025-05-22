@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -50,10 +52,10 @@ public class VigenciaContratoEntidade {
     @Column(name = "OBSERVACAO", columnDefinition = "TEXT")
     private String observacao;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID_CONTRATO_ENTIDADE", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ContratoEntidade.class)
+    @JoinColumn(name = "ID_CONTRATO_ENTIDADE", nullable = false, referencedColumnName = "ID_CONTRATO_ENTIDADE", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VIGENCIA_CONTRATO_ENTIDADE"))
     private ContratoEntidade contratoEntidade;
-    
+
     @PrePersist
     protected void onCreate() {
         dtCriacao = LocalDateTime.now();

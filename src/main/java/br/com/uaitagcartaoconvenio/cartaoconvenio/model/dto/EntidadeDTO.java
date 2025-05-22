@@ -1,6 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +29,8 @@ public class EntidadeDTO {
     private Date dtCriacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dtAlteracao;
-    private Long qtyDiasRecebimento;
+	private Long diaRecebimento;	
+	private Long mesRecebimentoPosFechamento;	
     private String site;
     private String obs;
     private String nomeEntidade;
@@ -49,4 +51,5 @@ public class EntidadeDTO {
     private List<TaxaEntidadeResumoDTO> taxaEntidade;
     private List<FuncionarioResumoDTO> listaFuncionario;
     private List<TaxaCalcLimiteCreditoFuncResumoDTO> taxaCalcLimiteCreditoFunc;
+    private List<ContratoEntidadeDTO> contratoEntidade = new ArrayList<ContratoEntidadeDTO>();
 }

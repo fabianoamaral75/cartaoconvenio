@@ -4,6 +4,8 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -15,8 +17,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.UsuarioService;
 
 
@@ -27,7 +31,7 @@ public class WebConfigSecurity {
 	
 	@Autowired
 	SecurityFilter securityFilter;
-
+/*
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -38,7 +42,51 @@ public class WebConfigSecurity {
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+            ;
+        
+        return http.build();
+    }
+ */   
+    
+    
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/auth/**",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**"
+ //                   ,"/salvarEntidade" // Adicione seu endpoint específico se necessário
+                ).permitAll()
+                .anyRequest().authenticated()
+            )
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    // Captura exceções de acesso negado e mantém o status original
+                    if (request.getAttribute("jakarta.servlet.error.exception") != null) {
+                        Throwable exc = (Throwable) request.getAttribute("jakarta.servlet.error.exception");
+                        if (exc instanceof ExceptionCustomizada) {
+                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            response.setStatus(HttpStatus.BAD_REQUEST.value());
+                            response.getWriter().write(
+                                String.format("{\"status\": %d, \"message\": \"%s\"}", 
+                                    HttpStatus.BAD_REQUEST.value(), 
+                                    exc.getMessage())
+                            );
+                            return;
+                        }
+                    }
+                    // Caso padrão para outros tipos de acesso negado
+                    response.sendError(HttpStatus.FORBIDDEN.value(), "Acesso negado");
+                })
+            );
         
         return http.build();
     }

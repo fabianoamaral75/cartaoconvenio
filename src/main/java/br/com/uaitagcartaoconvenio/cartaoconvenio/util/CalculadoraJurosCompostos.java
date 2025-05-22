@@ -128,7 +128,7 @@ public class CalculadoraJurosCompostos {
             );
         }
     }
-
+/*
     public static void main(String[] args) {
         // Exemplo com os valores fornecidos
         BigDecimal taxaNominal = new BigDecimal("2");
@@ -147,4 +147,5 @@ public class CalculadoraJurosCompostos {
 
         System.out.println(resultado);
     }
+    */
 }

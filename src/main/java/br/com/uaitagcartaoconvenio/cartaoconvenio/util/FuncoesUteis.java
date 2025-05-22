@@ -22,7 +22,50 @@ public class FuncoesUteis {
     private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("yyyyMM");
     private static final DateTimeFormatter OUTPUT_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-
+    /**
+     * Retorna uma data no formato PostgreSQL (YYYY-MM-DD) com base no dia do mês
+     * e no incremento de meses a partir da data atual.
+     * 
+     * @param dia O dia do mês que será usado na data retornada
+     * @param mesesIncremento Número de meses a incrementar a partir da data atual
+     * @return String com a data no formato PostgreSQL
+     * @throws IllegalArgumentException Se o dia for inválido (menor que 1 ou maior que 31)
+     */
+    public static String getDataPostgres(int dia, int mesesIncremento) {
+        // Validar o dia
+        if (dia < 1 || dia > 31) {
+            throw new IllegalArgumentException("Dia inválido. Deve ser entre 1 e 31.");
+        }
+        
+        // Obter a data atual e adicionar os meses
+        LocalDate dataAtual = LocalDate.now();
+        LocalDate dataCalculada = dataAtual.plusMonths(mesesIncremento);
+        
+        // Ajustar para o dia especificado, tratando casos onde o dia não existe no mês
+        int ultimoDiaMes = dataCalculada.lengthOfMonth();
+        int diaAjustado = Math.min(dia, ultimoDiaMes);
+        
+        LocalDate dataFinal = LocalDate.of(
+            dataCalculada.getYear(),
+            dataCalculada.getMonth(),
+            diaAjustado
+        );
+        
+        // Formatar para o padrão PostgreSQL
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return dataFinal.format(formatter);
+    }
+/*    
+    // Exemplo de uso
+    public static void main(String[] args) {
+        // Exemplo 1: Dia 15 do mês atual
+        System.out.println(getDataPostgres(26, 3)); // Saída: 2023-11-15 (supondo que hoje é nov/2023)
+        
+        // Exemplo 2: Dia 31 com incremento de 1 mês (mes que vem)
+        System.out.println(getDataPostgres(28, 2)); // Saída: 2023-12-31
+        
+    }
+*/
 	public static Map<String, String> getFirstAndLastDayOfMonthSafe(String yyyyMM) {
 	    try {
 	        if (yyyyMM == null || !yyyyMM.matches("\\d{6}")) {
