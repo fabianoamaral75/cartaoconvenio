@@ -23,7 +23,21 @@ public class UsuarioLogadoDTO {
     Boolean isUserSistema;
     Boolean isEntidade;
     
-    private List<UsuarioAcessoDTO> usuarioAcesso = new ArrayList<UsuarioAcessoDTO>();
-    private PessoaLogadoResumoDTO Pessoa         = new PessoaLogadoResumoDTO();
+    private List<UsuarioAcessoDTO> usuarioAcesso;
+    private PessoaLogadoResumoDTO pessoa        ;
+    
+    // Adicione getters que fazem inicialização lazy se necessário
+    public List<UsuarioAcessoDTO> getUsuarioAcesso() {
+        if (usuarioAcesso == null) {
+            usuarioAcesso = new ArrayList<>();
+        }
+        return usuarioAcesso;
+    }
 
+    public PessoaLogadoResumoDTO getPessoa() {
+        if (pessoa == null) {
+            pessoa = new PessoaLogadoResumoDTO();
+        }
+        return pessoa;
+    }
 }

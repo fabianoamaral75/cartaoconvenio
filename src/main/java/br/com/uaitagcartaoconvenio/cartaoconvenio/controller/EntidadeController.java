@@ -39,8 +39,7 @@ public class EntidadeController {
 	/******************************************************************/
 	@ResponseBody
 	@PostMapping(value = "/salvarEntidade")
-	public ResponseEntity<?> salvarEntidade( @RequestBody Entidade entidade, 
-            HttpServletRequest request ) throws ExceptionCustomizada, IOException{
+	public ResponseEntity<?> salvarEntidade( @RequestBody Entidade entidade,HttpServletRequest request ) throws ExceptionCustomizada, IOException{
 		try {
 			if( entidade == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Entidade. Valores vazios!");
 			
