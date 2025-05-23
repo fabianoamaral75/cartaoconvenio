@@ -25,20 +25,37 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaEntidadeResumoDT
 public interface EntidadeMapper {
 
     EntidadeMapper INSTANCE = Mappers.getMapper(EntidadeMapper.class);
+    
+    
+//    @Mapping(target = "secretaria", ignore = true) // Ignora toda a lista de secretarias
+//    @Mapping(target = "listaFuncionario", ignore = true) // Ignora toda a lista de funcionários
+//    @Mapping(target = "taxaEntidade", ignore = true)
+//    @Mapping(target = "taxaCalcLimiteCreditoFunc", ignore = true)
+//    @Mapping(target = "contratoEntidade", ignore = true)
+    EntidadeDTO toSimpleDTO(Entidade entidade);
 
+    default List<EntidadeDTO> toDTOList(List<Entidade> entidades) {
+        if (entidades == null) {
+            return null;
+        }
+        return entidades.stream()
+                       .map(this::toSimpleDTO) // Usa o método simplificado
+                       .collect(Collectors.toList());
+    }
+    
     // Adicione estas anotações para evitar referências circulares
-     @Mapping(target = "secretaria.funcionario", ignore = true)
-     @Mapping(target = "listaFuncionario.secretaria", ignore = true)
+//     @Mapping(target = "secretaria.funcionario", ignore = true)
+//     @Mapping(target = "listaFuncionario.secretaria", ignore = true)
      EntidadeDTO toDTO(Entidade entidade);
      
-     List<EntidadeDTO> toDTO(List<Entidade> entidades);
+ //    List<EntidadeDTO> toDTO(List<Entidade> entidades);
 
     // Mapeamento principal de DTO para Entidade
      Entidade toEntity(EntidadeDTO dto);
 
     // Mapeamentos para objetos aninhados
  //   @Mapping(target = "entidade", ignore = true)
-    @Mapping(target = "funcionario", ignore = true)
+//    @Mapping(target = "funcionario", ignore = true)
     SecretariaResumoDTO secretariaToSecretariaResumoDTO(Secretaria secretaria);
     @Mapping(target = "entidade", ignore = true)
     Secretaria secretariaResumoDTOToSecretaria(SecretariaResumoDTO dto);
@@ -55,11 +72,12 @@ public interface EntidadeMapper {
     TaxaCalcLimiteCreditoFunc taxaCalcLimiteResumoDTOToTaxaCalcLimite(TaxaCalcLimiteCreditoFuncResumoDTO dto);
 
     // Métodos para lidar com listas
+/*    
     default List<SecretariaResumoDTO> secretariaListToSecretariaResumoDTOList(List<Secretaria> list) {
         if (list == null) return null;
         return list.stream().map(this::secretariaToSecretariaResumoDTO).collect(Collectors.toList());
     }
-
+*/
     default List<Secretaria> secretariaResumoDTOListToSecretariaList(List<SecretariaResumoDTO> list) {
         if (list == null) return null;
         return list.stream().map(this::secretariaResumoDTOToSecretaria).collect(Collectors.toList());
@@ -81,12 +99,5 @@ public interface EntidadeMapper {
         // Configurações pós-mapeamento podem ser adicionadas aqui
     }
     
-    default List<EntidadeDTO> toDTOList(List<Entidade> entidades) {
-        if (entidades == null) {
-            return null;
-        }
-        return entidades.stream()
-                       .map(this::toDTO)
-                       .collect(Collectors.toList());
-    }
+
 }

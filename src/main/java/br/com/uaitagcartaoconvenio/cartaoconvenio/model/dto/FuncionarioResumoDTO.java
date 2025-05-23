@@ -13,5 +13,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of = "idFuncionario")
 public class FuncionarioResumoDTO {
     private Long idFuncionario;
-    private String nomePessoa;
+//    private String nomePessoa;
+    private PessoaResumoDTO pessoa;
+    
 }

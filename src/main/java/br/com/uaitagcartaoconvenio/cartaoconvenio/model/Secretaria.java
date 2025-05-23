@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -37,7 +40,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of ="idSecretaria")
 @SequenceGenerator(name = "seq_id_secretaria", sequenceName = "seq_id_secretaria", allocationSize = 1, initialValue = 1)
 @Table(name = "SECRETARIA")
-
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idSecretaria")
 public class Secretaria implements Serializable{
 	
 	private static final long serialVersionUID = 1L;

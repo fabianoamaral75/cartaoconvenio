@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaEntidade;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -37,6 +40,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of ="idTaxaEntidade")
 @SequenceGenerator(name = "seq_tx_entidade", sequenceName = "seq_tx_entidade", allocationSize = 1, initialValue = 1)
 @Table(name = "TAXA_ENTIDADE")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idTaxaEntidade")
 public class TaxaEntidade implements Serializable{
 	
 	private static final long serialVersionUID = 1L;

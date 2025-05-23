@@ -24,27 +24,28 @@ public class FuncionarioDTO {
     private Date dtCriacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dtAlteracao;
-/*    
-    private LimiteCreditoResumoDTO limiteCredito = new LimiteCreditoResumoDTO();
-    private SalarioResumoDTO       salario       = new SalarioResumoDTO();
-    private List<CartaoDTO>        cartao        = new ArrayList<CartaoDTO>();
-    private PessoaResumoDTO        pessoa        = new PessoaResumoDTO();
-    private SecretariaResumoDTO    secretaria    = new SecretariaResumoDTO();
-    private EntidadeResumoDTO      entidade      = new EntidadeResumoDTO();
-*/
     
-    private LimiteCreditoResumoDTO limiteCredito; // Remova inicialização
-    private SalarioResumoDTO salario;             // Remova inicialização
-    private List<CartaoDTO> cartao;               // Remova inicialização
-    private PessoaResumoDTO pessoa;               // Remova inicialização
-    private SecretariaResumoDTO secretaria;       // Remova inicialização
-    private EntidadeResumoDTO entidade;           // Remova inicialização
-
+    private LimiteCreditoResumoDTO limiteCredito = new LimiteCreditoResumoDTO(); // Remova inicialização
+    private SalarioResumoDTO salario             = new SalarioResumoDTO(); // Remova inicialização
+    private List<CartaoDTO> cartao = new ArrayList<CartaoDTO>();               // Remova inicialização
+    private PessoaResumoDTO pessoa = new PessoaResumoDTO();              // Remova inicialização
+    private SecretariaResumoDTO secretaria = new SecretariaResumoDTO();       // Remova inicialização
+    private EntidadeResumoDTO entidade = new EntidadeResumoDTO();           // Remova inicialização
+/*
     // Getters com inicialização lazy
     public List<CartaoDTO> getCartao() {
         if (cartao == null) {
             cartao = new ArrayList<>();
         }
         return cartao;
-    }   
+    }
+
+    // Adicione getter lazy se necessário
+    public SecretariaResumoDTO getSecretaria() {
+        if (secretaria == null) {
+            secretaria = new SecretariaResumoDTO();
+        }
+        return secretaria;
+    }
+ */   
 }

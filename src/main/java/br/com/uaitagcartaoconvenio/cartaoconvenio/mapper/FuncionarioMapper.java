@@ -9,6 +9,8 @@ import org.mapstruct.factory.Mappers;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Funcionario;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.FuncionarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.FuncionarioResumoDTO;
+
+
 @Mapper(componentModel = "spring", uses = { 
 		                                    LimiteCreditoMapper.class, 
 		                                    SalarioMapper.class, 
@@ -26,4 +28,3 @@ public interface FuncionarioMapper {
     Funcionario toEntity(FuncionarioDTO funcionarioDTO);
     FuncionarioResumoDTO toResumoDto(Funcionario funcionario);
 }
-

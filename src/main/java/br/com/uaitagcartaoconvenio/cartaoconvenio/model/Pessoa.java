@@ -2,6 +2,9 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -32,6 +35,7 @@ import lombok.Setter;
 @Entity
 @SequenceGenerator(name = "seq_id_pessoa", sequenceName = "seq_id_pessoa", initialValue = 1, allocationSize = 1)
 @Table(name = "PESSOA")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idPessoa")
 public class Pessoa implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -34,6 +37,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of ="idSalario")
 @SequenceGenerator(name = "seq_id_salario", sequenceName = "seq_id_salario", allocationSize = 1, initialValue = 1)
 @Table(name = "SALARIO")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idSalario")
 public class Salario implements Serializable{
 	
 	private static final long serialVersionUID = 1L;

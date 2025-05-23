@@ -25,6 +25,8 @@ public class SecretariaResumoDTO {
 	private String numero;
 	private String complemento;
 	private String bairro;
-	private FuncionarioDTO funcionario = new FuncionarioDTO();
+//	private FuncionarioDTO funcionario = new FuncionarioDTO();
+	private FuncionarioResumoDTO funcionario = new FuncionarioResumoDTO();
+	
 
 }

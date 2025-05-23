@@ -5,7 +5,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -41,6 +43,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of ="idFuncionario")
 @SequenceGenerator(name = "seq_id_funcionario", sequenceName = "seq_id_funcionario", allocationSize = 1, initialValue = 1)
 @Table(name = "FUNCIONARIO")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idFuncionario")
 public class Funcionario {
 
 	@Id

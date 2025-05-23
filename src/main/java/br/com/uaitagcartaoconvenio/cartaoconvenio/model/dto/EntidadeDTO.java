@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -23,6 +25,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "idEntidade")
+@JsonIdentityInfo(
+	    generator = ObjectIdGenerators.PropertyGenerator.class,
+	    property = "idEntidade",
+	    scope = EntidadeDTO.class
+	)
 public class EntidadeDTO {
     private Long idEntidade;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")

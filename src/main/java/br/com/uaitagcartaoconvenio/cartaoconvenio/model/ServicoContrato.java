@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.TipoCobrancaTaxaExtraEnt;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -29,6 +32,7 @@ import lombok.Setter;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Table(name = "SERVICO_CONTRATO")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idServicoContrato")
 public class ServicoContrato {
     
     @Id

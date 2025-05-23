@@ -3,6 +3,9 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -24,6 +27,7 @@ import lombok.Setter;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Table(name = "VIGENCIA_CONTRATO_ENTIDADE")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idVigenciaContratoEntidade")
 public class VigenciaContratoEntidade {
     
     @Id

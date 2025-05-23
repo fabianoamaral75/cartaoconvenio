@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -35,6 +38,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of ="idLimiteCredito")
 @SequenceGenerator(name = "seq_id_limite_credito", sequenceName = "seq_id_limite_credito", allocationSize = 1, initialValue = 1)
 @Table(name = "LIMITE_CREDITO")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idLimiteCredito")
 public class LimiteCredito implements Serializable{
 	
 	private static final long serialVersionUID = 1L;

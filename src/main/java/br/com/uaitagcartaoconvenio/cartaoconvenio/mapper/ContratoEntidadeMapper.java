@@ -24,6 +24,8 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.VigenciaContratoEnti
 public interface ContratoEntidadeMapper {
 
     ContratoEntidadeMapper INSTANCE = Mappers.getMapper(ContratoEntidadeMapper.class);
+    
+    
 
     @Mapping(target = "idEntidade", source = "entidade.idEntidade")
     ContratoEntidadeDTO toDTO(ContratoEntidade entity);

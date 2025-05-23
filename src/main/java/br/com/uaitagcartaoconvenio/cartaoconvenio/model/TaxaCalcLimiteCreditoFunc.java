@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaCalcLimiteCredFuncionaro;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -38,6 +41,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of ="idTaxaCalcLimiteCreditoFunc")
 @SequenceGenerator(name = "seq_taxa_calc_limite_credito_func", sequenceName = "seq_taxa_calc_limite_credito_func", allocationSize = 1, initialValue = 1)
 @Table(name = "TAXA_CALC_LIMITE_CREDITO_FUNC")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idTaxaCalcLimiteCreditoFunc")
 public class TaxaCalcLimiteCreditoFunc implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
