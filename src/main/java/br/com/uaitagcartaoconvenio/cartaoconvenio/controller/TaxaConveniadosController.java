@@ -1,6 +1,9 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,9 +17,11 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.TaxaConveniadosMapper;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ErrorResponse;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaConveniadosDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.service.TaxaConveniadosService;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class TaxaConveniadosController {
@@ -30,19 +35,40 @@ public class TaxaConveniadosController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaTaxaConveniadosByStatusTaxaConv/{status}")
-	public ResponseEntity<List<TaxaConveniadosDTO>> getListaTaxaConveniadosByStatusTaxaConv( @PathVariable("status") String status) throws ExceptionCustomizada{
-
-		StatusTaxaConv statusTaxaCon = StatusTaxaConv.valueOf(status);
+	public ResponseEntity<?> getListaTaxaConveniadosByStatusTaxaConv( @PathVariable("status") String status, HttpServletRequest request) throws ExceptionCustomizada{
+		try {
+			
+			StatusTaxaConv statusTaxaCon = StatusTaxaConv.valueOf(status);
+			
+			List<TaxaConveniados> listaTaxaConveniados = taxaConveniadosService.getListaTaxaConveniadosByStatusTaxaConv( statusTaxaCon );
+			
+			if(listaTaxaConveniados == null) {
+				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para o Status: " + StatusCicloPgVenda.valueOf(status).getDescStatusReceber() );
+			}
+			
+			List<TaxaConveniadosDTO> dto = TaxaConveniadosMapper.INSTANCE.toListDto(listaTaxaConveniados); 
+			
+			return new ResponseEntity<List<TaxaConveniadosDTO>>(dto, HttpStatus.OK);
 		
-		List<TaxaConveniados> listaTaxaConveniados = taxaConveniadosService.getListaTaxaConveniadosByStatusTaxaConv( statusTaxaCon );
-		
-		if(listaTaxaConveniados == null) {
-			throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para o Status: " + StatusCicloPgVenda.valueOf(status).getDescStatusReceber() );
-		}
-		
-		List<TaxaConveniadosDTO> dto = TaxaConveniadosMapper.INSTANCE.toListDto(listaTaxaConveniados); 
-		
-		return new ResponseEntity<List<TaxaConveniadosDTO>>(dto, HttpStatus.OK);		
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+	
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+	
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
 	}
 
 	/******************************************************************/
@@ -51,17 +77,39 @@ public class TaxaConveniadosController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getListaTaxaConveniadosByStatusTaxaConv/{idConveniados}")
-	public ResponseEntity<TaxaConveniadosDTO> getListaTaxaConveniadosByStatusTaxaConv( @PathVariable("idConveniados") Long idConveniados ) throws ExceptionCustomizada{
+	public ResponseEntity<?> getListaTaxaConveniadosByStatusTaxaConv( @PathVariable("idConveniados") Long idConveniados, HttpServletRequest request ) throws ExceptionCustomizada{
 
-		TaxaConveniados taxaConveniados = taxaConveniadosService.getTaxaConveniadosByIdConveniados( idConveniados );
-		
-		if(taxaConveniados == null) {
-			throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para a ID da Conveniada: " + idConveniados );
-		}
-		
-		TaxaConveniadosDTO dto = TaxaConveniadosMapper.INSTANCE.toDto(taxaConveniados);
-		
-		return new ResponseEntity<TaxaConveniadosDTO>(dto, HttpStatus.OK);		
+		try {
+			
+			TaxaConveniados taxaConveniados = taxaConveniadosService.getTaxaConveniadosByIdConveniados( idConveniados );
+			
+			if(taxaConveniados == null) {
+				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para a ID da Conveniada: " + idConveniados );
+			}
+			
+			TaxaConveniadosDTO dto = TaxaConveniadosMapper.INSTANCE.toDto(taxaConveniados);
+			
+			return new ResponseEntity<TaxaConveniadosDTO>(dto, HttpStatus.OK);
+			
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
 	}
 
 }

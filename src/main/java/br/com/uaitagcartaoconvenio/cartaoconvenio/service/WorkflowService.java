@@ -100,7 +100,8 @@ public class WorkflowService {
                 .collect(Collectors.toList());
     }
 
-    public void deletarWorkflow(Long id) {
+    public String deletarWorkflow(Long id) {
         workflowRepository.deleteById(id);
+        return "OK";
     }
 }

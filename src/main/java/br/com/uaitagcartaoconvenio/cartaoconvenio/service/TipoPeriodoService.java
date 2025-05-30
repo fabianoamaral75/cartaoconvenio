@@ -61,10 +61,12 @@ public class TipoPeriodoService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public String delete(Long id) {
         if (!tipoPeriodoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Tipo de período não encontrado com id: " + id);
         }
         tipoPeriodoRepository.deleteById(id);
+        
+        return "OK";
     }
 }

@@ -42,7 +42,7 @@ public class EmailService {
     }
 
  // Método atualizado no serviço
-    public void enviarEmailSimples(String[] destinatarios, String assunto, String conteudo) {
+    public String enviarEmailSimples(String[] destinatarios, String assunto, String conteudo) {
         try {
             JavaMailSenderImpl mailSenderImpl = (JavaMailSenderImpl) mailSender;
             logger.info("Tentando conectar em: {}:{}", 
@@ -57,6 +57,9 @@ public class EmailService {
             
             mailSender.send(mensagem);
             logger.info("E-mail enviado com sucesso para {} destinatários", destinatarios.length);
+            
+            return "OK";
+            
         } catch (MailException ex) {
             logger.error("Erro no envio:", ex);
             throw new RuntimeException("Falha ao enviar e-mail: " + ex.getMessage(), ex);

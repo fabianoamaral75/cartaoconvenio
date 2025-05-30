@@ -112,17 +112,37 @@ public class EntidadeController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getEntidadesCNPJ/{cnpj}")
-	public ResponseEntity<EntidadeDTO> getEntidadesCNPJ( @PathVariable("cnpj") String cnpj ) throws ExceptionCustomizada{
+	public ResponseEntity<?> getEntidadesCNPJ( @PathVariable("cnpj") String cnpj, HttpServletRequest request ) throws ExceptionCustomizada{
+		try {
+			Entidade listaEntidade = entidadeService.getEntidadesCnpj(cnpj);
+			
+			if(listaEntidade == null) {
+				throw new ExceptionCustomizada("Não existe Entidades relacionada ao CNPJ: " + cnpj );
+			}
+			
+			EntidadeDTO dto = mapper.toDTO(listaEntidade); 
+			
+			return new ResponseEntity<EntidadeDTO>(dto, HttpStatus.OK);	
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
 
-		Entidade listaEntidade = entidadeService.getEntidadesCnpj(cnpj);
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
 		
-		if(listaEntidade == null) {
-			throw new ExceptionCustomizada("Não existe Entidades relacionada ao CNPJ: " + cnpj );
-		}
-		
-		EntidadeDTO dto = mapper.toDTO(listaEntidade); 
-		
-		return new ResponseEntity<EntidadeDTO>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -131,17 +151,33 @@ public class EntidadeController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/findEntidadeByNome/{nomeEntidade}")
-	public ResponseEntity<List<EntidadeDTO>> findEntidadeByNome( @PathVariable("nomeEntidade") String nomeEntidade ) throws ExceptionCustomizada{
+	public ResponseEntity<?> findEntidadeByNome( @PathVariable("nomeEntidade") String nomeEntidade, HttpServletRequest request ) throws ExceptionCustomizada{
+		try {
+			List<Entidade> listaEntidade = entidadeService.findEntidadeNome( nomeEntidade );
+			
+			if(listaEntidade == null) {
+				throw new ExceptionCustomizada("Não existe Entidades cadastradas com este nome: " + nomeEntidade);
+			}
+			
+			List<EntidadeDTO> dto = mapper.toDTOList(listaEntidade);
+			
+			return new ResponseEntity<List<EntidadeDTO>>(dto, HttpStatus.OK);
+	    } catch (ExceptionCustomizada ex) {
+	        // Formatação da data/hora
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	        sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
+	        String dataFormatada = sdf.format(new Date());
+	        
+	        // Criação do objeto de erro
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
 
-		List<Entidade> listaEntidade = entidadeService.findEntidadeNome( nomeEntidade );
-		
-		if(listaEntidade == null) {
-			throw new ExceptionCustomizada("Não existe Entidades cadastradas com este nome: " + nomeEntidade);
-		}
-		
-		List<EntidadeDTO> dto = mapper.toDTOList(listaEntidade);
-		
-		return new ResponseEntity<List<EntidadeDTO>>(dto, HttpStatus.OK);		
 	}
 
 	/******************************************************************/
@@ -150,17 +186,33 @@ public class EntidadeController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getIdEntidade/{id}")
-	public ResponseEntity<EntidadeDTO> getEntidadesIdEntidade( @PathVariable("id") Long id ) throws ExceptionCustomizada{
+	public ResponseEntity<?> getEntidadesIdEntidade( @PathVariable("id") Long id, HttpServletRequest request ) throws ExceptionCustomizada{
+		try {
+			Entidade entidade = entidadeService.getEntidadesId(id);
+			
+			if(entidade == null) {
+				throw new ExceptionCustomizada("Não existe Entidades relacionada ao CNPJ: " + id );
+			}
+			
+			EntidadeDTO dto = mapper.toDTO(entidade);
+			
+			return new ResponseEntity<EntidadeDTO>(dto, HttpStatus.OK);	
+	    } catch (ExceptionCustomizada ex) {
+	        // Formatação da data/hora
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	        sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
+	        String dataFormatada = sdf.format(new Date());
+	        
+	        // Criação do objeto de erro
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
 
-		Entidade entidade = entidadeService.getEntidadesId(id);
-		
-		if(entidade == null) {
-			throw new ExceptionCustomizada("Não existe Entidades relacionada ao CNPJ: " + id );
-		}
-		
-		EntidadeDTO dto = mapper.toDTO(entidade);
-		
-		return new ResponseEntity<EntidadeDTO>(dto, HttpStatus.OK);		
 	}
 	
 	/******************************************************************/
@@ -169,17 +221,37 @@ public class EntidadeController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getEntidadeByCidade/{cidade}")
-	public ResponseEntity<List<EntidadeDTO>> getEntidadeByCnpj( @PathVariable("cidade") String cidade ) throws ExceptionCustomizada{
+	public ResponseEntity<?> getEntidadeByCnpj( @PathVariable("cidade") String cidade, HttpServletRequest request ) throws ExceptionCustomizada{
 
-		List<Entidade> listaEntidade = entidadeService.listaEntidadeByCidade(cidade);
-		
-		if(listaEntidade == null) {
-			throw new ExceptionCustomizada("Não existe Entidades relacionada ao Cidade: " + cidade );
-		}
-		
-		List<EntidadeDTO> dto = mapper.toDTOList(listaEntidade); 
-		
-		return new ResponseEntity<List<EntidadeDTO>>(dto, HttpStatus.OK);		
+		try {
+			List<Entidade> listaEntidade = entidadeService.listaEntidadeByCidade(cidade);
+			
+			if(listaEntidade == null) {
+				throw new ExceptionCustomizada("Não existe Entidades relacionada ao Cidade: " + cidade );
+			}
+			
+			List<EntidadeDTO> dto = mapper.toDTOList(listaEntidade); 
+			
+			return new ResponseEntity<List<EntidadeDTO>>(dto, HttpStatus.OK);
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }		
 	}
 
 
