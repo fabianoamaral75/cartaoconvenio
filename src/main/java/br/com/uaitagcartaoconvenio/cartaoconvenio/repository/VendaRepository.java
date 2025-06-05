@@ -417,7 +417,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
                 + "    ven.id_conveniados,                                            "
                 + "    ven.id_taxa_conveiniados                                       ", 
         nativeQuery = true)
-   List<DadosFechamentoPagamentoCicloProjection> listaFechamentoVendaPorMesAutomatica(@Param("anoMes") String anoMes);  
+    List<DadosFechamentoPagamentoCicloProjection> listaFechamentoVendaPorMesAutomatica(@Param("anoMes") String anoMes);  
    
     /******************************************************************/
 	/*                                                                */
@@ -460,7 +460,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
                  + "      venda       ven                                           "
                  + "    , cartao      car                                           "
                  + "    , funcionario fun                                           "
-                 + " WHERE ven.ano_mes               = ?1                           "
+                 + " WHERE ven.ano_mes               = ?1                   "
                  + "   AND ven.status                = 'PAGAMENTO_APROVADO'         "
                  + "   AND ven.status_venda_recebida = 'AGURARDANDO_RECEBIMENTO'    "
                  + "   AND car.id_cartao             = ven.id_cartao                "

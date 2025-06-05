@@ -31,7 +31,7 @@ public interface TaxaEntidadeRepository extends JpaRepository<TaxaEntidade, Long
                  + " from                                 "
                  + "      TaxaEntidade     te             "
                  + " JOIN te.entidade     ent             "
-                 + " where ent.idEntidade = ?1            "
+                 + " where ent.idEntidade = ?1"
                  + "   and te.statusTaxaEntidade = 'ATUAL'" )
    TaxaEntidade taxaEntidadeAtualByIdEntidade( Long idEntidade ) ; 
 
