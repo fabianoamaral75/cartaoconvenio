@@ -70,6 +70,37 @@ public class ContratoEntidade {
     @OneToMany(mappedBy = "contratoEntidade", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ServicoContrato> servicos = new ArrayList<ServicoContrato>();
 
+    public void adicionarArquivo( ArqContratoEntidade arquivo ) {
+    	arquivo.setContratoEntidade(this);
+    	this.arquivos.add(arquivo);
+    }
+    
+    public void removerArquivo( ArqContratoEntidade arquivo ) {
+    	this.arquivos.remove(arquivo);
+    	arquivo.setContratoEntidade(null);
+    }
+    
+    public void adicionarVigencia( VigenciaContratoEntidade vigencia ) {
+    	vigencia.setContratoEntidade(this);
+    	this.vigencias.add(vigencia);
+    }
+    
+    public void removerVigencia( VigenciaContratoEntidade vigencia ) {
+    	this.vigencias.remove(vigencia);
+    	vigencia.setContratoEntidade(null);
+    }
+   
+    public void adicionarServico( ServicoContrato servico ) {
+    	servico.setContratoEntidade(this);
+    	this.servicos.add(servico);
+    }
+    
+    public void removerServico( ServicoContrato servico ) {
+    	this.servicos.remove(servico);
+    	servico.setContratoEntidade(null);
+    }
+   
+    
     @PrePersist
     protected void onCreate() {
         dtCadastro = LocalDateTime.now();

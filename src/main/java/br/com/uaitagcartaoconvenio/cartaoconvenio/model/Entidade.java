@@ -138,6 +138,9 @@ public class Entidade implements Serializable{
 
 	@OneToMany(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ContratoEntidade> contratoEntidade = new ArrayList<ContratoEntidade>();
+	
+	@OneToMany(mappedBy = "entidade", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TaxaConveniadaEntidade> taxasConveniadas = new ArrayList<>();
 
 	@PreUpdate
     public void preUpdate() {

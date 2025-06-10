@@ -34,6 +34,15 @@ public interface ContratoEntidadeMapper {
     @Mapping(target = "dtCadastro", ignore = true)
     ContratoEntidade toEntity(ContratoEntidadeDTO dto);
     
+    default List<ContratoEntidadeDTO> toListDto(List<ContratoEntidade> entities) {
+        if (entities == null) {
+            return null;
+        }
+        return entities.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+    
     // Método para converter ID em Entidade
     @Named("idToEntidade")
     default Entidade idToEntidade(Long id) {

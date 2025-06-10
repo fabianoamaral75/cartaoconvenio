@@ -3,6 +3,8 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,9 +20,12 @@ public class PeriodoCobrancaTaxaDTO {
 
     private Long id;
     private String descricao;
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private LocalDate dataInicio;
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private LocalDate dataFim;
     private String observacao;
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataCriacao;
     private Long tipoPeriodoId;
     private Long taxaExtraConveniadaId; 

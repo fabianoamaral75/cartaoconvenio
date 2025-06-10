@@ -1,8 +1,11 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +23,9 @@ public class ContratoEntidadeDTO {
 
     private Long idContratoEntidade;
 
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
+    private LocalDateTime dtCadastro;
+    
     @NotNull(message = "O valor mensal é obrigatório")
     @DecimalMin(value = "0.0", inclusive = false, message = "O valor mensal deve ser positivo")
     private BigDecimal vlrMensal;

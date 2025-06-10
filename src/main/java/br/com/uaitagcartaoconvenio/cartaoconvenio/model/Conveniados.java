@@ -106,6 +106,9 @@ public class Conveniados implements Serializable {
 
 	@OneToMany(mappedBy = "conveniados", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ContratoConveniado> contratoConveniado = new ArrayList<ContratoConveniado>();
+	
+	@OneToMany(mappedBy = "conveniados", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TaxaConveniadaEntidade> taxasEntidades = new ArrayList<>();
 
     // Método auxiliar para adicionar contrato
     public void adicionarContrato(ContratoConveniado contrato) {

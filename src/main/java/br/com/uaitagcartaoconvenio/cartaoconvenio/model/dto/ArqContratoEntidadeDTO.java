@@ -17,7 +17,7 @@ public class ArqContratoEntidadeDTO {
     private Long idArqContratoEntidade;
     private String caminhoArquivo;
     private String arqContrato;
- //   private String conteudoBase64;
+    private String conteudoBase64;
     private Integer tamanhoBytes;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dtUpload;

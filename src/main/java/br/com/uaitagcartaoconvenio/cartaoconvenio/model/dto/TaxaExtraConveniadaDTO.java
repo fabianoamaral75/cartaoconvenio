@@ -22,6 +22,6 @@ public class TaxaExtraConveniadaDTO {
     private BigDecimal valorTaxa;
     private String statusTaxa;
     private Long conveniadosId; 
-    private Long periodoCobrancaTaxaId;
+    private PeriodoCobrancaTaxaDTO periodoCobrancaTaxa;
     private List<Long> ciclosPagamentoIds;
 }

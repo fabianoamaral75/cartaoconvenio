@@ -43,4 +43,6 @@ public interface PeriodoCobrancaTaxaMapper {
         periodo.setId(id);
         return periodo;
     }
+    
+    
 }

@@ -4,6 +4,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,5 +15,6 @@ public class ItemTaxaExtraEntidadeDTO {
     private Long taxaExtraEntidadeId;
     private Long contasReceberId;
     private BigDecimal valorTaxa;
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataCadastro;
 }

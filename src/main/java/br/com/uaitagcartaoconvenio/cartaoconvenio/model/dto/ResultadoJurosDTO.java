@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +17,9 @@ public class ResultadoJurosDTO {
     private final BigDecimal taxaMensal;
     private final BigDecimal taxaDiaria;
     private final BigDecimal taxaPeriodo;
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private final LocalDate dataVencimento;
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private final LocalDate dataPagamento;
     private final long periodoDias;
     private final BigDecimal valorJuros;

@@ -27,7 +27,7 @@ public class ContratoConveniadoDTO {
     private Long idContratoConveniado;
 
     @Schema(description = "Data de criação do contrato", example = "2023-05-15T10:00:00")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dtCriacao;
 
     @Schema(description = "Nome do arquivo do contrato", example = "contrato_123.pdf")
@@ -40,7 +40,7 @@ public class ContratoConveniadoDTO {
     private Long tamanhoBytes;
 
     @Schema(description = "Data de upload do contrato", example = "2023-05-15T10:00:00")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataUpload;
 
     @Schema(description = "Observações sobre o contrato", example = "Contrato com cláusula especial")
