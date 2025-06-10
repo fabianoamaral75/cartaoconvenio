@@ -40,7 +40,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of = "id")
 @SequenceGenerator(name = "seq_id_taxa_conv_enti", sequenceName = "seq_id_taxa_conv_enti", allocationSize = 1, initialValue = 1)
 @Table(name = "TAXA_CONVENIADA_ENTIDADE")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idTaxaConveniadaEntidade")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class TaxaConveniadaEntidade implements Serializable {
     
     private static final long serialVersionUID = 1L;
