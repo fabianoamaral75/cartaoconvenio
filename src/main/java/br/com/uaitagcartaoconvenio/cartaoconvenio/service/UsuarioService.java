@@ -40,6 +40,8 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Usuario;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.UsuarioAcesso;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.VigenciaContratoConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CartaoDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.EntidadeLogadoDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.FuncionarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UauarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioAcessoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioDTO;
@@ -668,33 +670,38 @@ public class UsuarioService implements UserDetailsService{
 			
 			Optional<Funcionario> funcionario = funcionarioRepository.findByIdPessoa( userlogado.getPessoa().getIdPessoa() );
 			funcionario.ifPresentOrElse(
-				    f -> { /* código se existir */ 
+				    f -> { // código se existir  
 							usuarioLogado.setIsConveniada ( false  );
 							usuarioLogado.setIsUserSistema( false );
 							usuarioLogado.setIsEntidade   ( true );
 							
-							usuarioLogado.getPessoa().getFuncionario().setIdFuncionario( funcionario.get().getIdFuncionario() );
-							usuarioLogado.getPessoa().getFuncionario().setDtCriacao    ( funcionario.get().getDtCriacao()     );
-							usuarioLogado.getPessoa().getFuncionario().setDtAlteracao  ( funcionario.get().getDtAlteracao()   );
+					        // Garante que o FuncionarioDTO está inicializado
+					        if (usuarioLogado.getPessoa().getFuncionario() == null) {
+					            usuarioLogado.getPessoa().setFuncionario(new FuncionarioDTO());
+					        }
+
+							usuarioLogado.getPessoa().getFuncionario().setIdFuncionario( f.getIdFuncionario() );
+							usuarioLogado.getPessoa().getFuncionario().setDtCriacao    ( f.getDtCriacao()     );
+							usuarioLogado.getPessoa().getFuncionario().setDtAlteracao  ( f.getDtAlteracao()   );
 							// Info. sobre limite de credito usuario logado
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setIdLimiteCredito( funcionario.get().getLimiteCredito().getIdLimiteCredito() );
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setLimite         ( funcionario.get().getLimiteCredito().getLimite()          );
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setValorUtilizado ( funcionario.get().getLimiteCredito().getValorUtilizado()  );
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtCriacao      ( funcionario.get().getLimiteCredito().getDtCriacao()       );
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtAlteracao    ( funcionario.get().getLimiteCredito().getDtAlteracao()     );
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setIdLimiteCredito( f.getLimiteCredito().getIdLimiteCredito() );
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setLimite         ( f.getLimiteCredito().getLimite()          );
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setValorUtilizado ( f.getLimiteCredito().getValorUtilizado()  );
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtCriacao      ( f.getLimiteCredito().getDtCriacao()       );
+							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtAlteracao    ( f.getLimiteCredito().getDtAlteracao()     );
 							// Info. sobre salario usuario logado
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setIdSalario   ( funcionario.get().getSalario().getIdSalario()    );
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setValorBruto  ( funcionario.get().getSalario().getValorBruto()   );
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setValorLiquido( funcionario.get().getSalario().getValorLiquido() );
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setDtCriacao   ( funcionario.get().getSalario().getDtCriacao()    );
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setDtAlteracao ( funcionario.get().getSalario().getDtAlteracao()  );
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setIdSalario   ( f.getSalario().getIdSalario()    );
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setValorBruto  ( f.getSalario().getValorBruto()   );
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setValorLiquido( f.getSalario().getValorLiquido() );
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setDtCriacao   ( f.getSalario().getDtCriacao()    );
+							usuarioLogado.getPessoa().getFuncionario().getSalario().setDtAlteracao ( f.getSalario().getDtAlteracao()  );
 							// Info. sobre a pessoa, neste caso não será necessario. informado acima no objeto
 							usuarioLogado.getPessoa().getFuncionario().setPessoa(null);
 							// Info. sobre a Secretária caso o funcionário perteça a uma.
-							usuarioLogado.getPessoa().getFuncionario().getSecretaria().setIdSecretaria  ( funcionario.get().getSecretaria().getIdSecretaria()   );
-							usuarioLogado.getPessoa().getFuncionario().getSecretaria().setNomeSecretaria( funcionario.get().getSecretaria().getNomeSecretaria() );
+							usuarioLogado.getPessoa().getFuncionario().getSecretaria().setIdSecretaria  ( f.getSecretaria().getIdSecretaria()   );
+							usuarioLogado.getPessoa().getFuncionario().getSecretaria().setNomeSecretaria( f.getSecretaria().getNomeSecretaria() );
 							// Info. dos cartões do usuario logado. Cartões Desativados e Ativo.
-							for( Cartao carta : funcionario.get().getCartao() ) {
+							for( Cartao carta : f.getCartao() ) {
 								CartaoDTO cartaoDTO = new CartaoDTO();
 								cartaoDTO.setIdCartao    ( carta.getIdCartao()     );
 								cartaoDTO.setNumeracao   ( carta.getNumeracao()    );
@@ -705,23 +712,27 @@ public class UsuarioService implements UserDetailsService{
 								usuarioLogado.getPessoa().getFuncionario().getCartao().add(cartaoDTO);
 							}
 							
-							usuarioLogado.getPessoa().getFuncionario().getEntidade().setIdEntidade  ( funcionario.get().getEntidade().getIdEntidade()   );
-							usuarioLogado.getPessoa().getFuncionario().getEntidade().setNomeEntidade( funcionario.get().getEntidade().getNomeEntidade() );
+							usuarioLogado.getPessoa().getFuncionario().getEntidade().setIdEntidade  ( f.getEntidade().getIdEntidade()   );
+							usuarioLogado.getPessoa().getFuncionario().getEntidade().setNomeEntidade( f.getEntidade().getNomeEntidade() );
 							
-							usuarioLogado.getPessoa().getEntidade().setIdEntidade  ( funcionario.get().getEntidade().getIdEntidade()   );
-							usuarioLogado.getPessoa().getEntidade().setNomeEntidade( funcionario.get().getEntidade().getNomeEntidade() );
+					        // Garante que o FuncionarioDTO está inicializado
+					        if (usuarioLogado.getPessoa().getEntidade() == null) {
+					            usuarioLogado.getPessoa().setEntidade(new EntidadeLogadoDTO());
+					        }
+
+							
+							usuarioLogado.getPessoa().getEntidade().setIdEntidade  ( f.getEntidade().getIdEntidade()   );
+							usuarioLogado.getPessoa().getEntidade().setNomeEntidade( f.getEntidade().getNomeEntidade() );
 				    	
 				    },
-				    () -> { /* código se não existir */ 
+				    () -> { // código se não existir 
 						usuarioLogado.setIsConveniada ( false );
 						usuarioLogado.setIsUserSistema( true  );
 						usuarioLogado.setIsEntidade   ( false );
 				    }
-				);
-	
+				);			
 		}
-		
-		
+				
 		if( userlogado.getPessoa().getPessoaFisica() != null ) {
 			
 			usuarioLogado.getPessoa().getPessoaFisica().setIdPessoaFisica( userlogado.getPessoa().getPessoaFisica().getIdPessoaFisica() );
