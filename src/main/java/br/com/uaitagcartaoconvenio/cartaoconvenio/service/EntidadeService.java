@@ -1,9 +1,6 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +51,7 @@ public class EntidadeService {
 		// Transforma o arquivo em base64.
 		for( ContratoEntidade contEnt : entidade.getContratoEntidade() ) {
 			for( ArqContratoEntidade arqEnt : contEnt.getArquivos() ) {
-
+                /*
 				File arquivo = new File(arqEnt.getCaminhoArquivo());
 				
 			    if (!arquivo.exists() || !arquivo.isFile()) {
@@ -71,6 +68,8 @@ public class EntidadeService {
 			    arqEnt.setArqContrato(arquivo.getName());
 			    arqEnt.setConteudoBase64(base64);
 			    arqEnt.setTamanhoBytes(tamanho);
+			    arqEnt.setContratoEntidade(contEnt);
+			    */
 			    arqEnt.setContratoEntidade(contEnt);
 			}
 			contEnt.setEntidade(entidade);

@@ -87,9 +87,10 @@ public class Entidade implements Serializable{
 	@Column(name = "INSC_MUNICIPAL", length = 50)
 	private String inscMunicipal;
 
-	@NotNull(message = "O Logradoro da Entidade deverá ser informado!")
+	@NotNull(message = "O logradouro da Entidade deverá ser informado!")
 	@Column(name = "LOGRADORO", length = 300, nullable = false)
-	private String logradoro;
+	private String logradouro;
+	               
 	
 	@NotNull(message = "O UF da Entidade deverá ser informado!")
 	@Column(name = "UF", length = 2, nullable = false)
@@ -103,14 +104,14 @@ public class Entidade implements Serializable{
 	@Column(name = "CEP", length = 8, nullable = false)
 	private String cep;
 	
-	@NotNull(message = "O Número do Logradoro da Entidade deverá ser informado!")
+	@NotNull(message = "O Número do logradouro da Entidade deverá ser informado!")
 	@Column(name = "NUMERO", length = 20, nullable = false)
 	private String numero;
 	
 	@Column(name = "COMPLEMENTO", length = 500)
 	private String complemento;
 	
-	@NotNull(message = "O Bairro do Logradoro da Entidade deverá ser informado!")
+	@NotNull(message = "O Bairro do logradouro da Entidade deverá ser informado!")
 	@Column(name = "BAIRRO", length = 100, nullable = false)
 	private String bairro;
 		
