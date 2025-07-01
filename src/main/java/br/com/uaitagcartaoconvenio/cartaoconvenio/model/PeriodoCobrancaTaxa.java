@@ -60,6 +60,15 @@ public class PeriodoCobrancaTaxa {
     @Column(name = "DT_CRIACAO", updatable = false, nullable = false)
     private LocalDateTime dataCriacao;
     
+    @Column(name = "DATA_ULTIMA_COBRANCA")
+    private LocalDate dtUltimaCobranca;
+    
+    @Column(name = "DATA_PROXIMA_COBRANCA")
+    private LocalDate dtProximaCobranca;
+
+    @Column(name = "QTY_COBRANCA", columnDefinition = "bigint default 0")
+    private Long qtyCobranca;
+
  // Relacionamento 1:1 com TaxaExtraConveniada
     @OneToOne(mappedBy = "periodoCobrancaTaxa", cascade = CascadeType.ALL, orphanRemoval = true)
     private TaxaExtraConveniada taxaExtraConveniada;
@@ -71,13 +80,6 @@ public class PeriodoCobrancaTaxa {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_TIPO_PERIODO", nullable = false, foreignKey = @ForeignKey(name = "fk_periodo_cobranca_tipo"))
     private TipoPeriodo tipoPeriodo;
-
-    @PrePersist
-    public void validateDates() {
-        if (dataInicio.isAfter(dataFim)) {
-            throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
-        }
-    }
     
     public void setTaxaExtraConveniada(TaxaExtraConveniada taxa) {
         this.taxaExtraConveniada = taxa;
@@ -85,4 +87,15 @@ public class PeriodoCobrancaTaxa {
             taxa.setPeriodoCobrancaTaxa(this);
         }
     }
+    
+    @PrePersist
+    public void validateDates() {
+        if (dataInicio == null || dataFim == null) {
+            throw new IllegalArgumentException("Data de início e data de fim são obrigatórias");
+        }
+        if (dataInicio.isAfter(dataFim)) {
+            throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
+        }
+    }
+    
 }

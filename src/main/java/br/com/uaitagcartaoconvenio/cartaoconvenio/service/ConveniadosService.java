@@ -254,5 +254,9 @@ public class ConveniadosService {
 		
 	}
 
+    // Método 1: Atualização direta via query em lote
+    public int atualizarAnoMesRecebimentoPosFechamentoEmLote(List<Long> ids, String mesRecebimento) {
+        return conveniadosRepository.updateMesRecebimentoPosFechamentoEmLote(ids, mesRecebimento);
+    }
 
 }

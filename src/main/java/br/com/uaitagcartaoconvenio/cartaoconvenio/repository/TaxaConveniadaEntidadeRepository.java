@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
@@ -51,4 +52,17 @@ public interface TaxaConveniadaEntidadeRepository extends JpaRepository<TaxaConv
             Long idConveniados,
             StatusTaxaConv status
     );
+    
+    
+  	/******************************************************************/
+  	/*                                                                */
+  	/*                                                                */
+  	/******************************************************************/	
+    @Query("SELECT tce FROM TaxaConveniadaEntidade tce WHERE tce.statusTaxaConEnt = :status and tce.conveniados.idConveniados = :idConveniados and tce.entidade.idEntidade = :idEntidade")
+    Optional<TaxaConveniadaEntidade> findByIdAndEntidadeIdEntidadeAndStatusConveniados( 
+    		@Param("status"       ) StatusTaxaConv status      , 
+    		@Param("idEntidade"   ) Long           idEntidade  , 
+    		@Param("idConveniados") Long           idConveniados);
+
+
 }

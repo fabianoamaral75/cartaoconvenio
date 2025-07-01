@@ -40,7 +40,7 @@ public class TaxaExtraEntidadeController {
     
     @Autowired
     private TaxaExtraEntidadeMapper taxaExtraEntidadeMapper;
-
+    
     @PostMapping(value = "/salvarTaxaExtraEntidade")
     public ResponseEntity<?> criar(@RequestBody TaxaExtraEntidadeDTO dto, HttpServletRequest request ) throws ExceptionCustomizada, IOException{
     	try {
@@ -51,7 +51,7 @@ public class TaxaExtraEntidadeController {
 				throw new ExceptionCustomizada("Erro ao salvar Taxa Extra para Entidade!" );
 			}
     		
-    		return ResponseEntity.ok( dto );
+    		return ResponseEntity.ok( dtoRetorno );
     	   // return ResponseEntity.ok(service.criarTaxaExtra(dto));
     	
 	    } catch (ExceptionCustomizada ex) {

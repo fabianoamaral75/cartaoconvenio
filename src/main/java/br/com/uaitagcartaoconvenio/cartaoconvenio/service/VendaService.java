@@ -1,18 +1,23 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
 import java.math.BigDecimal;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusRestabeleceLimiteCredito;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaPg;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaReceb;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendas;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Cartao;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.LimiteCredito;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveniadaEntidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaEntidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Venda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ValidaVendaCataoPassaword;
@@ -31,21 +36,20 @@ public class VendaService {
 	@Autowired
 	private CartaoService cartaoService;
 	
+	@Autowired
+	private TaxaConveniadaEntidadeService txConveniadaEntidadeService;
+	
 	
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
 	public Venda salvarVendaService( Venda venda ) throws ExceptionCustomizada {
-		
-				
-		if ( venda.getConveniados().getIdConveniados() == null )  throw new ExceptionCustomizada( "Não informado uma Conveniados!" );
-		
-		
-		if ( venda.getItensVenda().isEmpty() || venda.getItensVenda().size() == 0 ) throw new ExceptionCustomizada( "Favor informar os Item(ns) da Venda!" );
-		
 
-		
+		if ( venda.getConveniados().getIdConveniados() == null )  throw new ExceptionCustomizada( "Não informado uma Conveniados!" );
+
+		if ( venda.getItensVenda().isEmpty() || venda.getItensVenda().size() == 0 ) throw new ExceptionCustomizada( "Favor informar os Item(ns) da Venda!" );
+
 		venda.setDescStatusVendaPg    ( StatusVendaPg.AGUARDANDO_PAGAMENTO             );
 		venda.setDescStatusVendaReceb ( StatusVendaReceb.AGURARDANDO_RECEBIMENTO       );
 		venda.setDescStatusVendas     ( StatusVendas.AGUARDANDO_PAGAMENTO              );
@@ -54,17 +58,19 @@ public class VendaService {
 		for(int ca = 0; ca < venda.getItensVenda().size(); ca++)
 			venda.getItensVenda().get(ca).setVenda(venda);
 		
+		/* Este valor será calculano quando a venda for evefivada pelo usuário, para validar se exite uma taxa diferenciada para a entidade do usuario/conveniado.
 		// Seta a Taxa Atual da Conveiniada
-		venda.setTaxaConveniados( taxaConveniadosService.getTaxaConveniadosAtualByIdConveniados(venda.getConveniados().getIdConveniados()) );
-		
-		Double valorCalcTaxaConvCalculado = FuncoesUteis.truncar( ( venda.getTaxaConveniados().getTaxa().doubleValue() / 100) * venda.getValorVenda().doubleValue() );
-		
+		venda.setTaxaConveniados( taxaConveniadosService.getTaxaConveniadosAtualByIdConveniados(venda.getConveniados().getIdConveniados()) );		
+		Double valorCalcTaxaConvCalculado = FuncoesUteis.truncar( ( venda.getTaxaConveniados().getTaxa().doubleValue() / 100) * venda.getValorVenda().doubleValue() );		
 		venda.setValorCalcTaxaConveniado(new BigDecimal(  valorCalcTaxaConvCalculado ));
+		*/
 		venda.setAnoMes(FuncoesUteis.getDataAtualFormatoYYYMM());
 
-		venda.setCartao(null);
-		venda.setTaxaEntidade(null);
-		venda.setValorCalcTaxaEntidade(new BigDecimal( 0));
+		venda.setCartao                 ( null               );
+		venda.setTaxaEntidade           ( null               );
+		venda.setValorCalcTaxaEntidade  ( new BigDecimal( 0) );
+		venda.setTaxaConveniados        ( null               );
+		venda.setValorCalcTaxaConveniado( new BigDecimal( 0 ));
 		
 		venda = vendaRepository.saveAndFlush( venda );
 		
@@ -72,19 +78,36 @@ public class VendaService {
 		
 	}
 	
-	/******************************************************************/
-	/*                                                                */
-	/*                                                                */
-	/******************************************************************/	
+	/***********************************************************************/
+	/*                                                                     */
+	/* Ajustes para alterar e validar em qual taxa o estabelecimento está. */
+	/*                                                                     */
+	/**
+	 * @throws AccessDeniedException *********************************************************************/	
 	public String validaVenda( ValidaVendaCataoPassaword validaVendaCataoPassaword )  {
 	    String strRetorno = "Venda Realizada com sucesso!";	
-		
-	    LimiteCredito limiteCredito = vendaRepository.validaVendaByCartaoSenha(validaVendaCataoPassaword.getCartao(), validaVendaCataoPassaword.getPassword());
-	 
-	    if( limiteCredito == null ) return "Favor verificar, Cartão ou Senha inválido!";
-	 
-	    Venda venda = vendaRepository.findVendaByIdVenda(validaVendaCataoPassaword.getIdVenda());
-	 
+	    
+	 // 1. Primeiro busque o usuário/cartão apenas pelo número do cartão
+	    LimiteCredito limiteCredito = vendaRepository.findByCartaoNumero(validaVendaCataoPassaword.getCartao());
+
+	    if (limiteCredito != null) {
+	        // 2. Obtenha o BCryptPasswordEncoder (pode ser injetado como bean também)
+	        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	        
+	        // 3. Compare a senha fornecida com o hash armazenado
+	        if (!encoder.matches(validaVendaCataoPassaword.getPassword().trim(), 
+	                            limiteCredito.getFuncionario().getPessoa().getUsuario().getSenha())) {
+	        	// Senha inválida
+	        	return "Senha incorreta";
+	        } 
+	    } else {
+	    	return "Cartão não encontrado";
+	    }
+	    
+	    
+	    Venda venda = getVendaByIdVendas( validaVendaCataoPassaword.getIdVenda() );
+//	    Venda venda = vendaRepository.findVendaByIdVenda( validaVendaCataoPassaword.getIdVenda() );
+	    	 
 	    if( venda == null ) return "Favor verificar, Venda não encontrada!";
 	    	 
 	    Double limiteFunc         = limiteCredito.getLimite().doubleValue();
@@ -102,11 +125,28 @@ public class VendaService {
 	    
 	    Double valorUtilizadoAtualizada = valorUtilizadoFunc + valorVenda;
 
-	    TaxaEntidade taxaEntidade = vendaRepository.taxaEntidadeByNumeroCatao(validaVendaCataoPassaword.getCartao());
-	    Double valorCalcTaxaEntCalc = FuncoesUteis.truncar(( taxaEntidade.getTaxaEntidade().doubleValue() /100 ) * venda.getValorVenda().doubleValue());
+	    // Verifica se existe uma taxa especifica da Conveniada para uma Entidade;
+	    Optional<TaxaConveniadaEntidade> taxaConveniadaEntidade = txConveniadaEntidadeService.getTxConvEntStatus(StatusTaxaConv.ATUAL, limiteCredito.getFuncionario().getEntidade().getIdEntidade(), venda.getConveniados().getIdConveniados());
 	    
-	    venda.setDescStatusVendas(StatusVendas.PAGAMENTO_APROVADO);
-	    venda.setDescRestLimiteCredito(StatusRestabeleceLimiteCredito.VENDA_REALIZADA);
+	    if( taxaConveniadaEntidade.isPresent() ) {
+			venda.setIdTaxaConveniadosEntidate(taxaConveniadaEntidade.get().getId());		
+			Double valorCalcTaxaConvCalculado = FuncoesUteis.truncar(( taxaConveniadaEntidade.get().getVlrTaxa().doubleValue() /100 ) * venda.getValorVenda().doubleValue());			
+			venda.setValorCalcTaxaConveniado(new BigDecimal(  valorCalcTaxaConvCalculado ));
+			venda.setTaxaConveniados(null);
+		
+		// Se não será utilizada a taxa Verifica se existe uma taxa especifica da Conveniada para a Entidade;	
+	    }else { 
+			venda.setTaxaConveniados( taxaConveniadosService.getTaxaConveniadosAtualByIdConveniados(venda.getConveniados().getIdConveniados()) );		
+			Double valorCalcTaxaConvCalculado = FuncoesUteis.truncar( ( venda.getTaxaConveniados().getTaxa().doubleValue() / 100) * venda.getValorVenda().doubleValue() );		
+			venda.setValorCalcTaxaConveniado(new BigDecimal(  valorCalcTaxaConvCalculado ));
+	    }
+
+	    venda.setDescStatusVendas     ( StatusVendas.PAGAMENTO_APROVADO                );
+	    venda.setDescRestLimiteCredito( StatusRestabeleceLimiteCredito.VENDA_REALIZADA );
+	    
+	    // Calcuclo o valor da taxa referente a Entidade!
+    	TaxaEntidade taxaEntidade   = vendaRepository.taxaEntidadeByNumeroCatao( validaVendaCataoPassaword.getCartao() );
+    	Double valorCalcTaxaEntCalc = FuncoesUteis.truncar(( taxaEntidade.getTaxaEntidade().doubleValue() /100 ) * venda.getValorVenda().doubleValue() );
 	    venda.setValorCalcTaxaEntidade(new BigDecimal(valorCalcTaxaEntCalc));
 	    venda.setTaxaEntidade(taxaEntidade);
 	    

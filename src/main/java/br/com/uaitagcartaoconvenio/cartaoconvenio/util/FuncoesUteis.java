@@ -399,5 +399,81 @@ public class FuncoesUteis {
         );
     }
 
-   
+    /**
+     * Retorna uma data no mês subsequente ao atual, com o dia especificado.
+     * 
+     * Esta função calcula a data correspondente ao dia fornecido (parâmetro 'day')
+     * no próximo mês. Caso o dia especificado seja inválido para o mês seguinte
+     * (ex: 31 de abril), a função automaticamente ajusta para o último dia válido
+     * desse mês.
+     * 
+     * @param day O dia do mês desejado (1-31). Se for maior que os dias do mês,
+     *            será ajustado para o último dia do mês.
+     * @return Um objeto java.util.Date representando a data calculada no próximo mês,
+     *         com o dia ajustado conforme necessário.
+     */
+    public static Date getDateNextMonth(int day) {
+        // Obter a data atual
+        LocalDate today = LocalDate.now();
+        
+        // Adicionar 1 mês
+        LocalDate nextMonth = today.plusMonths(1);
+        
+        // Ajustar o dia, usando o menor valor entre o dia solicitado e o último dia do mês
+        nextMonth = nextMonth.withDayOfMonth(Math.min(day, nextMonth.lengthOfMonth()));
+        
+        // Converter LocalDate para Date
+        return Date.from(nextMonth.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+    
+    /**
+     * Verifica se:
+     * 1. A data de comparação está entre as datas de início e fim (inclusive), OU
+     * 2. A data de comparação é maior que dataFim E qtyCobranca é igual a 11
+     *
+     * @param dataInicio Data de início do período (inclusive)
+     * @param dataFim Data de fim do período (inclusive)
+     * @param dataComparacao Data a ser comparada
+     * @param qtyCobranca Quantidade de cobrança
+     * @return true se atender a uma das condições acima
+     */
+    public static boolean verificarDataECobranca(LocalDate dataInicio, 
+                                               LocalDate dataFim, 
+                                               LocalDate dataComparacao, 
+                                               Long qtyCobranca) {
+        
+        // Verifica se a data está dentro do intervalo (primeira condição)
+        boolean dentroDoIntervalo = !dataComparacao.isBefore(dataInicio) && 
+                                  !dataComparacao.isAfter(dataFim);
+        
+        // Verifica a segunda condição (data após dataFim E qtyCobranca == 11)
+        boolean depoisComCobranca = dataComparacao.isAfter(dataFim) && 
+                                   qtyCobranca != null && 
+                                   qtyCobranca == 11L;
+        
+        return dentroDoIntervalo || depoisComCobranca;
+    }
+    
+    
+    
+    /**
+     * Verifica se:
+     * 1. A data de comparação está entre as datas de início e fim (inclusive)
+     *
+     * @param dataInicio Data de início do período (inclusive)
+     * @param dataFim Data de fim do período (inclusive)
+     * @param dataComparacao Data a ser comparada
+     * @return true se atender a uma das condições acima
+     */
+    public static boolean verificarDataCobrancaMensal(LocalDate dataInicio, 
+                                                      LocalDate dataFim, 
+                                                      LocalDate dataComparacao) {
+        
+        // Verifica se a data está dentro do intervalo (primeira condição)
+        boolean dentroDoIntervalo = !dataComparacao.isBefore(dataInicio) && 
+                                  !dataComparacao.isAfter(dataFim);
+
+        return dentroDoIntervalo;
+    }
+
 }

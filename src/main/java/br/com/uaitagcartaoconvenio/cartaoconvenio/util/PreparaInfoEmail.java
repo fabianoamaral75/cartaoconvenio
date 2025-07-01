@@ -53,11 +53,11 @@ public class PreparaInfoEmail {
 		NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
         
         // Popula o Map com os valores formatados
-        row.put("nome"     , getConveniadosName(obj.getConveniados().getIdConveniados())); 
-        row.put("periodo"  , obj.getAnoMes());
-        row.put("valor"    , currencyFormat.format( obj.getValorCiclo()                   ) );
-        row.put("taxaValor", currencyFormat.format( obj.getValorCalcTaxaConveniadoCiclo() ) );
-        row.put("taxaPercentual", formatPercent(obj.getTaxaConveniados().getTaxa()));
+        row.put("nome"     , getConveniadosName(obj.getConveniados().getIdConveniados()) ); 
+        row.put("periodo"  , obj.getAnoMes()                                             );
+        row.put("valor"    , currencyFormat.format( obj.getVlrCicloBruto() )             );
+        row.put("taxaValor", currencyFormat.format( obj.getVlrTaxaSecundaria() )         );
+        row.put("taxaPercentual", formatPercent(obj.getTaxaConveniados().getTaxa())      );
         
         return row;
     }

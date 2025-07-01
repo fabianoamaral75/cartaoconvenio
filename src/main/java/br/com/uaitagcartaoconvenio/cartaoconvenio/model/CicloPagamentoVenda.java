@@ -64,13 +64,29 @@ public class CicloPagamentoVenda implements Serializable{
 	private Date dtAlteracao = Calendar.getInstance().getTime();
 	
 	@NotNull(message = "O Valor referência do fechamento do ciclo deverá ser informado")
-	@Column(name = "VALOR_CICLO", nullable = false)
-	private BigDecimal valorCiclo; 
+	@Column(name = "VALOR_CICLO_BRUTO", nullable = false)
+	private BigDecimal vlrCicloBruto; 
 
-	@NotNull(message = "O Valor calculado da venda com a taxa da conveniada deverá ser informado")
-	@Column(name = "VALOR_CALC_TAXA_CONVENIADO_CICLO", nullable = false)
-	private BigDecimal valorCalcTaxaConveniadoCiclo; 
+	@NotNull(message = "O Valor da taxa secundaria da conveniada deverá ser informado")
+	@Column(name = "VALOR_TAXA_SECUNDARIA", nullable = false)
+	private BigDecimal vlrTaxaSecundaria; 
 
+	@NotNull(message = "O Valor líquido total do fechamento do ciclo deverá ser informado")
+	@Column(name = "VALOR_LIQUIDO", nullable = false)
+	private BigDecimal vlrLiquido; 
+	
+	@NotNull(message = "O Valor da taxa extra pelo percentual da conveniada deverá ser informado")
+	@Column(name = "VALOR_TAXA_EXTRA_PERCENTUAL", nullable = false)
+	private BigDecimal vlrTaxaExtraPercentual; 
+
+	@NotNull(message = "O Valor da taxa extra pelo valor da conveniada deverá ser informado")
+	@Column(name = "VALOR_TAXA_EXTRA_VALOR", nullable = false)
+	private BigDecimal vlrTaxaExtraValor;
+	
+	@NotNull(message = "O Valor líquido total a ser pago para o fechamento do ciclo deverá ser informado")
+	@Column(name = "VALOR_LIQUIDO_PAGAMENTO", nullable = false)
+	private BigDecimal vlrLiquidoPagamento; 
+		
 	@Column(name = "DT_PAGAMENTO", columnDefinition = "DATE")
 	private Date dtPagamento;
 
@@ -91,6 +107,9 @@ public class CicloPagamentoVenda implements Serializable{
 
     @Column(name = "data_upload", columnDefinition = "TIMESTAMP")
     private Date dataUpload;
+    
+	@Column(name = "ID_TAXA_CONVENIADOS_ENTIDATE", nullable = true)
+	private Long idTaxaConveniadosEntidate;
 
 	@NotNull(message = "Status da Conta a Receber da Entidade deverá ser informada!")
 	@Column(name = "STATUS", nullable = false, unique = false)
@@ -101,18 +120,19 @@ public class CicloPagamentoVenda implements Serializable{
 	@JoinColumn(name = "ID_CONVENIADOS", nullable = true, referencedColumnName = "ID_CONVENIADOS", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CICLO_PG_VENDA_CONV"))
 	private Conveniados conveniados;
 	
-	@NotNull(message = "O Tipo da mudança deve(m) ser informado!")
+//	@NotNull(message = "O Tipo da mudança deve(m) ser informado!")
 	@ManyToOne(targetEntity = TaxaConveniados.class)
-	@JoinColumn(name = "ID_TAXA_CONVEINIADOS", referencedColumnName = "ID_TAXA_CONVEINIADOS", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CICLO_PG_VENDA_TX_CONVEINIADOS"))
+	@JoinColumn(name = "ID_TAXA_CONVEINIADOS", referencedColumnName = "ID_TAXA_CONVEINIADOS", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CICLO_PG_VENDA_TX_CONVEINIADOS"))
 	private TaxaConveniados taxaConveniados;
 	
 	@OneToMany(mappedBy = "cicloPagamentoVenda", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<FechamentoConvItensVendas> fechamentoConvItensVendas = new ArrayList<FechamentoConvItensVendas>();
 	
-	// Adicione este campo à classe existente
-	@OneToMany(mappedBy = "cicloPagamentoVenda", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<CicloTaxaExtra> taxasExtras = new ArrayList<CicloTaxaExtra>();
 	
+    // Adicionar relacionamento com a tabela de junção
+    @OneToMany(mappedBy = "cicloPagamentoVenda", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemTaxaExtraConveniada> itemTaxaExtraConveniada = new ArrayList<ItemTaxaExtraConveniada>();   
+    
 	@PreUpdate
     public void preUpdate() {
 		dtAlteracao = Calendar.getInstance().getTime(); 
@@ -122,27 +142,20 @@ public class CicloPagamentoVenda implements Serializable{
 	protected void onCreate() {
 	    dtCriacao = Calendar.getInstance().getTime();
 	}
-	
-	public void adicionarTaxaExtra(TaxaExtraConveniada taxa, BigDecimal valorTaxaExtra) {
-	    CicloTaxaExtra cicloTaxaExtra = CicloTaxaExtra.builder()
-	            .cicloPagamentoVenda(this)
-	            .taxaExtraConveniada(taxa)
-	            .valorTaxaExtra(valorTaxaExtra)
-	            .build();
-	    taxasExtras.add(cicloTaxaExtra);
-	    taxa.getCiclosPagamento().add(cicloTaxaExtra);
-	}
 
-	public void removerTaxaExtra(TaxaExtraConveniada taxa) {
-	    CicloTaxaExtra cicloTaxaExtra = taxasExtras.stream()
-	            .filter(ct -> ct.getTaxaExtraConveniada().equals(taxa))
-	            .findFirst()
-	            .orElse(null);
-	    if (cicloTaxaExtra != null) {
-	        taxasExtras.remove(cicloTaxaExtra);
-	        taxa.getCiclosPagamento().remove(cicloTaxaExtra);
-	        cicloTaxaExtra.setCicloPagamentoVenda(null);
-	        cicloTaxaExtra.setTaxaExtraConveniada(null);
-	    }
+	@Override
+	public String toString() {
+		return "CicloPagamentoVenda [idCicloPagamentoVenda=" + idCicloPagamentoVenda + ", anoMes=" + anoMes
+				+ ", dtCriacao=" + dtCriacao + ", dtAlteracao=" + dtAlteracao + ", vlrCicloBruto=" + vlrCicloBruto
+				+ ", vlrTaxaSecundaria=" + vlrTaxaSecundaria + ", vlrLiquido=" + vlrLiquido
+				+ ", vlrTaxaExtraPercentual=" + vlrTaxaExtraPercentual + ", vlrTaxaExtraValor=" + vlrTaxaExtraValor
+				+ ", vlrLiquidoPagamento=" + vlrLiquidoPagamento + ", dtPagamento=" + dtPagamento
+				+ ", docAutenticacaoBanco=" + docAutenticacaoBanco + ", observacao=" + observacao + ", nomeArquivo="
+				+ nomeArquivo + ", conteudoBase64=" + conteudoBase64 + ", tamanhoBytes=" + tamanhoBytes
+				+ ", dataUpload=" + dataUpload + ", idTaxaConveniadosEntidate=" + idTaxaConveniadosEntidate
+				+ ", descStatusPagamento=" + descStatusPagamento + ", conveniados=" + conveniados + ", taxaConveniados="
+				+ taxaConveniados + ", fechamentoConvItensVendas=" + fechamentoConvItensVendas
+				+ ", itemTaxaExtraConveniada=" + itemTaxaExtraConveniada + "]";
 	}
+	
 }

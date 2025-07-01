@@ -17,13 +17,14 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TaxaExtraEntidadeDTO {
     private Long id;
-    private String descricao;
+    private String descricaoTaxa;
     private BigDecimal valor;
     private String status;
-    private String observacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataCriacao;
     private PeriodoCobrancaTaxaDTO periodoCobrancaTaxa;
     private Long entidadeId;
-    private List<ItemTaxaExtraEntidadeDTO> itensContasReceber;
+    private List<ItemTaxaExtraEntidadeDTO> itensTaxaExtraEntidade;
+    
+    
 }

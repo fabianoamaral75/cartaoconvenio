@@ -24,13 +24,14 @@ public interface TaxaExtraEntidadeMapper {
     // Adicionando método para lista
     List<TaxaExtraEntidadeDTO> toListDto(List<TaxaExtraEntidade> entities);
 
-    @Mapping(target = "periodoCobrancaTaxa", ignore = true)
+//    @Mapping(target = "periodoCobrancaTaxa", ignore = true)
     @Mapping(target = "entidade", ignore = true)
-    @Mapping(target = "itensContasReceber", ignore = true)
+    @Mapping(target = "itensTaxaExtraEntidade", ignore = true)
     TaxaExtraEntidade toEntity(TaxaExtraEntidadeDTO dto);
 
     @AfterMapping
     default void afterToEntity(@MappingTarget TaxaExtraEntidade entity, TaxaExtraEntidadeDTO dto) {
+    	
         if (dto.getPeriodoCobrancaTaxa() != null && dto.getPeriodoCobrancaTaxa().getId() != null) {
             PeriodoCobrancaTaxa periodo = new PeriodoCobrancaTaxa();
             periodo.setId(dto.getPeriodoCobrancaTaxa().getId());

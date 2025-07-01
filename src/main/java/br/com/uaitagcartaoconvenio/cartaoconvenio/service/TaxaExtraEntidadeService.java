@@ -1,7 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,6 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ItemTaxaExtraEntidad
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaExtraEntidadeDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.EntidadeRespository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ItemTaxaExtraEntidadeRepository;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.PeriodoCobrancaTaxaRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TaxaExtraEntidadeRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.TipoPeriodoRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,7 +31,7 @@ public class TaxaExtraEntidadeService {
 	@Autowired
     private TaxaExtraEntidadeRepository taxaExtraEntidadeRepository;
 	
-    private final PeriodoCobrancaTaxaRepository periodoRepository;
+ //   private final PeriodoCobrancaTaxaRepository periodoRepository;
     
     @Autowired
     private EntidadeRespository entidadeRepository;
@@ -49,30 +48,31 @@ public class TaxaExtraEntidadeService {
     @Transactional
     public TaxaExtraEntidadeDTO criarTaxaExtra(TaxaExtraEntidadeDTO dto) {
         TaxaExtraEntidade taxa = taxaExtraEntidadeMapper.toEntity(dto);
+
+        // Verifica se periodoCobrancaTaxa é nulo e inicializa se necessário
+        if (taxa.getPeriodoCobrancaTaxa() == null) {
+            taxa.setPeriodoCobrancaTaxa(new PeriodoCobrancaTaxa());
+        }
         
-        // Configurar relacionamentos obrigatórios
-        taxa.setPeriodoCobrancaTaxa(periodoRepository.findById(dto.getPeriodoCobrancaTaxa().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Período de cobrança não encontrado")));
+        // Verifica se periodoCobrancaTaxa é nulo e inicializa se necessário
+        if (taxa.getEntidade() == null) {
+            taxa.setEntidade(new Entidade());
+        }
+
+//      taxa.getPeriodoCobrancaTaxa().setTipoPeriodo( tipoPeriodoRepository.findById( dto.getPeriodoCobrancaTaxa().getTipoPeriodoId()).orElseThrow(() -> new ExceptionCustomizada("Tipo Período não encontrada")));
+//      taxa.setEntidade(entidadeRepository.findById( dto.getEntidadeId() ).orElseThrow(() -> new ExceptionCustomizada("Entidade não encontrada")));
         
-        taxa.setEntidade(entidadeRepository.findById(dto.getEntidadeId())
-                .orElseThrow(() -> new EntityNotFoundException("Entidade não encontrada")));
+        Optional<TipoPeriodo> tPeriodo = tipoPeriodoRepository.findById( dto.getPeriodoCobrancaTaxa().getTipoPeriodoId() ) ;
+        if( !tPeriodo.isPresent() ) throw new ExceptionCustomizada("Taxa Extra Entidade - Tipo Período não encontrada!");
+        taxa.getPeriodoCobrancaTaxa().setTipoPeriodo( tPeriodo.get() );
         
+        
+        Optional<Entidade> entidade = entidadeRepository.findById( dto.getEntidadeId() ) ;
+        if( !entidade.isPresent() ) throw new ExceptionCustomizada("Taxa Extra Entidade - Entidade não encontrada!");
+        taxa.setEntidade(entidade.get());
+                
         // Salvar a taxa primeiro
         TaxaExtraEntidade saved = taxaExtraEntidadeRepository.save(taxa);
-        
-        // Salvar os itens de relacionamento
-        if (dto.getItensContasReceber() != null) {
-            List<ItemTaxaExtraEntidade> itens = dto.getItensContasReceber().stream()
-                    .map(itemDto -> {
-                        ItemTaxaExtraEntidade item = itemMapper.toEntity(itemDto);
-                        item.setTaxaExtraEntidade(saved);
-                        return item;
-                    })
-                    .collect(Collectors.toList());
-            
-            itemRepository.saveAll(itens);
-            saved.setItensContasReceber(itens);
-        }
         
         return taxaExtraEntidadeMapper.toDto(saved);
     }
@@ -86,7 +86,7 @@ public class TaxaExtraEntidadeService {
         
         // Carregar os itens associados
         List<ItemTaxaExtraEntidade> itens = itemRepository.findByTaxaExtraEntidadeId(id);
-        dto.setItensContasReceber(itemMapper.toDTOList(itens));
+        dto.setItensTaxaExtraEntidade(itemMapper.toDTOList(itens));
         
         return dto;
     }
@@ -108,6 +108,9 @@ public class TaxaExtraEntidadeService {
     }
         
     public List<TaxaExtraEntidade> findAllByEntidadeId(Long idEntidade) throws ExceptionCustomizada {
+    	
+   // 	System.out.println("idEntidade: " + idEntidade);
+    	
         List<TaxaExtraEntidade> taxas = taxaExtraEntidadeRepository.findByEntidadeId(idEntidade);
         if (taxas.isEmpty()) {
             throw new ExceptionCustomizada("Não existem taxas para a entidade com ID: " + idEntidade);
@@ -146,10 +149,8 @@ public class TaxaExtraEntidadeService {
 
         // Cria período de cobrança
         PeriodoCobrancaTaxa periodo = new PeriodoCobrancaTaxa();
-        periodo.setDescricao  ( dto.getPeriodoCobrancaTaxa().getDescricao()  );
         periodo.setDataInicio ( dto.getPeriodoCobrancaTaxa().getDataInicio() );
         periodo.setDataFim    ( dto.getPeriodoCobrancaTaxa().getDataFim()    );
-        periodo.setObservacao ( dto.getPeriodoCobrancaTaxa().getObservacao() );
         periodo.setTipoPeriodo(tipoPeriodo);
 
         // Cria taxa
@@ -164,8 +165,8 @@ public class TaxaExtraEntidadeService {
     public TaxaExtraEntidade update(Long idEntidade, Long idTaxa, TaxaExtraEntidadeDTO dto) throws ExceptionCustomizada {
         TaxaExtraEntidade taxa = findById(idEntidade, idTaxa);
 
-        if (dto.getDescricao() != null) {
-            taxa.setDescricao(dto.getDescricao());
+        if (dto.getDescricaoTaxa() != null) {
+            taxa.setDescricaoTaxa(dto.getDescricaoTaxa());
         }
         
         if (dto.getValor() != null) {
@@ -179,10 +180,6 @@ public class TaxaExtraEntidadeService {
             taxa.setStatus(dto.getStatus());
         }
 
-        if (dto.getObservacao() != null) {
-            taxa.setObservacao(dto.getObservacao());
-        }
-
         // Atualiza período de cobrança se necessário
         if (dto.getPeriodoCobrancaTaxa().getDataInicio() != null || dto.getPeriodoCobrancaTaxa().getDataFim()    != null || 
             dto.getPeriodoCobrancaTaxa().getDescricao()  != null || dto.getPeriodoCobrancaTaxa().getObservacao() != null) {
@@ -190,8 +187,6 @@ public class TaxaExtraEntidadeService {
             PeriodoCobrancaTaxa periodo = taxa.getPeriodoCobrancaTaxa();
             if (dto.getPeriodoCobrancaTaxa().getDataInicio() != null) periodo.setDataInicio( dto.getPeriodoCobrancaTaxa().getDataInicio() );
             if (dto.getPeriodoCobrancaTaxa().getDataFim()    != null) periodo.setDataFim   ( dto.getPeriodoCobrancaTaxa().getDataFim()    );
-            if (dto.getPeriodoCobrancaTaxa().getDescricao()  != null) periodo.setDescricao ( dto.getPeriodoCobrancaTaxa().getDescricao()  );
-            if (dto.getPeriodoCobrancaTaxa().getObservacao() != null) periodo.setObservacao( dto.getPeriodoCobrancaTaxa().getObservacao() );
         }
 
         return taxaExtraEntidadeRepository.save(taxa);

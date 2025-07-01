@@ -27,6 +27,17 @@ public class TipoPeriodo {
 
     @Column(name = "DESC_TIPO_PERIODO", length = 200, nullable = false)
     private String descricao;
+    
+    /*
+     	P --> Cobrança Periodica
+		U --> Cobrança Unica
+		M --> Cobrança Mensal
+		A --> Cobrança Anaul
+		D --> Cobrança Adintamento
+		F --> Cobrança por Fechamnto
+     */
+    @Column(name = "TIPO", columnDefinition = "char(1) default 'U' check (TIPO in ('P', 'U', 'M', 'A', 'D', 'F'))", nullable = false)
+    private String tipo;
 
     @CreationTimestamp
     @Column(name = "DT_CRIACAO", updatable = false, nullable = false)

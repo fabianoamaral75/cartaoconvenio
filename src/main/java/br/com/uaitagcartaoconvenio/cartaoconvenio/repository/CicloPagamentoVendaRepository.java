@@ -89,24 +89,14 @@ public interface CicloPagamentoVendaRepository extends JpaRepository<CicloPagame
     @Modifying
     @Query("DELETE FROM CicloPagamentoVenda c WHERE c.idCicloPagamentoVenda IN :ids")
     void deleteAllByPagamentoIdIn(@Param("ids") List<Long> ids);
-    
-	/******************************************************************/
-	/*                                                                */
-	/* MMétodo padrão para deletar uma lista de entidades             */
-	/*                                                                */
-	/******************************************************************/	
-    // @Transactional
-    default void deleteAllCiclosPagamento(List<CicloPagamentoVenda> ciclos) {
-        deleteAll(ciclos); // O delete em cascata será aplicado automaticamente
-    }
-    
+        
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
 	@Query(value = "select count(1)                                                                     "
                  + " from CicloPagamentoVenda cp                                                        "
-                 + " where cp.anoMes              = ?1                                                  "
+                 + " where cp.anoMes              = ?1                                          "
                  + "   and cp.descStatusPagamento IN ( 'AGUARDANDO_PAGAMENTO', 'AGUARDANDO_UPLOAD_NF' ) " )
     Long isExistCicloPagamentoVenda( String anoMes ) ;  
 

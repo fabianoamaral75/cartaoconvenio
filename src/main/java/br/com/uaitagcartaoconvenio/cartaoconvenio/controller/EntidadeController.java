@@ -42,8 +42,7 @@ public class EntidadeController {
 	public ResponseEntity<?> salvarEntidade( @RequestBody Entidade entidade,HttpServletRequest request ) throws ExceptionCustomizada, IOException{
 		try {
 			if( entidade == null ) throw new ExceptionCustomizada("ERRO ao tentar cadastrar a Entidade. Valores vazios!");
-			
-			
+
 			entidade = entidadeService.salvarEntidadeService(entidade);
 			
 		    // Adicione estas anotações para evitar referências circulares

@@ -22,5 +22,6 @@ public class TipoPeriodoDTO {
     private String descricao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataCriacao;
+    private String tipo;
     private List<Long> periodosCobrancaIds; // Apenas os IDs
 }

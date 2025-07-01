@@ -46,35 +46,32 @@ public class TaxaExtraEntidade {
     @Column(name = "ID_TAXAS_EXTRA_ENTIDADE", nullable = false)
     private Long id;
 
-    @Column(name = "DESC_TAXAS_EXTRA_ENTIDADE", length = 200, nullable = false)
-    private String descricao;
-
+    @Column(name = "DESC_TAXA", length = 200, nullable = false)
+    private String descricaoTaxa;
+      
     @Column(name = "VLR_TAXA", nullable = false, precision = 19, scale = 2)
     private BigDecimal valor;
 
     @Column(name = "STATUS", length = 50, nullable = false)
     private String status;
 
-    @Column(name = "OBSERVACAO", columnDefinition = "TEXT")
-    private String observacao;
-
     @CreationTimestamp
     @Column(name = "DT_CRIACAO", updatable = false, nullable = false)
     private LocalDateTime dataCriacao;
 
     // Relacionamento 1:1 com PeriodoCobrancaTaxa (lado proprietário)
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "ID_PERIODO_COBRANCA_TAXA", nullable = false, foreignKey = @ForeignKey(name = "fk_taxa_extra_entidade_periodo"))
     private PeriodoCobrancaTaxa periodoCobrancaTaxa;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Entidade.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_ENTIDADE", nullable = false, foreignKey = @ForeignKey(name = "fk_taxa_extra_entidade"))
     private Entidade entidade;
 
     // Adicionar relacionamento com a tabela de junção
     @OneToMany(mappedBy = "taxaExtraEntidade", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ItemTaxaExtraEntidade> itensContasReceber = new ArrayList<>();
+    private List<ItemTaxaExtraEntidade> itensTaxaExtraEntidade = new ArrayList<ItemTaxaExtraEntidade>();
 
     public void setPeriodoCobrancaTaxa(PeriodoCobrancaTaxa periodo) {
         this.periodoCobrancaTaxa = periodo;

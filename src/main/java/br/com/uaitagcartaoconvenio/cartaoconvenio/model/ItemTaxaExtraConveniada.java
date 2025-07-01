@@ -29,23 +29,23 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "ITENS_TAXAS_EXTRA_ENTIDADE")
-public class ItemTaxaExtraEntidade {
+@Table(name = "ITENS_TAXAS_EXTRA_CONVENIADA")
+public class ItemTaxaExtraConveniada {
 
     @Id
-    @SequenceGenerator(name = "seq_item_taxa_extra", sequenceName = "seq_item_taxa_extra", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_item_taxa_extra")
-    @Column(name = "ID_ITEM_TAXA_EXTRA")
+    @SequenceGenerator(name = "seq_item_taxa_extra_conveniada", sequenceName = "seq_item_taxa_extra_conveniada", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_item_taxa_extra_conveniada")
+    @Column(name = "ID_ITEM_TAXA_EXTRA_CONVENIADA")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID_TAXAS_EXTRA_ENTIDADE", nullable = false, foreignKey = @ForeignKey(name = "fk_item_taxa_extra"))
-    private TaxaExtraEntidade taxaExtraEntidade;
-
+    @JoinColumn(name = "ID_TAXAS_EXTRA_CONVENIADA", nullable = false, referencedColumnName = "ID_TAXAS_EXTRA_CONVENIADA", foreignKey = @ForeignKey(name = "fk_item_taxa_extra_conv"))
+    private TaxaExtraConveniada taxaExtraConveniada;
+	
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID_CONTAS_RECEBER", nullable = false, foreignKey = @ForeignKey(name = "fk_item_conta_receber"))
-    private ContasReceber contasReceber;
-
+    @JoinColumn(name = "ID_CICLO_PAGAMENTO_VENDA", nullable = false, referencedColumnName = "ID_CICLO_PAGAMENTO_VENDA", foreignKey = @ForeignKey(name = "fk_item_conta_pagar"))
+    private CicloPagamentoVenda cicloPagamentoVenda;
+    
     @Column(name = "VLR_TAXA", nullable = false, precision = 19, scale = 2)
     private BigDecimal valorTaxa;
 
@@ -57,4 +57,5 @@ public class ItemTaxaExtraEntidade {
     public void setDataCadastro() {
         this.dataCadastro = LocalDateTime.now();
     }
+   
 }

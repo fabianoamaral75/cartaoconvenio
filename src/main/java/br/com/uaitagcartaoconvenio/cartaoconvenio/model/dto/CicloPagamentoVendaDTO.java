@@ -27,8 +27,14 @@ public class CicloPagamentoVendaDTO {
     private Date dtCriacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dtAlteracao;
-    private BigDecimal valorCiclo;
-    private BigDecimal valorCalcTaxaConveniadoCiclo;
+    
+	private BigDecimal vlrCicloBruto; 
+	private BigDecimal vlrTaxaSecundaria; 
+	private BigDecimal vlrLiquido; 
+	private BigDecimal vlrTaxaExtraPercentual; 
+	private BigDecimal vlrTaxaExtraValor;
+	private BigDecimal vlrLiquidoPagamento; 
+    
     @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private Date dtPagamento;
     private String docAutenticacaoBanco;
@@ -38,9 +44,10 @@ public class CicloPagamentoVendaDTO {
     private Long tamanhoBytes;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dataUpload;
+	private Long idTaxaConveniadosEntidate;
     private StatusCicloPgVenda descStatusPagamento;
     private ConveniadosResumoDTO conveniados = new ConveniadosResumoDTO();
     private TaxaConveniadosResumoDTO taxaConveniados = new TaxaConveniadosResumoDTO();
     private List<FechamentoConvItensVendasDTO> fechamentoConvItensVendas = new ArrayList<FechamentoConvItensVendasDTO>();
-    private List<CicloTaxaExtraDTO> taxasExtras = new ArrayList<>(); // Novo campo
+    private List<ItemTaxaExtraConveniadaDTO> itemTaxaExtraConveniada = new ArrayList<ItemTaxaExtraConveniadaDTO>();
 }

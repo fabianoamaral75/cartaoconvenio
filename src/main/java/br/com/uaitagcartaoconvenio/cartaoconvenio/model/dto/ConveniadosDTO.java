@@ -24,9 +24,10 @@ public class ConveniadosDTO {
     private Date dtCriacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dtAlteracao;
-    private Long qtyDiasPagamento;
+    private Long diaPagamento;	
     private String site;
     private String obs;
+    private String anoMesUltinoFechamento;	
     private StatusConveniada descStatusConveniada;
     private NichoResumoDTO nicho;
     private RamoAtividadeResumoDTO ramoAtividade;

@@ -31,6 +31,9 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 	/******************************************************************/	
 	@Query(value = "select ven from Venda ven where ven.idVenda = ?1 and ven.descStatusVendas in ('AGUARDANDO_PAGAMENTO', 'PAGAMENTO_NAO_APROVADO')")
 	Venda findVendaByIdVenda(Long idVenda);
+	
+	@Query("SELECT v FROM Venda v WHERE v.idVenda = :idVendaLista")
+	List<Venda> findVendasByIdVendaLista(@Param("idVendaLista") Long idVendaLista);
 
 	/******************************************************************/
 	/*                                                                */
@@ -242,15 +245,25 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 	/*                                                                */
 	/******************************************************************/	
    @Query(value = "select lim                  "
-           + "  from                      "
-           + "       Cartao           car "
-           + " JOIN car.funcionario   fun "
-           + " JOIN fun.limiteCredito lim "
-           + "  JOIN fun.pessoa       pes "
-           + " JOIN pes.usuario       usu "
-           + " where car.numeracao = ?1   "
-           + "   and usu.senha     = ?2   " )
+                + "  from                      "
+                + "       Cartao           car "
+                + " JOIN car.funcionario   fun "
+                + " JOIN fun.limiteCredito lim "
+                + " JOIN fun.pessoa        pes "
+                + " JOIN pes.usuario       usu "
+                + " where car.numeracao = ?1"
+                + "   and usu.senha     = ?2    " )
    LimiteCredito validaVendaByCartaoSenha( String numCatao, String pass ); 
+   
+   @Query(value = "select lim                  "
+                + "  from                      "
+                + "       Cartao           car "
+                + " JOIN car.funcionario   fun "
+                + " JOIN fun.limiteCredito lim "
+                + " JOIN fun.pessoa        pes "
+                + " JOIN pes.usuario       usu "
+                + " where car.numeracao = ?1")
+   LimiteCredito findByCartaoNumero(String numCartao);
 
 	/******************************************************************/
 	/*                                                                */
@@ -301,7 +314,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
    @Query(nativeQuery = true, value = "UPDATE                                              "
    		                            + " venda SET                                          "
    		                            + "   status_venda_recebida = 'AGUARDANDO_FECHAMENTO'  "
-   		                            + " WHERE ano_mes = ?1                                 "
+   		                            + " WHERE ano_mes = ?1                         "
    		                            + "   AND status  = 'PAGAMENTO_APROVADO'               " )
    void updateStatusVendaRecebFechamentoAutomatico( String anoMes );		
 
@@ -310,14 +323,15 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
    /*                                                                */
    /******************************************************************/	
    @Modifying(flushAutomatically = true)
-   @Query(nativeQuery = true, value = " update venda                                                                          "
-   		                            + "   set                                                                                 "
-   		                            + "    STATUS_VENDA_RECEBIDA = 'AGURARDANDO_RECEBIMENTO'                                  "
-   		                            + "  , STATUS_VENDA_PAGA     = 'AGUARDANDO_PAGAMENTO'                                     "
-   		                            + "  , STATUS                = 'PAGAMENTO_APROVADO'                                       "
-   		                            + " where ano_mes               = ?1                                                      "
-   		                            + "   and STATUS_VENDA_RECEBIDA in ( 'AGURARDANDO_RECEBIMENTO', 'AGUARDANDO_FECHAMENTO' ) "
-   		                            + "   and STATUS_VENDA_PAGA     in ( 'AGUARDANDO_PAGAMENTO'   , 'AGUARDANDO_FECHAMENTO' ) " )
+   @Query(nativeQuery = true, value = " update venda                                          "
+   		                            + "   set                                                 "
+   		                            + "    STATUS_VENDA_RECEBIDA = 'AGURARDANDO_RECEBIMENTO'  "
+   		                            + "  , STATUS_VENDA_PAGA     = 'AGUARDANDO_PAGAMENTO'     "
+   		                            + "  , STATUS                = 'PAGAMENTO_APROVADO'       "
+   		                            + " where ano_mes               = ?1              "
+   		                            + "   and STATUS_VENDA_RECEBIDA = 'AGUARDANDO_FECHAMENTO' "
+   		                            + "   and STATUS_VENDA_PAGA     = 'AGUARDANDO_FECHAMENTO' "
+   		                            + "   and STATUS                = 'AGUARDANDO_FECHAMENTO' " )
    void updateStatusVendaReprocessamentoFechamento( String anoMes );		
 
    
@@ -402,20 +416,22 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 	/*                                                                */
 	/******************************************************************/
    @Transactional(readOnly = true)
-   @Query(value = "SELECT                                                             "
-                + "    ven.ano_mes AS anoMes                                        , "
-                + "    SUM(ven.valor_venda) AS somatorioValorVenda                  , "
-                + "    SUM(ven.valor_calc_taxa_conveniado) AS somatorioVlrCalcTxConv, "
-                + "    ven.id_conveniados AS idConveniados                          , "
-                + "    ven.id_taxa_conveiniados AS idTaxaConveniados                  "
-                + " FROM public.venda ven                                             "
-                + " WHERE ven.ano_mes           = :anoMes                             "
-                + "   AND ven.status            = 'PAGAMENTO_APROVADO'                "
-                + "   AND ven.status_venda_paga = 'AGUARDANDO_PAGAMENTO'              " 
-                + " GROUP BY                                                          "
-                + "    ven.ano_mes,                                                   "
-                + "    ven.id_conveniados,                                            "
-                + "    ven.id_taxa_conveiniados                                       ", 
+   @Query(value = "SELECT                                                                 "
+                + "    ven.ano_mes AS anoMes                                            , "
+                + "    SUM(ven.valor_venda) AS somatorioValorVenda                      , "
+                + "    SUM(ven.valor_calc_taxa_conveniado) AS somatorioVlrCalcTxConv    , "
+                + "    ven.id_conveniados                  AS idConveniados             , "
+                + "    ven.id_taxa_conveiniados            AS idTaxaConveniados         , "
+                + "    ven.id_taxa_conveniados_entidate    AS idTaxaConveniadosEntidate   "
+                + " FROM public.venda ven                                                 "
+                + " WHERE ven.ano_mes           = :anoMes                                 "
+                + "   AND ven.status            = 'PAGAMENTO_APROVADO'                    "
+                + "   AND ven.status_venda_paga = 'AGUARDANDO_PAGAMENTO'                  " 
+                + " GROUP BY                                                              "
+                + "    ven.ano_mes,                                                       "
+                + "    ven.id_conveniados,                                                "
+                + "    ven.id_taxa_conveiniados,                                          "
+                + "    ven.id_taxa_conveniados_entidate                                   ", 
         nativeQuery = true)
     List<DadosFechamentoPagamentoCicloProjection> listaFechamentoVendaPorMesAutomatica(@Param("anoMes") String anoMes);  
    

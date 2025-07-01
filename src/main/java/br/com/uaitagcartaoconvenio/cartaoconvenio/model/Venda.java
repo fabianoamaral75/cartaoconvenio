@@ -106,10 +106,13 @@ public class Venda implements Serializable{
 	@JoinColumn(name = "ID_CONVENIADOS", nullable = true, referencedColumnName = "ID_CONVENIADOS", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_CONVENIADO"))
 	private Conveniados conveniados;
 	
-	@NotNull(message = "O Taxa configurada para desconto na venda da Conveniada deverá ser informada!")
+	//@NotNull(message = "O Taxa configurada para desconto na venda da Conveniada deverá ser informada!")
 	@ManyToOne(targetEntity = TaxaConveniados.class)
-	@JoinColumn(name = "ID_TAXA_CONVEINIADOS", referencedColumnName = "ID_TAXA_CONVEINIADOS", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_TX_CONVEINIADO"))
+	@JoinColumn(name = "ID_TAXA_CONVEINIADOS", referencedColumnName = "ID_TAXA_CONVEINIADOS", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_VENDA_TX_CONVEINIADO"))
 	private TaxaConveniados taxaConveniados;
+	
+	@Column(name = "ID_TAXA_CONVENIADOS_ENTIDATE", nullable = true)
+	private Long idTaxaConveniadosEntidate;
 
 //	@NotNull(message = "A Taxa configurada para desconto aplicada para a Prefeitura deverá ser informada!")
 	@ManyToOne(targetEntity = TaxaEntidade.class)

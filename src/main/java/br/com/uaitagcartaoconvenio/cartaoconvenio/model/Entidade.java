@@ -63,9 +63,9 @@ public class Entidade implements Serializable{
 	@Column(name = "DIA_RECEBIMENTO", nullable = false, columnDefinition = "bigint default 0")
 	private Long diaRecebimento;	
 	
-	@NotNull(message = "Indica em quantos mês deverá ser programado o recebimento, após fechamento!")
-	@Column(name = "MES_RECEBIMENTO_POS_FECHAMENTO", nullable = false, columnDefinition = "bigint default 0")
-	private Long mesRecebimentoPosFechamento;	
+	// @NotNull(message = "Indica o último mês que foi realizado um fechamento para a Entidade!")
+	@Column(name = "ANO_MES_ULTINO_FECHAMENTO",length = 6)
+	private String anoMesUltinoFechamento;	
 
 	@Column(name = "SITE", length = 500)
 	private String site;
@@ -142,6 +142,9 @@ public class Entidade implements Serializable{
 	
 	@OneToMany(mappedBy = "entidade", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TaxaConveniadaEntidade> taxasConveniadas = new ArrayList<>();
+
+	@OneToMany(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<TaxaExtraEntidade> taxaExtraEntidade = new ArrayList<TaxaExtraEntidade>();
 
 	@PreUpdate
     public void preUpdate() {

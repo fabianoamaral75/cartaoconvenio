@@ -167,13 +167,31 @@ public class EntidadeService {
 		return listaEntidades;
 		
 	}	
-	
-	
-	
+
 	public Entidade findByIdEntity( Long id )  {
 		return entidadeRespository.findById(id).orElseThrow(() -> new RuntimeException("Entidade nã0 encontrado para o ID: " + id));
 		
 	}
 	
+    public void atualizarAnoMesRecebimentoPosFechamento(Long idEntidade, String mesRecebimento) {
+    	entidadeRespository.updateMesRecebimentoPosFechamento(idEntidade, mesRecebimento);
+    }
+    
+    // Método 1: Atualização direta via query em lote
+    public int atualizarAnoMesRecebimentoPosFechamentoEmLote(List<Long> ids, String mesRecebimento) {
+        return entidadeRespository.updateMesRecebimentoPosFechamentoEmLote(ids, mesRecebimento);
+    }
 
+    // Método 2: Atualização via entidade em lote (chama os callbacks @PreUpdate)
+     public List<Entidade> atualizarAnoMesRecebimentoEmLote(List<Long> ids, String mesRecebimento) {
+        List<Entidade> entidades = entidadeRespository.findAllById(ids);
+        if (entidades.size() != ids.size()) {
+            throw new RuntimeException("Alguns IDs não foram encontrados");
+        }
+        
+        entidades.forEach(entidade -> 
+            entidade.setAnoMesUltinoFechamento(mesRecebimento));
+        
+        return entidadeRespository.saveAll(entidades);
+    }
 }

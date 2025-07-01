@@ -61,16 +61,15 @@ public class Conveniados implements Serializable {
 	@NotNull(message = "Dia do mês a ser realizado o pagamento após fechamento!")
 	@Column(name = "DIA_PAGAMENTO", nullable = false, columnDefinition = "bigint default 0")
 	private Long diaPagamento;	
-	
-	@NotNull(message = "Indica quantos mês deverá ser realizado o pagamento após fechamento!")
-	@Column(name = "MES_PAGAMENTO_POS_FECHAMENTO", nullable = false, columnDefinition = "bigint default 0")
-	private Long mesPagamentoPosFechamento;	
 		
 	@Column(name = "SITE", length = 500)
 	private String site;
 
 	@Column(name = "OBS", length = 50000)
 	private String obs;	
+	
+	@Column(name = "ANO_MES_ULTINO_FECHAMENTO", length = 6)
+	private String anoMesUltinoFechamento;	
 	
 	@NotNull(message = "Status da Conveniada deverá ser informada!")
 	@Column(name = "STATUS", nullable = false)

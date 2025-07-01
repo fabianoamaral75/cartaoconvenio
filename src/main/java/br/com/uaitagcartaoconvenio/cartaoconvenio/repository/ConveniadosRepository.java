@@ -18,8 +18,8 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
 	
 	@Query(value = "select tx                             "
 			     + "  from Conveniados con                "
-			     + "   join con.taxaConveniados tx       "
-			     + " where con.idConveniados = ?1         "
+			     + "   join con.taxaConveniados tx        "
+			     + " where con.idConveniados = ?1 "
 			     + "   and tx.descStatusTaxaCon = 'ATUAL' " 
 			     )
     TaxaConveniados findTxConvByIdconv(Long idConv);
@@ -42,30 +42,20 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
                  + " JOIN pe.pessoaJuridica pj "
                  + " where pj.cnpj = ?1        " )
    Conveniados conveniadosByCnpj( String cnpj) ;  
-/*
-   @Query(value = " select con                "
-                + " from                      "
-                + "      Conveniados      con "
-                + " JOIN con.pessoa        pe "
-                + " where upper(trim(pe.nomePessoa)) like upper(concat('%', ?1, '%'))" )
-   List<Conveniados> listaConveniadosByNome( String nome) ; 
-*/   
+
    @Query("SELECT c FROM Conveniados c WHERE UPPER(c.pessoa.nomePessoa) LIKE UPPER(CONCAT('%', :nome, '%'))")
    List<Conveniados> listaConveniadosByNome(@Param("nome") String nome);
-   
-/*
-   @Query(value = "select con                 "
-                + " from                      "
-                + "      Conveniados      con "
-                + " JOIN con.pessoa        pe "
-                + " where upper(trim(pe.cidade)) like upper(concat('%', ?1, '%'))" )
-   List<Conveniados> listaConveniadosByCidade( String cidade) ; 
- */
-   
+      
    @Query("SELECT c FROM Conveniados c WHERE c.pessoa.cidade = :cidade")
    List<Conveniados> listaConveniadosByCidade(@Param("cidade") String cidade);
 
-	@Query(value = "SELECT qty_dias_pagamento FROM conveniados where id_conveniados = ?1", nativeQuery = true)
-	int qtyDiasPagamento( Long id );
+	@Query(value = "SELECT DIA_PAGAMENTO FROM conveniados where id_conveniados = ?1", nativeQuery = true)
+	int getDiasPagamento( Long id );
+
+	
+	// Método para atualizar em lote para múltiplos IDs
+    @Modifying
+    @Query("UPDATE Conveniados e SET e.anoMesUltinoFechamento = :mesRecebimento, e.dtAlteracao = CURRENT_TIMESTAMP WHERE e.idConveniados IN :ids")
+    int updateMesRecebimentoPosFechamentoEmLote(@Param("ids") List<Long> ids, @Param("mesRecebimento") String mesRecebimento);
 
 }

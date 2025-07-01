@@ -58,7 +58,7 @@ public class TaxaExtraConveniadaService {
     }
     
 
-    public List<TaxaExtraConveniada> findAllByConveniadoId(Long idConveniado) {
+    public List<TaxaExtraConveniada> findAllTaxaByConveniadoId(Long idConveniado) {
         return taxaExtraConveniadaRepository.findByConveniadoId(idConveniado);
     }
 
@@ -155,4 +155,6 @@ public class TaxaExtraConveniadaService {
         return status != null && 
                (status.equals("ATIVA") || status.equals("DESATIVA") || status.equals("SUSPENSO"));
     }
+    
+     
 }

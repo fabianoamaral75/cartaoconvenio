@@ -42,6 +42,15 @@ public class TaxaConveniadaEntidadeService {
     public List<TaxaConveniadaEntidade> findAllByEntidadeAndConveniados(Long idEntidade, Long idConveniados) {
         return repository.findByEntidadeIdEntidadeAndConveniadosIdConveniados(idEntidade, idConveniados);
     }
+    
+    
+    public Optional<TaxaConveniadaEntidade> getTxConvEntStatus(StatusTaxaConv status, Long idEntidade, Long idConveniados) {
+    	
+        return repository.findByIdAndEntidadeIdEntidadeAndStatusConveniados(status, idEntidade, idConveniados);
+     }
+    
+    
+    
 
     public TaxaConveniadaEntidade findByIdAndEntidadeAndConveniados(Long idTaxa, Long idEntidade, Long idConveniados) 
         throws ExceptionCustomizada {

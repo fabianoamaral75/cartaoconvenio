@@ -58,20 +58,27 @@ public class TaxaExtraConveniada {
 
     @Column(name = "STATUS_TAXA", length = 200, nullable = false)
     private String statusTaxa;
+    
+    @Column(name = "TIPO_COBRANCA_PERCENTUAL", nullable = false, columnDefinition = "boolean default false")
+    private Boolean tipoCobrancaPercentual;
+    
+    @Column(name = "COBRANCA_VALOR_BRUTO", nullable = false, columnDefinition = "boolean default false")
+    private Boolean cobrancaValorBruto;
+
 
     @ManyToOne(targetEntity = Conveniados.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_CONVENIADOS", nullable = false, foreignKey = @ForeignKey(name = "fk_taxa_extra_conveniados"))
     private Conveniados conveniados;
-    
-    // Adicione este campo à classe existente
-    @OneToMany(mappedBy = "taxaExtraConveniada", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<CicloTaxaExtra> ciclosPagamento = new ArrayList<CicloTaxaExtra>();
-    
+        
     // Relacionamento 1:1 com PeriodoCobrancaTaxa (lado proprietário)
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "ID_PERIODO_COBRANCA_TAXA", nullable = false, foreignKey = @ForeignKey(name = "fk_taxa_extra_periodo"))
     private PeriodoCobrancaTaxa periodoCobrancaTaxa;
+     
+    // Adicionar relacionamento com a tabela de junção
+    @OneToMany(mappedBy = "taxaExtraConveniada", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ItemTaxaExtraConveniada> itemTaxaExtraConveniada = new ArrayList<ItemTaxaExtraConveniada>();   
     
     @PrePersist
     public void prePersist() {

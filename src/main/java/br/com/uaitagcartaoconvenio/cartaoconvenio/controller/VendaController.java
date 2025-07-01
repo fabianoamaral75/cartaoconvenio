@@ -1,6 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.file.AccessDeniedException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -79,7 +80,8 @@ public class VendaController {
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */
-	/******************************************************************/	
+	/**
+	 * @throws AccessDeniedException ****************************************************************/	
 	@ResponseBody
 	@PostMapping(value = "/validaVenda")
 	public ResponseEntity<?> validaVenda( @RequestBody ValidaVendaCataoPassaword validaVendaCataoPassaword, HttpServletRequest request ) throws ExceptionCustomizada, UnsupportedEncodingException{

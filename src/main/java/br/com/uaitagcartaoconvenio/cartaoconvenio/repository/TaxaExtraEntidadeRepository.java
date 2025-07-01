@@ -12,8 +12,17 @@ import java.util.Optional;
 @Repository
 public interface TaxaExtraEntidadeRepository extends JpaRepository<TaxaExtraEntidade, Long> {
 
-    @Query("SELECT t FROM TaxaExtraEntidade t WHERE t.entidade.id = :idEntidade")
+    @Query("SELECT t "
+         + " FROM TaxaExtraEntidade t                "
+		 + " LEFT JOIN FETCH t.periodoCobrancaTaxa p " 
+		 + " LEFT JOIN FETCH p.tipoPeriodo           " 
+		 + " LEFT JOIN FETCH t.entidade              " 
+         + "WHERE t.entidade.id = :idEntidade        "
+         )
     List<TaxaExtraEntidade> findByEntidadeId(@Param("idEntidade") Long idEntidade);
+    
+    
+    
 
     @Query("SELECT t FROM TaxaExtraEntidade t WHERE t.entidade.id = :idEntidade AND t.id = :idTaxa")
     Optional<TaxaExtraEntidade> findByEntidadeIdAndTaxaId(@Param("idEntidade") Long idEntidade, 
@@ -22,4 +31,5 @@ public interface TaxaExtraEntidadeRepository extends JpaRepository<TaxaExtraEnti
     @Query("SELECT t FROM TaxaExtraEntidade t WHERE t.entidade.id = :idEntidade AND t.status = :status")
     List<TaxaExtraEntidade> findByEntidadeIdAndStatus(@Param("idEntidade") Long idEntidade, 
                                                     @Param("status") String status);
+    
 }
