@@ -21,15 +21,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusReceber;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.ItemTaxaExtraEntidadeMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContasReceber;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.FechamentoEntContasReceber;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ContasReceberDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ContatoWorkflowDTO;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ItemTaxaExtraEntidadeDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.WorkflowInformativoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ContasReceberRepository;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ItemTaxaExtraEntidadeRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.BusinessException;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.EmailFechamentoException;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.EmailService;
@@ -55,13 +52,7 @@ public class ContasReceberService {
 	
 	@Autowired
 	private VendaService vendaService;
-	
-	@Autowired
-	private ItemTaxaExtraEntidadeRepository itemRepository;
-	
-	@Autowired
-	private ItemTaxaExtraEntidadeMapper itemMapper;
-	
+		
 	private static final Logger logger = LogManager.getLogger(ContasReceberService.class);
 
 
@@ -438,7 +429,4 @@ public class ContasReceberService {
        return row;
    }
    
-   public List<ItemTaxaExtraEntidadeDTO> listarTaxasExtrasPorConta(Long contasReceberId) {
-	    return itemMapper.toDTOList(itemRepository.findByContasReceberId(contasReceberId));
-	}
 }

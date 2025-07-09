@@ -112,10 +112,6 @@ public class ContasReceber implements Serializable{
 	@OneToMany(mappedBy = "contasReceber", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<FechamentoEntContasReceber> fechamentoEntContasReceber = new ArrayList<FechamentoEntContasReceber>();
 
-    // Adicionar relacionamento com a tabela de junção
-    @OneToMany(mappedBy = "contasReceber", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemTaxaExtraEntidade> itensTaxasExtras = new ArrayList<>();
-
 	@PreUpdate
     public void preUpdate() {
 		dtAlteracao = Calendar.getInstance().getTime(); 

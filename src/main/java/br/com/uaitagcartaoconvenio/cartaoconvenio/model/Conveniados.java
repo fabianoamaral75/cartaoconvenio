@@ -85,6 +85,10 @@ public class Conveniados implements Serializable {
 	@ManyToOne(targetEntity = RamoAtividade.class)
 	@JoinColumn(name = "ID_RAMO_ATIVIDADE", referencedColumnName = "ID_RAMO_ATIVIDADE", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_conveniados_ramo_atividade"))
 	private RamoAtividade ramoAtividade;
+	
+    @Column(name = "IS_TAXAS_FAIXA_VENDAS", nullable = false, columnDefinition = "boolean default true")
+    private Boolean isTaxasFaixaVendas;
+
 
 	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<CicloPagamentoVenda> CicloPagamentoVenda = new ArrayList<CicloPagamentoVenda>();

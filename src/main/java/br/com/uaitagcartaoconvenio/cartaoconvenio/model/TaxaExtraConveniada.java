@@ -93,4 +93,14 @@ public class TaxaExtraConveniada {
             periodo.setTaxaExtraConveniada(this);
         }
     }
+
+	@Override
+	public String toString() {
+		return "TaxaExtraConveniada [id=" + id + ", descricaoTaxa=" + descricaoTaxa + ", dataCriacao=" + dataCriacao
+				+ ", valorTaxa=" + valorTaxa + ", statusTaxa=" + statusTaxa + ", tipoCobrancaPercentual="
+				+ tipoCobrancaPercentual + ", cobrancaValorBruto=" + cobrancaValorBruto + ", conveniados=" + conveniados
+				+ ", periodoCobrancaTaxa=" + periodoCobrancaTaxa + ", itemTaxaExtraConveniada="
+				+ itemTaxaExtraConveniada + "]";
+	}
+    
 }

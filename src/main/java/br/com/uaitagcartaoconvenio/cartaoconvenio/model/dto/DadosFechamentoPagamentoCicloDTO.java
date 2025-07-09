@@ -19,5 +19,15 @@ public class DadosFechamentoPagamentoCicloDTO {
 	private Long idConveniados;
 	private Long idTaxaConveniados;
 	private Long idTaxaConveniadosEntidate;
+	
+	@Override
+	public String toString() {
+		return "DadosFechamentoPagamentoCicloDTO [anoMes=" + anoMes + ", somatorioValorVenda=" + somatorioValorVenda
+				+ ", somatorioVlrCalcTxConv=" + somatorioVlrCalcTxConv + ", idConveniados=" + idConveniados
+				+ ", idTaxaConveniados=" + idTaxaConveniados + ", idTaxaConveniadosEntidate="
+				+ idTaxaConveniadosEntidate + "]";
+	}
+	
+	
 
 }

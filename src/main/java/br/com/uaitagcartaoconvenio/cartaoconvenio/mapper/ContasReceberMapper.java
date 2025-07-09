@@ -10,22 +10,7 @@ import org.mapstruct.ReportingPolicy;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContasReceber;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ContasReceberDTO;
-/*
-@Mapper(componentModel = "spring", uses = {
-		                                    TaxaEntidadeMapper.class, EntidadeMapper.class
-		                                    // , FechamentoEntContasReceberMapper.class
-                                          }, unmappedTargetPolicy = ReportingPolicy.IGNORE)
-}
-public interface ContasReceberMapper {
-   // ContasReceberMapper INSTANCE = Mappers.getMapper(ContasReceberMapper.class);
 
-    ContasReceberDTO toDto(ContasReceber contasReceber);
-    List<ContasReceberDTO> toListDto(List<ContasReceber> listContasReceber); 
-    ContasReceber toEntity(ContasReceberDTO contasReceberDTO);
-}
-*/
-
-//ContasReceberMapper.java
 @Mapper(componentModel = "spring", 
      uses = {TaxaEntidadeMapper.class, EntidadeMapper.class}, // Remova FechamentoEntContasReceberMapper
      unmappedTargetPolicy = ReportingPolicy.IGNORE)

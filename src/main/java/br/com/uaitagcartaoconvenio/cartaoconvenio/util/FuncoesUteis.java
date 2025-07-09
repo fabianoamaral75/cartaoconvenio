@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class FuncoesUteis {
+	
     private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("yyyyMM");
     private static final DateTimeFormatter OUTPUT_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -475,5 +476,140 @@ public class FuncoesUteis {
 
         return dentroDoIntervalo;
     }
+    
+
+  
+    /**
+     * Calcula o valor correspondente a uma porcentagem de um valor em real.
+     *
+     * @param valorReal O valor base em reais (BigDecimal).
+     * @param porcentagem A porcentagem a ser calculada (BigDecimal). Ex: 10.0 para 10%.
+     * @return O valor da porcentagem aplicada ao valorReal, com escala de 2 casas decimais.
+     * @throws IllegalArgumentException Se valorReal ou porcentagem forem nulos.
+     */
+    public static BigDecimal calcularPorcentagem(BigDecimal valorReal, BigDecimal porcentagem) {
+        // Validação dos parâmetros para evitar NullPointerException
+        if (valorReal == null || porcentagem == null) {
+            throw new IllegalArgumentException("Os parâmetros não podem ser nulos");
+        }
+
+        // Converte a porcentagem para sua forma decimal (ex: 10% -> 0.10)
+        // Usamos 10 casas decimais e arredondamento HALF_UP para garantir precisão
+        BigDecimal porcentagemDecimal = porcentagem.divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP);
+
+        // Calcula o valor da porcentagem (valorReal * porcentagemDecimal)
+        BigDecimal resultado = valorReal.multiply(porcentagemDecimal);
+
+        // Ajusta o resultado para 2 casas decimais (formato monetário padrão)
+        resultado = resultado.setScale(2, RoundingMode.HALF_UP);
+
+        return resultado;
+    }
+/*
+    public static void main(String[] args) {
+        // Exemplo de uso da função
+        BigDecimal valor = new BigDecimal("1500.00");
+        BigDecimal porcentagem = new BigDecimal("10.0"); // 10%
+
+        BigDecimal resultado = calcularPorcentagem(valor, porcentagem);
+        System.out.println("10% de R$" + valor + " = R$" + resultado);
+    }
+*/ 
+    
+
+    /**
+     * Realiza o cálculo que soma os dois últimos valores e subtrai do primeiro valor,
+     * garantindo que o resultado nunca seja negativo.
+     * 
+     * @param primeiroValor O valor base que será subtraído (BigDecimal)
+     * @param segundoValor O primeiro valor a ser somado (BigDecimal)
+     * @param terceiroValor O segundo valor a ser somado (BigDecimal)
+     * @return Resultado da operação (primeiroValor - (segundoValor + terceiroValor)),
+     *         ou ZERO caso o resultado seja negativo
+     * @throws IllegalArgumentException Se qualquer parâmetro for nulo
+     */
+    public static BigDecimal calcularSubtracaoLimitada(BigDecimal primeiroValor, 
+                                                     BigDecimal segundoValor, 
+                                                     BigDecimal terceiroValor) {
+        
+        // Validação dos parâmetros de entrada
+        if (primeiroValor == null || segundoValor == null || terceiroValor == null) {
+            throw new IllegalArgumentException("Nenhum dos parâmetros pode ser nulo");
+        }
+
+        // Soma os dois últimos valores (segundoValor + terceiroValor)
+        BigDecimal somaValores = segundoValor.add(terceiroValor);
+
+        // Subtrai a soma do primeiro valor (primeiroValor - somaValores)
+        BigDecimal resultado = primeiroValor.subtract(somaValores);
+
+        // Verifica se o resultado é negativo
+        if (resultado.compareTo(BigDecimal.ZERO) < 0) {
+            // Retorna 0 se o resultado for negativo
+            return BigDecimal.ZERO;
+        }
+
+        // Retorna o resultado da operação se for positivo ou zero
+        return resultado;
+    }
+    
+
+    /**
+     * Realiza o cálculo que soma os três últimos valores e subtrai do primeiro valor.
+     * 
+     * @param primeiroValor O valor base que será subtraído (BigDecimal)
+     * @param segundoValor O primeiro valor a ser somado (BigDecimal)
+     * @param terceiroValor O segundo valor a ser somado (BigDecimal)
+     * @param quartoValor O terceiro valor a ser somado (BigDecimal)
+     * @return Resultado da operação (primeiroValor - (segundoValor + terceiroValor + quartoValor))
+     *         Pode retornar valor negativo, positivo ou zero
+     * @throws IllegalArgumentException Se qualquer parâmetro for nulo
+     */
+    public static BigDecimal calcularSubtracao(BigDecimal primeiroValor , 
+                                               BigDecimal segundoValor  , 
+                                               BigDecimal terceiroValor ,
+                                               BigDecimal quartoValor   ) {
+        
+        // Validação dos parâmetros de entrada
+        if (primeiroValor == null || segundoValor == null || 
+            terceiroValor == null || quartoValor == null) {
+            throw new IllegalArgumentException("Nenhum dos parâmetros pode ser nulo");
+        }
+
+        // Soma os três últimos valores (segundoValor + terceiroValor + quartoValor)
+        BigDecimal somaValores = segundoValor.add(terceiroValor).add(quartoValor);
+
+        // Subtrai a soma do primeiro valor (primeiroValor - somaValores)
+        return primeiroValor.subtract(somaValores);
+    }    
+    
+    
+    
+    
+    
+/*
+    public static void main(String[] args) {
+        // Exemplo 1: Resultado positivo
+        BigDecimal valor1 = new BigDecimal("100.50");
+        BigDecimal valor2 = new BigDecimal("30.25");
+        BigDecimal valor3 = new BigDecimal("20.25");
+        BigDecimal resultado1 = calcularSubtracaoLimitada(valor1, valor2, valor3);
+        System.out.println("Resultado 1: " + resultado1);  // Deve imprimir 50.00
+
+        // Exemplo 2: Resultado negativo (retorna 0)
+        BigDecimal valor4 = new BigDecimal("50.00");
+        BigDecimal valor5 = new BigDecimal("30.00");
+        BigDecimal valor6 = new BigDecimal("40.00");
+        BigDecimal resultado2 = calcularSubtracaoLimitada(valor4, valor5, valor6);
+        System.out.println("Resultado 2: " + resultado2);  // Deve imprimir 0
+
+        // Exemplo 3: Valores decimais
+        BigDecimal valor7 = new BigDecimal("75.30");
+        BigDecimal valor8 = new BigDecimal("25.10");
+        BigDecimal valor9 = new BigDecimal("25.20");
+        BigDecimal resultado3 = calcularSubtracaoLimitada(valor7, valor8, valor9);
+        System.out.println("Resultado 3: " + resultado3);  // Deve imprimir 25.00
+    }
+*/    
 
 }

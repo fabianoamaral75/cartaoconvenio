@@ -52,10 +52,25 @@ public class ItemTaxaExtraConveniada {
     @CreationTimestamp
     @Column(name = "DT_CADASTRO", updatable = false, nullable = false)
     private LocalDateTime dataCadastro;
+    
+    @Column(name = "TIPO_COBRANCA_PERCENTUAL", nullable = false, columnDefinition = "boolean default false")
+    private Boolean tipoCobrancaPercentual;
+
+    @Column(name = "COBRANCA_VALOR_BRUTO", nullable = false, columnDefinition = "boolean default false")
+    private Boolean cobrancaValorBruto;
 
     @PrePersist
     public void setDataCadastro() {
         this.dataCadastro = LocalDateTime.now();
     }
-   
+
+	@Override
+	public String toString() {
+		return "ItemTaxaExtraConveniada [id=" + id + ", taxaExtraConveniada=" + taxaExtraConveniada
+				+ ", cicloPagamentoVenda=" + cicloPagamentoVenda + ", valorTaxa=" + valorTaxa + ", dataCadastro="
+				+ dataCadastro + ", tipoCobrancaPercentual=" + tipoCobrancaPercentual + ", cobrancaValorBruto="
+				+ cobrancaValorBruto + "]";
+	}
+
+
 }

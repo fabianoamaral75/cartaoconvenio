@@ -391,7 +391,7 @@ public class CicloPagamentoVendaService {
         });
         
     	try {
-	       System.out.println(listaCiclos); 
+//	       System.out.println(listaCiclos); 
            return cicloPagamentoVendaRepository.saveAll(listaCiclos);
 	     }catch (Exception e) {
 	    	 System.err.println(e.getMessage());

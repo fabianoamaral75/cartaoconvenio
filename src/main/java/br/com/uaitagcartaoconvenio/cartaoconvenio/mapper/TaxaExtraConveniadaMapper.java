@@ -19,11 +19,11 @@ public interface TaxaExtraConveniadaMapper {
  //   TaxaExtraConveniadaMapper INSTANCE = Mappers.getMapper(TaxaExtraConveniadaMapper.class);
 
     @Mapping(target = "conveniadosId", source = "conveniados.idConveniados")
-    @Mapping(target = "periodoCobrancaTaxa", source = "periodoCobrancaTaxa")
+//    @Mapping(target = "periodoCobrancaTaxa", source = "periodoCobrancaTaxa")
     TaxaExtraConveniadaDTO toDTO(TaxaExtraConveniada entity);
 
     @Mapping(target = "conveniados", ignore = true)
-    @Mapping(target = "periodoCobrancaTaxa", ignore = true)
+ //   @Mapping(target = "periodoCobrancaTaxa", ignore = true)
     TaxaExtraConveniada toEntity(TaxaExtraConveniadaDTO dto);
 
     List<TaxaExtraConveniadaDTO> toListDTO(List<TaxaExtraConveniada> taxas);

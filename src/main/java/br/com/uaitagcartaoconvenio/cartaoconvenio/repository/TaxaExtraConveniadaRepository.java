@@ -12,10 +12,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaExtraConveniada;
 
 @Repository
 public interface TaxaExtraConveniadaRepository extends JpaRepository<TaxaExtraConveniada, Long> {
-/*
-    @Query("SELECT t FROM TaxaExtraConveniada t WHERE t.conveniados.id = :idConveniado")
-    List<TaxaExtraConveniada> findByConveniadoId(@Param("idConveniado") Long idConveniado);
-*/    
+
 	@Query("SELECT t FROM TaxaExtraConveniada t         " +
 		   "    LEFT JOIN FETCH t.periodoCobrancaTaxa p " +
 		   "    LEFT JOIN FETCH p.tipoPeriodo           " +

@@ -36,7 +36,8 @@ public class FecahementoCicloController {
 			String retornoMensagem = fecahementoCicloService.fechamentoCiclo( anoMesAnterior, false);
 			
 			if(!retornoMensagem.equals("FECHAMENTO_AUTOMATICO_OK")) {
-				throw new ExceptionCustomizada("Erro ao realizar o Fechamento Automatico!");
+				// throw new ExceptionCustomizada("Erro ao realizar o Fechamento Automatico!");
+				throw new ExceptionCustomizada( retornoMensagem );
 			}
 
 			return new ResponseEntity<String>(retornoMensagem, HttpStatus.OK);

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaExtraConveniada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxasFaixaVendas;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,5 +27,9 @@ public class ItemTaxaExtraConveniadaDTO {
     private BigDecimal valorTaxa;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataCadastro;
+    private Long idTaxasFaixaVendas;
+    private Boolean cobrancaValorBruto;
+    private TaxasFaixaVendas taxasFaixaVendas;
+    private Boolean tipoCobrancaPercentual;
 
 }

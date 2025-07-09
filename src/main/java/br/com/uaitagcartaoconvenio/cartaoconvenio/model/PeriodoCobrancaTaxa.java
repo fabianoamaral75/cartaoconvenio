@@ -73,10 +73,6 @@ public class PeriodoCobrancaTaxa {
     @OneToOne(mappedBy = "periodoCobrancaTaxa", cascade = CascadeType.ALL, orphanRemoval = true)
     private TaxaExtraConveniada taxaExtraConveniada;
     
-    // Relacionamento 1:1 com TaxaExtraEntidade
-    @OneToOne(mappedBy = "periodoCobrancaTaxa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private TaxaExtraEntidade taxaExtraEntidade;
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_TIPO_PERIODO", nullable = false, foreignKey = @ForeignKey(name = "fk_periodo_cobranca_tipo"))
     private TipoPeriodo tipoPeriodo;

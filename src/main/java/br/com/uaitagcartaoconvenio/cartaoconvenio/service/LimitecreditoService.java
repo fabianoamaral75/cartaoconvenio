@@ -2,6 +2,7 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,13 +38,24 @@ public class LimitecreditoService {
        //     throw new EntityNotFoundException("Limite de crédito não encontrado");
        // }
     }
-    
+/*    
 	public List<RestabelecerLimitCreditoDTO> listaRestabelecerLimiteCredito( String anoMes ) {
 		
-		return limitecreditoRepository.listaRestabelecerLimiteCredito( anoMes );		
+		 return limitecreditoRepository.listaRestabelecerLimiteCredito( anoMes );		
 
 	}
-	
+*/	
+
+    public List<RestabelecerLimitCreditoDTO> listaRestabelecerLimiteCredito(String anoMes) {
+        return limitecreditoRepository.listaRawRestabelecerLimiteCredito(anoMes).stream()
+            .map(obj -> new RestabelecerLimitCreditoDTO(
+                ((Number) obj[0]).longValue(),
+                ((Number) obj[1]).longValue(),
+                new BigDecimal(obj[2].toString())
+            ))
+            .collect(Collectors.toList());
+    }
+
 //	
     public int updateRollbackRestabelecerLimiteCredito(Long idFuncionario, BigDecimal valor) {
          

@@ -33,7 +33,8 @@ public class CicloPagamentoVendaDTO {
 	private BigDecimal vlrLiquido; 
 	private BigDecimal vlrTaxaExtraPercentual; 
 	private BigDecimal vlrTaxaExtraValor;
-	private BigDecimal vlrLiquidoPagamento; 
+	private BigDecimal vlrLiquidoPagamento;
+	private BigDecimal vlrTaxasFaixaVendas; 
     
     @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private Date dtPagamento;
@@ -50,4 +51,5 @@ public class CicloPagamentoVendaDTO {
     private TaxaConveniadosResumoDTO taxaConveniados = new TaxaConveniadosResumoDTO();
     private List<FechamentoConvItensVendasDTO> fechamentoConvItensVendas = new ArrayList<FechamentoConvItensVendasDTO>();
     private List<ItemTaxaExtraConveniadaDTO> itemTaxaExtraConveniada = new ArrayList<ItemTaxaExtraConveniadaDTO>();
+    private TaxasFaixaVendasDTO taxasFaixaVendas = new TaxasFaixaVendasDTO();
 }

@@ -27,7 +27,8 @@ public class ConveniadosDTO {
     private Long diaPagamento;	
     private String site;
     private String obs;
-    private String anoMesUltinoFechamento;	
+    private String anoMesUltinoFechamento;
+    private Boolean isTaxasFaixaVendas;
     private StatusConveniada descStatusConveniada;
     private NichoResumoDTO nicho;
     private RamoAtividadeResumoDTO ramoAtividade;

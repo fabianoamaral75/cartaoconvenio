@@ -19,12 +19,10 @@ public interface PeriodoCobrancaTaxaMapper {
 
     @Mapping(target = "tipoPeriodoId", source = "tipoPeriodo.id")
     @Mapping(target = "taxaExtraConveniadaId", source = "taxaExtraConveniada.id")
-    @Mapping(target = "taxaExtraEntidadeId", source = "taxaExtraEntidade.id")
     PeriodoCobrancaTaxaDTO toDTO(PeriodoCobrancaTaxa entity);
 
     @Mapping(target = "tipoPeriodo", ignore = true)
     @Mapping(target = "taxaExtraConveniada", ignore = true)
-    @Mapping(target = "taxaExtraEntidade", ignore = true)
     PeriodoCobrancaTaxa toEntity(PeriodoCobrancaTaxaDTO dto);
 
     @Named("mapTaxasExtrasToIds")

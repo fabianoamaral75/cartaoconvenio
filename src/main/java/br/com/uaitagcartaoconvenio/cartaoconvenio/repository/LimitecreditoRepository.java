@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.LimiteCredito;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.RestabelecerLimitCreditoDTO;
 
 @Repository
 @Transactional
@@ -42,7 +41,8 @@ public interface LimitecreditoRepository extends JpaRepository<LimiteCredito, Lo
 	                + "   AND fun.id_funcionario                      = car.id_funcionario   "
 	                + " GROUP BY ven.id_cartao, fun.id_funcionario                           "
 	                + " ORDER BY ven.id_cartao                                               " , nativeQuery = true )
-	   List<RestabelecerLimitCreditoDTO> listaRestabelecerLimiteCredito( String anoMes ) ;  
+//	   List<RestabelecerLimitCreditoDTO> listaRestabelecerLimiteCredito( String anoMes ) ;
+	   List<Object[]> listaRawRestabelecerLimiteCredito(String anoMes);
 	   
 	   @Modifying(flushAutomatically = true, clearAutomatically = true)
 	   @Query(nativeQuery = true, value = "UPDATE limite_credito SET valor_utilizado = GREATEST(0, (valor_utilizado - :valor)) WHERE id_funcionario = :id")

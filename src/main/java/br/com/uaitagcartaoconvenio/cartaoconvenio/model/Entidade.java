@@ -143,9 +143,6 @@ public class Entidade implements Serializable{
 	@OneToMany(mappedBy = "entidade", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TaxaConveniadaEntidade> taxasConveniadas = new ArrayList<>();
 
-	@OneToMany(mappedBy = "entidade", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<TaxaExtraEntidade> taxaExtraEntidade = new ArrayList<TaxaExtraEntidade>();
-
 	@PreUpdate
     public void preUpdate() {
 		dtAlteracao = Calendar.getInstance().getTime(); 

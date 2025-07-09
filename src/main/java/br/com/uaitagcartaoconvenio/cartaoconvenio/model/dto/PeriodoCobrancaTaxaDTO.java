@@ -18,21 +18,22 @@ import lombok.Setter;
 @Builder
 public class PeriodoCobrancaTaxaDTO {
 
-    private Long id;
-    private String descricao;
+    private Long          id;
+    private String        descricao;
     @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
-    private LocalDate dataInicio;
+    private LocalDate     dataInicio;
     @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
-    private LocalDate dataFim;
-    private String observacao;
+    private LocalDate     dataFim;
+    private String        observacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataCriacao;
     private LocalDate     dtUltimaCobranca;
     private LocalDate     dtProximaCobranca;
-    private Long qtyCobranca;
-    private Long tipoPeriodoId;
-    private Long taxaExtraConveniadaId; 
-    private Long taxaExtraEntidadeId;
+    private Long          qtyCobranca;
+    private Long          tipoPeriodoId;
+    private Long          taxaExtraConveniadaId; 
+    private Long          taxaExtraEntidadeId;
+    
 	@Override
 	public String toString() {
 		return "PeriodoCobrancaTaxaDTO [id=" + id + ", descricao=" + descricao + ", dataInicio=" + dataInicio
@@ -40,8 +41,6 @@ public class PeriodoCobrancaTaxaDTO {
 				+ ", dtUltimaCobranca=" + dtUltimaCobranca + ", dtProximaCobranca=" + dtProximaCobranca
 				+ ", qtyCobranca=" + qtyCobranca + ", tipoPeriodoId=" + tipoPeriodoId + ", taxaExtraConveniadaId="
 				+ taxaExtraConveniadaId + ", taxaExtraEntidadeId=" + taxaExtraEntidadeId + "]";
-	} 
-    
-    
-    
+	}     
 }
+

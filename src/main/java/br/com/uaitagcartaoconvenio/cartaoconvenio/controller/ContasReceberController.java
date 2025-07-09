@@ -363,38 +363,6 @@ public class ContasReceberController {
 
     }
 
-    @GetMapping("/{id}/taxas-extra")
-    public ResponseEntity<?> listarTaxasExtras(@PathVariable Long id, HttpServletRequest request ) throws ExceptionCustomizada, IOException{
-    	try {
-    		
-    		if( id == null ) {
-				throw new ExceptionCustomizada("Não existe taxas extra para o ID: " + id );
-			}
-    		
-    		return ResponseEntity.ok(contasReceberService.listarTaxasExtrasPorConta(id));
-    		
-	    } catch (ExceptionCustomizada ex) {
-	    	
-	    	long timestamp = System.currentTimeMillis();
 
-	    	// Criar formato desejado
-	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
-
-	    	// Converter
-	    	String dataFormatada = sdf.format(new Date(timestamp));
-	    	
-	        ErrorResponse error = new ErrorResponse(
-	            HttpStatus.BAD_REQUEST.value(),
-	            ex.getMessage(),
-	            request.getRequestURI(),
-	            dataFormatada
-	        );
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-	    }
-
-
-        
-    }
     
 }

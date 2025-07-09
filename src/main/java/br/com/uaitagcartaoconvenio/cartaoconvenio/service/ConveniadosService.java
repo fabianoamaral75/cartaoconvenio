@@ -199,7 +199,7 @@ public class ConveniadosService {
 		
 		pessoa.setPessoaFisica(null);
 		pessoa.setFuncionario(null);
-		
+		pessoa.getConveniados().setIsTaxasFaixaVendas(true);
 				
 		pessoa = pessoaService.savarPassoa(pessoa);
 		
@@ -251,6 +251,15 @@ public class ConveniadosService {
 	public Conveniados getConveniadoId( Long id )  {				
 		Conveniados conveniados = conveniadosRepository.findById(id).orElse(null);
 		return conveniados;
+		
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public String getNomeConveniada( Long id )  {				
+		return conveniadosRepository.getNomeConveniada(id);
 		
 	}
 

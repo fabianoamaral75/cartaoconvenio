@@ -1,5 +1,6 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +53,9 @@ public interface TaxaConveniadaEntidadeRepository extends JpaRepository<TaxaConv
             Long idConveniados,
             StatusTaxaConv status
     );
+    
+	@Query(value = "SELECT t.vlr_taxa FROM taxa_conveniada_entidade t WHERE t.id_taxa_conveniada_entidade = ?1", nativeQuery = true)
+	BigDecimal getTaxaConvEnti( Long id );
     
     
   	/******************************************************************/

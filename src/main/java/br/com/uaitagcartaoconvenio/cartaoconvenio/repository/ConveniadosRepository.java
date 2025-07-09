@@ -52,6 +52,16 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
 	@Query(value = "SELECT DIA_PAGAMENTO FROM conveniados where id_conveniados = ?1", nativeQuery = true)
 	int getDiasPagamento( Long id );
 
+	@Query(value = "SELECT pes.nome_pessoa                         "
+			     + "FROM                                           "
+			     + "   conveniados     AS con                      "
+			     + " , pessoa          AS pes                      "
+			     + " , pessoa_juridica AS pju                      "
+			     + " WHERE con.id_conveniados = ?1             "
+			     + "   AND pes.id_conveniados = con.id_conveniados "
+			     + "   and pju.id_pessoa  = pes.id_pessoa          ", nativeQuery = true)
+	String getNomeConveniada( Long id );
+
 	
 	// Método para atualizar em lote para múltiplos IDs
     @Modifying

@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -86,6 +88,10 @@ public class CicloPagamentoVenda implements Serializable{
 	@NotNull(message = "O Valor líquido total a ser pago para o fechamento do ciclo deverá ser informado")
 	@Column(name = "VALOR_LIQUIDO_PAGAMENTO", nullable = false)
 	private BigDecimal vlrLiquidoPagamento; 
+	
+	@NotNull(message = "O Valor referente a Taxas de Faixa de Vendas da conveniada deverá ser informado")
+	@Column(name = "VALOR_TAXAS_FAIXA_VENDAS", nullable = false)
+	private BigDecimal vlrTaxasFaixaVendas; 
 		
 	@Column(name = "DT_PAGAMENTO", columnDefinition = "DATE")
 	private Date dtPagamento;
@@ -115,6 +121,12 @@ public class CicloPagamentoVenda implements Serializable{
 	@Column(name = "STATUS", nullable = false, unique = false)
 	@Enumerated(EnumType.STRING)
 	private StatusCicloPgVenda descStatusPagamento;
+	
+    // Adiciona relacionamento com TaxasFaixaVendas
+	@JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_TAXAS_FAIXA_VENDAS", nullable = true)
+    private TaxasFaixaVendas taxasFaixaVendas;
 	
 	@ManyToOne(targetEntity = Conveniados.class)
 	@JoinColumn(name = "ID_CONVENIADOS", nullable = true, referencedColumnName = "ID_CONVENIADOS", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CICLO_PG_VENDA_CONV"))
@@ -149,13 +161,14 @@ public class CicloPagamentoVenda implements Serializable{
 				+ ", dtCriacao=" + dtCriacao + ", dtAlteracao=" + dtAlteracao + ", vlrCicloBruto=" + vlrCicloBruto
 				+ ", vlrTaxaSecundaria=" + vlrTaxaSecundaria + ", vlrLiquido=" + vlrLiquido
 				+ ", vlrTaxaExtraPercentual=" + vlrTaxaExtraPercentual + ", vlrTaxaExtraValor=" + vlrTaxaExtraValor
-				+ ", vlrLiquidoPagamento=" + vlrLiquidoPagamento + ", dtPagamento=" + dtPagamento
-				+ ", docAutenticacaoBanco=" + docAutenticacaoBanco + ", observacao=" + observacao + ", nomeArquivo="
-				+ nomeArquivo + ", conteudoBase64=" + conteudoBase64 + ", tamanhoBytes=" + tamanhoBytes
-				+ ", dataUpload=" + dataUpload + ", idTaxaConveniadosEntidate=" + idTaxaConveniadosEntidate
-				+ ", descStatusPagamento=" + descStatusPagamento + ", conveniados=" + conveniados + ", taxaConveniados="
-				+ taxaConveniados + ", fechamentoConvItensVendas=" + fechamentoConvItensVendas
-				+ ", itemTaxaExtraConveniada=" + itemTaxaExtraConveniada + "]";
+				+ ", vlrLiquidoPagamento=" + vlrLiquidoPagamento + ", vlrTaxasFaixaVendas=" + vlrTaxasFaixaVendas
+				+ ", dtPagamento=" + dtPagamento + ", docAutenticacaoBanco=" + docAutenticacaoBanco + ", observacao="
+				+ observacao + ", nomeArquivo=" + nomeArquivo + ", conteudoBase64=" + conteudoBase64 + ", tamanhoBytes="
+				+ tamanhoBytes + ", dataUpload=" + dataUpload + ", idTaxaConveniadosEntidate="
+				+ idTaxaConveniadosEntidate + ", descStatusPagamento=" + descStatusPagamento + ", taxasFaixaVendas="
+				+ taxasFaixaVendas + ", conveniados=" + conveniados + ", taxaConveniados=" + taxaConveniados
+				+ ", fechamentoConvItensVendas=" + fechamentoConvItensVendas + ", itemTaxaExtraConveniada="
+				+ itemTaxaExtraConveniada + "]";
 	}
-	
+
 }
