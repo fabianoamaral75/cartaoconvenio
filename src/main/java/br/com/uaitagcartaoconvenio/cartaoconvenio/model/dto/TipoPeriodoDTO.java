@@ -1,7 +1,6 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -23,5 +22,5 @@ public class TipoPeriodoDTO {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataCriacao;
     private String tipo;
-    private List<Long> periodosCobrancaIds; // Apenas os IDs
+//    private List<Long> periodosCobrancaIds; // Apenas os IDs
 }

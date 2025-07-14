@@ -18,7 +18,8 @@ public interface PeriodoCobrancaTaxaMapper {
     PeriodoCobrancaTaxaMapper INSTANCE = Mappers.getMapper(PeriodoCobrancaTaxaMapper.class);
 
     @Mapping(target = "tipoPeriodoId", source = "tipoPeriodo.id")
-    @Mapping(target = "taxaExtraConveniadaId", source = "taxaExtraConveniada.id")
+//    @Mapping(target = "taxaExtraConveniadaId", source = "taxaExtraConveniada.id")
+    @Mapping(target = "taxaExtraConveniada.conveniadosId", source = "taxaExtraConveniada.id")
     PeriodoCobrancaTaxaDTO toDTO(PeriodoCobrancaTaxa entity);
 
     @Mapping(target = "tipoPeriodo", ignore = true)

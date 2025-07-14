@@ -14,7 +14,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TipoPeriodoDTO;
 @Mapper(componentModel = "spring")
 public interface TipoPeriodoMapper {
 
-    @Mapping(target = "periodosCobrancaIds", source = "periodosCobranca", qualifiedByName = "mapPeriodosCobrancaToIds")
+//    @Mapping(target = "periodosCobrancaIds", source = "periodosCobranca", qualifiedByName = "mapPeriodosCobrancaToIds")
     TipoPeriodoDTO toDTO(TipoPeriodo tipoPeriodo);
 
     @Mapping(target = "periodosCobranca", ignore = true)

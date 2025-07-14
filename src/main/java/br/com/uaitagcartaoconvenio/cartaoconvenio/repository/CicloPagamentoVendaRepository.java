@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -43,11 +44,39 @@ public interface CicloPagamentoVendaRepository extends JpaRepository<CicloPagame
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	@Query(value = "select cp                             "
-                 + " from CicloPagamentoVenda cp          "
-                 + " where cp.dtCriacao BETWEEN ?1 AND ?2 " )
-    List<CicloPagamentoVenda> listaCicloPagamentoVendaByDtCriacao( String dtCriacaoIni, String dtCriacaoFim ) ;  
-
+/*	
+	@Query("SELECT cp                                           "
+	     + "  FROM CicloPagamentoVenda         cp               "
+	     + " JOIN cp.taxasFaixaVendas          txfv             "
+	     + " JOIN cp.conveniados               con              "
+	     + " JOIN cp.fechamentoConvItensVendas fcv              "
+	     + " JOIN cp.itemTaxaExtraConveniada.taxaExtraConveniada.periodoCobrancaTaxa per "
+		 + " WHERE cp.dtCriacao BETWEEN ?1 AND ?2 ")
+*/	
+	@Query("SELECT DISTINCT cp FROM CicloPagamentoVenda cp " +
+		       "JOIN FETCH cp.taxasFaixaVendas txfv " +
+		       "JOIN FETCH cp.conveniados con " +
+		       "JOIN FETCH cp.fechamentoConvItensVendas fcv " + // Apenas uma coleção com FETCH
+		       "JOIN cp.itemTaxaExtraConveniada itec " +        // Sem FETCH
+		       "JOIN itec.taxaExtraConveniada tec " +
+		       "JOIN tec.periodoCobrancaTaxa per " +
+		       "WHERE cp.dtCriacao BETWEEN ?1 AND ?2")
+	List<CicloPagamentoVenda> listaCicloPagamentoVendaByDtCriacao(Date dtIni, Date dtFim);
+	
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    @EntityGraph(attributePaths = {
+            "taxasFaixaVendas",
+            "conveniados",
+            "fechamentoConvItensVendas"
+        })
+        @Query("SELECT DISTINCT cp FROM CicloPagamentoVenda cp " +
+               "WHERE cp.dtCriacao BETWEEN ?1 AND ?2 " +
+               "ORDER BY cp.idCicloPagamentoVenda ASC")
+		List<CicloPagamentoVenda> findComPeriodoCobranca(Date dtIni, Date dtFim);
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */

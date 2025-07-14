@@ -44,6 +44,9 @@ public class CicloPagamentoVendaController {
 	
 	@Autowired
 	private CicloPagamentoVendaRepository cicloPagamentoVendaRepository;
+	
+	@Autowired
+	private CicloPagamentoVendaInterfaceMapper cicloPagamentoVendaInterfaceMapper;
 
 	
 	/******************************************************************/
@@ -60,7 +63,7 @@ public class CicloPagamentoVendaController {
 				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para o período: " + anoMes );
 			}
 			
-			List<CicloPagamentoVendaDTO> dto = CicloPagamentoVendaInterfaceMapper.INSTANCE.toListDto(listaCicloPagamentoVenda);
+			List<CicloPagamentoVendaDTO> dto = cicloPagamentoVendaInterfaceMapper.toListDto(listaCicloPagamentoVenda);
 			
 			return new ResponseEntity<List<CicloPagamentoVendaDTO>>(dto, HttpStatus.OK);
 	    } catch (ExceptionCustomizada ex) {
@@ -100,7 +103,7 @@ public class CicloPagamentoVendaController {
 				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para o período: " + anoMes + " e Status: " + StatusCicloPgVenda.valueOf(status).name() );
 			}
 			
-			List<CicloPagamentoVendaDTO> dto = CicloPagamentoVendaInterfaceMapper.INSTANCE.toListDto(listaCicloPagamentoVenda);
+			List<CicloPagamentoVendaDTO> dto = cicloPagamentoVendaInterfaceMapper.toListDto(listaCicloPagamentoVenda);
 			
 			return new ResponseEntity<List<CicloPagamentoVendaDTO>>(dto, HttpStatus.OK);
 	    } catch (ExceptionCustomizada ex) {
@@ -132,15 +135,17 @@ public class CicloPagamentoVendaController {
 	@ResponseBody
 	@GetMapping(value = "/getCicloPagamentoVendaByDtCriacao/{dtCriacaoIni}/{dtCriacaoFim}")
 	public ResponseEntity<?> getCicloPagamentoVendaByDtCriacao( @PathVariable("dtCriacaoIni") String dtCriacaoIni ,
-			                                                                            @PathVariable("dtCriacaoFim") String dtCriacaoFim, HttpServletRequest request ) throws ExceptionCustomizada, IOException{
+			                                                    @PathVariable("dtCriacaoFim") String dtCriacaoFim, HttpServletRequest request ) throws ExceptionCustomizada, IOException{
 		try {
-			List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaService.getCicloPagamentoVendaByDtCriacao( dtCriacaoIni, dtCriacaoFim );
+			// List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaService.getCicloPagamentoVendaByDtCriacao( dtCriacaoIni, dtCriacaoFim );
+			List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaService.findComPeriodoCobranca( dtCriacaoIni, dtCriacaoFim );
+			
 			
 			if(listaCicloPagamentoVenda == null) {
 				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para o período entre: " + dtCriacaoIni + " e " + dtCriacaoFim);
 			}
 			
-			List<CicloPagamentoVendaDTO> dto = CicloPagamentoVendaInterfaceMapper.INSTANCE.toListDto(listaCicloPagamentoVenda);
+			List<CicloPagamentoVendaDTO> dto = cicloPagamentoVendaInterfaceMapper.toListDto(listaCicloPagamentoVenda);
 			
 			return new ResponseEntity<List<CicloPagamentoVendaDTO>>(dto, HttpStatus.OK);
 	    } catch (ExceptionCustomizada ex) {
@@ -181,7 +186,7 @@ public class CicloPagamentoVendaController {
 				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para o Status: " + StatusCicloPgVenda.valueOf(status).getDescStatusReceber() );
 			}
 			
-			List<CicloPagamentoVendaDTO> dto = CicloPagamentoVendaInterfaceMapper.INSTANCE.toListDto(listaCicloPagamentoVenda);
+			List<CicloPagamentoVendaDTO> dto = cicloPagamentoVendaInterfaceMapper.toListDto(listaCicloPagamentoVenda);
 			
 			return new ResponseEntity<List<CicloPagamentoVendaDTO>>(dto, HttpStatus.OK);
 	    } catch (ExceptionCustomizada ex) {
@@ -220,7 +225,7 @@ public class CicloPagamentoVendaController {
 				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para a ID da Conveniada: " + idConveniados );
 			}
 			
-			CicloPagamentoVendaDTO dto = CicloPagamentoVendaInterfaceMapper.INSTANCE.toDto(cicloPagamentoVenda);
+			CicloPagamentoVendaDTO dto = cicloPagamentoVendaInterfaceMapper.toDto(cicloPagamentoVenda);
 			
 			return new ResponseEntity<CicloPagamentoVendaDTO>(dto, HttpStatus.OK);
 	    } catch (ExceptionCustomizada ex) {
@@ -259,7 +264,7 @@ public class CicloPagamentoVendaController {
 				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para a Conveniada: " + nomeConveniado );
 			}
 			
-			List<CicloPagamentoVendaDTO> dto = CicloPagamentoVendaInterfaceMapper.INSTANCE.toListDto(listaCicloPagamentoVenda);
+			List<CicloPagamentoVendaDTO> dto = cicloPagamentoVendaInterfaceMapper.toListDto(listaCicloPagamentoVenda);
 			
 			return new ResponseEntity<List<CicloPagamentoVendaDTO>>(dto, HttpStatus.OK);	
 	    } catch (ExceptionCustomizada ex) {

@@ -156,7 +156,7 @@ public class CicloPagamentoVendaMapper {
         // Mapeamento de TaxasFaixaVendasDTO (com tratamento para evitar circularidade)
         if (entity.getTaxasFaixaVendas() != null) {
             TaxasFaixaVendasDTO taxasDTO = taxasFaixaVendasMapper.toDto(entity.getTaxasFaixaVendas());
-            taxasDTO.setCiclosPagamento(null); // Quebra a referência circular
+          //  taxasDTO.setCiclosPagamento(null); // Quebra a referência circular
             dto.setTaxasFaixaVendas(taxasDTO);
         }
 

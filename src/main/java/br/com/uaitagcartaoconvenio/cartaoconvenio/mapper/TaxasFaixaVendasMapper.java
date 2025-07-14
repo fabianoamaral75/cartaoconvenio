@@ -31,37 +31,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxasFaixaVendas;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CicloPagamentoVendaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxasFaixaVendasDTO;
 
 @Mapper
 public interface TaxasFaixaVendasMapper {
     TaxasFaixaVendasMapper INSTANCE = Mappers.getMapper(TaxasFaixaVendasMapper.class);
 
-    @Mapping(target = "ciclosPagamento", ignore = true) // Ignora a lista circular
     TaxasFaixaVendasDTO toDto(TaxasFaixaVendas entity);
 
-    @Mapping(target = "ciclosPagamento", ignore = true) // Ignora a lista circular
-    TaxasFaixaVendas toEntity(TaxasFaixaVendasDTO dto);
+     TaxasFaixaVendas toEntity(TaxasFaixaVendasDTO dto);
 
     // Método para mapeamento completo quando necessário
     default TaxasFaixaVendasDTO toDtoWithCiclos(TaxasFaixaVendas entity, CicloPagamentoVendaMapper cicloMapper) {
         TaxasFaixaVendasDTO dto = toDto(entity);
-        if (entity.getCiclosPagamento() != null) {
-            dto.setCiclosPagamento(
-                entity.getCiclosPagamento().stream()
-                    .map(ciclo -> {
-                        CicloPagamentoVendaDTO cicloDto = cicloMapper.toDTO(ciclo);
-                        cicloDto.setTaxasFaixaVendas(null); // Quebra a circularidade
-                        return cicloDto;
-                    })
-                    .collect(Collectors.toList())
-            );
-        }
+
         return dto;
     }
     

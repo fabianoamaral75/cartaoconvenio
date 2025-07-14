@@ -24,10 +24,10 @@ public class PeriodoCobrancaTaxaService {
         PeriodoCobrancaTaxa periodo = mapper.toEntity(dto);
         
         // Configurar relacionamentos
-        periodo.setTipoPeriodo(tipoPeriodoRepository.findById(dto.getTipoPeriodoId())
+        periodo.setTipoPeriodo(tipoPeriodoRepository.findById(dto.getTipoPeriodo().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de período não encontrado")));
                 
-        periodo.setTaxaExtraConveniada(taxaExtraRepository.findById(dto.getTaxaExtraConveniadaId())
+        periodo.setTaxaExtraConveniada(taxaExtraRepository.findById(dto.getTaxaExtraConveniada().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Taxa extra não encontrada")));
         
         PeriodoCobrancaTaxa saved = repository.save(periodo);

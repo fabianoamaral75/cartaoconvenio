@@ -27,20 +27,16 @@ public class PeriodoCobrancaTaxaDTO {
     private String        observacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataCriacao;
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private LocalDate     dtUltimaCobranca;
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private LocalDate     dtProximaCobranca;
     private Long          qtyCobranca;
     private Long          tipoPeriodoId;
-    private Long          taxaExtraConveniadaId; 
-    private Long          taxaExtraEntidadeId;
+//    private Long          taxaExtraConveniadaId; 
+//    private Long          taxaExtraEntidadeId;
     
-	@Override
-	public String toString() {
-		return "PeriodoCobrancaTaxaDTO [id=" + id + ", descricao=" + descricao + ", dataInicio=" + dataInicio
-				+ ", dataFim=" + dataFim + ", observacao=" + observacao + ", dataCriacao=" + dataCriacao
-				+ ", dtUltimaCobranca=" + dtUltimaCobranca + ", dtProximaCobranca=" + dtProximaCobranca
-				+ ", qtyCobranca=" + qtyCobranca + ", tipoPeriodoId=" + tipoPeriodoId + ", taxaExtraConveniadaId="
-				+ taxaExtraConveniadaId + ", taxaExtraEntidadeId=" + taxaExtraEntidadeId + "]";
-	}     
+    private TaxaExtraConveniadaDTO taxaExtraConveniada;
+    private TipoPeriodoDTO tipoPeriodo;
+    
 }
-

@@ -2,16 +2,20 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -25,10 +29,12 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.CicloPagamentoVendaMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.FechamentoConvItensVendas;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ItemTaxaExtraConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CicloPagamentoVendaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ContatoWorkflowDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.WorkflowInformativoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.CicloPagamentoVendaRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ItemTaxaExtraConveniadaRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.BusinessException;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.EmailFechamentoException;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.EmailService;
@@ -53,6 +59,9 @@ public class CicloPagamentoVendaService {
 	
 	@Autowired
 	private VendaService vendaService;
+	
+	@Autowired
+	private ItemTaxaExtraConveniadaRepository itemTaxaExtraConveniadaRepository;
 		
 	private static final Logger logger = LogManager.getLogger(ContasReceberService.class);
 	
@@ -85,14 +94,65 @@ public class CicloPagamentoVendaService {
 	/*                                                                */
 	/******************************************************************/	
 	public List<CicloPagamentoVenda> getCicloPagamentoVendaByDtCriacao( String dtCriacaoIni, String dtCriacaoFim )  {
-		
+	/*	
 		String dtCriacaoIniFormat =  FuncoesUteis.validarEConverterData(dtCriacaoIni, "00:00:00");
 		String dtCriacaoFimFormat =  FuncoesUteis.validarEConverterData(dtCriacaoFim, "23:59:59");
 		
 		List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaRepository.listaCicloPagamentoVendaByDtCriacao( dtCriacaoIniFormat, dtCriacaoFimFormat );
 		
 		return listaCicloPagamentoVenda;
+*/
+	    // Converter de "ddMMyyyy" para LocalDateTime
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+	    
+	    LocalDate dataIni = LocalDate.parse(dtCriacaoIni, formatter);
+	    LocalDate dataFim = LocalDate.parse(dtCriacaoFim, formatter);
+	    
+	    // Converter LocalDateTime → java.util.Date
+	    Date dtIni = Date.from(dataIni.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	    Date dtFim = Date.from(dataFim.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+	    
+//	    return cicloPagamentoVendaRepository.listaCicloPagamentoVendaByDtCriacao(dtIni, dtFim);
+	    
+	    return cicloPagamentoVendaRepository.findComPeriodoCobranca(dtIni, dtFim);
+
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+
+	public List<CicloPagamentoVenda> findComPeriodoCobranca(String dtCriacaoIni, String dtCriacaoFim) {
 		
+		
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+	    
+	    LocalDate dataIni = LocalDate.parse(dtCriacaoIni, formatter);
+	    LocalDate dataFim = LocalDate.parse(dtCriacaoFim, formatter);
+	    
+	    // Converter LocalDateTime → java.util.Date
+	    Date dtIni = Date.from(dataIni.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	    Date dtFim = Date.from(dataFim.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+		
+	    List<CicloPagamentoVenda> ciclos = cicloPagamentoVendaRepository.findComPeriodoCobranca(dtIni, dtFim);
+	    
+	    // Busca os itens de taxa separadamente
+	    List<ItemTaxaExtraConveniada> itens = itemTaxaExtraConveniadaRepository
+	        .findByCicloPagamentoVendaInAndTaxaExtraConveniadaPeriodoCobrancaTaxaIsNotNull(ciclos);
+	    
+	    // Associa os itens aos ciclos manualmente
+	    Map<Long, CicloPagamentoVenda> mapaCiclos = ciclos.stream()
+	        .collect(Collectors.toMap(CicloPagamentoVenda::getIdCicloPagamentoVenda, Function.identity()));
+	    
+	    itens.forEach(item -> {
+	        CicloPagamentoVenda ciclo = mapaCiclos.get(item.getCicloPagamentoVenda().getIdCicloPagamentoVenda());
+	        if (ciclo != null) {
+	            ciclo.getItemTaxaExtraConveniada().add(item);
+	        }
+	    });
+	    
+	    return ciclos;
 	}
 	
 	/******************************************************************/

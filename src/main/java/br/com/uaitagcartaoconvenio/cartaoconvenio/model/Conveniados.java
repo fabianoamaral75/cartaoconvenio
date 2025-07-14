@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusConveniada;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -91,6 +93,7 @@ public class Conveniados implements Serializable {
 
 
 	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JsonManagedReference // Indica que este lado DEVE ser serializado
 	private List<CicloPagamentoVenda> CicloPagamentoVenda = new ArrayList<CicloPagamentoVenda>();
 
 	@NotNull(message = "A Taxa de Desconto da Conveniada deverá ser informado!")

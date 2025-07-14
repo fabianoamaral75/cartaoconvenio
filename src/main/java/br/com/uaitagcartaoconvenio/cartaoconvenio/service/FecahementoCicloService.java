@@ -693,8 +693,9 @@ public class FecahementoCicloService {
         periodoDTO.setQtyCobranca          ( 0L                                                         );
         periodoDTO.setTipoPeriodoId        ( 7L                                                         );
         // Campos ignorados conforme relacionamento:
-        periodoDTO.setTaxaExtraConveniadaId( idConveniada                                               );
-        periodoDTO.setTaxaExtraEntidadeId  ( null                                                       );
+        periodoDTO.getTaxaExtraConveniada().setConveniadosId(idConveniada);
+//        periodoDTO.setTaxaExtraConveniadaId( idConveniada                                               );
+//        periodoDTO.setTaxaExtraEntidadeId  ( null                                                       );
         
         dto.setPeriodoCobrancaTaxa(periodoDTO);
         

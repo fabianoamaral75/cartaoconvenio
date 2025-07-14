@@ -130,6 +130,7 @@ public class CicloPagamentoVenda implements Serializable{
 	
 	@ManyToOne(targetEntity = Conveniados.class)
 	@JoinColumn(name = "ID_CONVENIADOS", nullable = true, referencedColumnName = "ID_CONVENIADOS", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CICLO_PG_VENDA_CONV"))
+	@JsonBackReference // Indica que este lado NÃO deve ser serializado
 	private Conveniados conveniados;
 	
 //	@NotNull(message = "O Tipo da mudança deve(m) ser informado!")
