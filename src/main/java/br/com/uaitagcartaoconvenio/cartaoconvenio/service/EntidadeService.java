@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusEmtidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaCalcLimiteCredFuncionaro;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaEntidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ArqContratoEntidade;
@@ -194,4 +195,112 @@ public class EntidadeService {
         
         return entidadeRespository.saveAll(entidades);
     }
+     
+     /******************************************************************/
+     /*                                                                */
+     /*               Métodos para Atualização                         */
+     /*                                                                */
+     /******************************************************************/
+
+     /**
+      * Atualiza uma entidade existente
+      */
+     public Entidade atualizarEntidadeCompleta(Entidade entidadeAtualizada) throws ExceptionCustomizada, IOException {
+         // Validações básicas
+         if (entidadeAtualizada == null) {
+             throw new ExceptionCustomizada("Entidade não pode ser nula");
+         }
+         
+         if (entidadeAtualizada.getIdEntidade() == null) {
+             throw new ExceptionCustomizada("ID da entidade é obrigatório para atualização");
+         }
+         
+         // Verifica se a entidade existe
+         Entidade entidadeExistente = entidadeRespository.findById(entidadeAtualizada.getIdEntidade())
+             .orElseThrow(() -> new ExceptionCustomizada("Entidade não encontrada com ID: " + entidadeAtualizada.getIdEntidade()));
+         
+         // Mantém alguns campos que não devem ser atualizados
+         entidadeAtualizada.setDtCriacao(entidadeExistente.getDtCriacao());
+         
+         // Processa o CNPJ
+         String cnpj = FuncoesUteis.removerCaracteresNaoNumericos(entidadeAtualizada.getCnpj());
+         entidadeAtualizada.setCnpj(cnpj);
+         
+         // Valida CNPJ único (se foi alterado)
+         if (!entidadeExistente.getCnpj().equals(cnpj) ){
+             if (entidadeRespository.findByCnpj(cnpj) != null) {
+                 throw new ExceptionCustomizada("Já existe uma entidade com o CNPJ: " + cnpj);
+             }
+         }
+         
+         // Atualiza relacionamentos
+         atualizarRelacionamentos(entidadeAtualizada);
+         
+         // Salva a entidade atualizada
+         return entidadeRespository.saveAndFlush(entidadeAtualizada);
+     }
+
+     /**
+      * Atualiza apenas o status de uma entidade
+      */
+     public Entidade atualizarStatusEntidade(Long id, StatusEmtidade novoStatus) throws ExceptionCustomizada {
+         // Busca a entidade
+         Entidade entidade = entidadeRespository.findById(id)
+             .orElseThrow(() -> new ExceptionCustomizada("Entidade não encontrada com ID: " + id));
+         
+         // Atualiza o status
+         entidade.setDescStatusEmtidade(novoStatus);
+         
+         // Salva a entidade
+         return entidadeRespository.saveAndFlush(entidade);
+     }
+
+     /**
+      * Método auxiliar para atualizar relacionamentos
+      */
+     private void atualizarRelacionamentos(Entidade entidade) {
+         // Taxa Entidade
+         if (entidade.getTaxaEntidade() != null) {
+             entidade.getTaxaEntidade().forEach(taxa -> {
+                 taxa.setEntidade(entidade);
+                 taxa.setStatusTaxaEntidade(StatusTaxaEntidade.ATUAL);
+             });
+         }
+         
+         // Taxa Cálculo Limite
+         if (entidade.getTaxaCalcLimiteCreditoFunc() != null) {
+             entidade.getTaxaCalcLimiteCreditoFunc().forEach(taxa -> {
+                 taxa.setEntidade(entidade);
+                 taxa.setStatusTaxaCalcLimiteCredFuncionaro(StatusTaxaCalcLimiteCredFuncionaro.ATUAL);
+             });
+         }
+         
+         // Contratos
+         if (entidade.getContratoEntidade() != null) {
+             for (ContratoEntidade contrato : entidade.getContratoEntidade()) {
+                 contrato.setEntidade(entidade);
+                 
+                 // Arquivos
+                 if (contrato.getArquivos() != null) {
+                     for (ArqContratoEntidade arquivo : contrato.getArquivos()) {
+                         arquivo.setContratoEntidade(contrato);
+                     }
+                 }
+                 
+                 // Vigencias
+                 if (contrato.getVigencias() != null) {
+                     for (VigenciaContratoEntidade vigencia : contrato.getVigencias()) {
+                         vigencia.setContratoEntidade(contrato);
+                     }
+                 }
+                 
+                 // Serviços
+                 if (contrato.getServicos() != null) {
+                     for (ServicoContrato servico : contrato.getServicos()) {
+                         servico.setContratoEntidade(contrato);
+                     }
+                 }
+             }
+         }
+     }
 }

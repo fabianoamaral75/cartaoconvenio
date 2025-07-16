@@ -6,9 +6,12 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusContrato;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +21,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,6 +53,15 @@ public class VigenciaContratoEntidade {
     
     @Column(name = "USER_DESATIVACAO", length = 200)
     private String userDesativacao;
+    
+    @NotNull(message = "Status do contrato da conveniada deve ser informada!")
+    @Column(
+        name = "STATUS_CONTRATO",
+        nullable = false,
+        columnDefinition = "VARCHAR(20) DEFAULT 'VIGENTE'" // Define o valor padrão no banco
+    )
+    @Enumerated(EnumType.STRING)
+    private StatusContrato descStatusContrato = StatusContrato.VIGENTE; // Valor padrão na aplicaçã    
     
     @Column(name = "RENOVACAO", nullable = false)
     private Boolean renovacao;

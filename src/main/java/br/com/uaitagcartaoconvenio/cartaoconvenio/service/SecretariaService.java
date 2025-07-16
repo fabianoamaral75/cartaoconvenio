@@ -59,5 +59,27 @@ public class SecretariaService {
 		
 	}
 
+	public Secretaria atualizarSecretaria(Long id, Secretaria secretariaAtualizada) throws ExceptionCustomizada {
+	    Optional<Secretaria> secretariaExistente = secretariaRepository.findByIdSecretaria(id);
 
+	    if (!secretariaExistente.isPresent()) {
+	        throw new ExceptionCustomizada("Secretaria não encontrada com o ID: " + id);
+	    }
+
+	    Secretaria secretaria = secretariaExistente.get();
+
+	    // Atualiza todos os campos (exceto ID e campos imutáveis como dtCriacao)
+	    secretaria.setNomeSecretaria(secretariaAtualizada.getNomeSecretaria());
+	    secretaria.setLogradoro(secretariaAtualizada.getLogradoro());
+	    secretaria.setUf(secretariaAtualizada.getUf());
+	    secretaria.setCidade(secretariaAtualizada.getCidade());
+	    secretaria.setCep(secretariaAtualizada.getCep());
+	    secretaria.setNumero(secretariaAtualizada.getNumero());
+	    secretaria.setComplemento(secretariaAtualizada.getComplemento());
+	    secretaria.setBairro(secretariaAtualizada.getBairro());
+	    secretaria.setEntidade(secretariaAtualizada.getEntidade());
+
+	    // O JPA atualiza automaticamente dtAlteracao via @PreUpdate
+	    return secretariaRepository.save(secretaria);
+	}
 }

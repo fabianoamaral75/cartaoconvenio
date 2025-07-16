@@ -61,5 +61,30 @@ public interface EntidadeRespository extends JpaRepository<Entidade, Long> {
         });
         saveAll(entidades);
     }
-	
+
+    
+    /**
+     * Verifica se já existe uma entidade com o CNPJ (exceto a entidade com o ID especificado)
+     */
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Entidade e WHERE e.cnpj = :cnpj AND e.idEntidade != :id")
+    boolean existsByCnpjAndIdNot(@Param("cnpj") String cnpj, @Param("id") Long id);
+    
+    /**
+     * Verifica se existe uma entidade com o CNPJ
+     */
+    boolean existsByCnpj(String cnpj);
+    
+    /**
+     * Busca entidade por ID com todos os relacionamentos carregados
+     */
+    @Query("SELECT e FROM Entidade e " +
+           "LEFT JOIN FETCH e.taxaEntidade " +
+           "LEFT JOIN FETCH e.taxaCalcLimiteCreditoFunc " +
+           "LEFT JOIN FETCH e.contratoEntidade ce " +
+           "LEFT JOIN FETCH ce.arquivos " +
+           "LEFT JOIN FETCH ce.vigencias " +
+           "LEFT JOIN FETCH ce.servicos " +
+           "WHERE e.idEntidade = :id")
+    Entidade findByIdWithRelationships(@Param("id") Long id);    
+    
 }

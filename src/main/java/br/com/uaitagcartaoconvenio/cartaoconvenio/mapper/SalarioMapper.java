@@ -1,5 +1,7 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -12,5 +14,6 @@ public interface SalarioMapper {
 
     SalarioDTO toDto(Salario salario);
     Salario toEntity(SalarioDTO salarioDTO);
+    
+    List<SalarioDTO> toDtoList(List<Salario> salarios);
 }
-

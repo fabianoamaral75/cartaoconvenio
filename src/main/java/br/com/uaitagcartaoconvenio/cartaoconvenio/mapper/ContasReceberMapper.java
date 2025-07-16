@@ -11,8 +11,10 @@ import org.mapstruct.ReportingPolicy;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContasReceber;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ContasReceberDTO;
 
+
+
 @Mapper(componentModel = "spring", 
-     uses = {TaxaEntidadeMapper.class, EntidadeMapper.class}, // Remova FechamentoEntContasReceberMapper
+     uses = {TaxaEntidadeMapper.class, EntidadeMapper.class}, 
      unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ContasReceberMapper {
  

@@ -2,21 +2,26 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.controller;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusEmtidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.EntidadeMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Entidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ErrorResponse;
@@ -253,5 +258,95 @@ public class EntidadeController {
 	    }		
 	}
 
+	
+	@ResponseBody
+	@PutMapping(value = "/atualizarEntidade/{id}")
+	public ResponseEntity<?> atualizarEntidade(
+	    @PathVariable("id") Long id,
+	    @RequestBody Entidade entidadeAtualizada,
+	    HttpServletRequest request) throws ExceptionCustomizada, IOException {
+	    
+	    try {
+	        if (entidadeAtualizada == null) {
+	            throw new ExceptionCustomizada("ERRO ao tentar atualizar a Entidade. Valores vazios!");
+	        }
+
+	        // Garante que o ID do path é o mesmo do corpo
+	        entidadeAtualizada.setIdEntidade(id);
+	        
+	        // Chama o serviço para atualizar
+	        Entidade entidade = entidadeService.atualizarEntidadeCompleta(entidadeAtualizada);
+	        
+	        // Converte para DTO
+	        EntidadeDTO dto = mapper.toDTO(entidade);
+	        
+	        return new ResponseEntity<EntidadeDTO>(dto, HttpStatus.OK);
+	    } catch (ExceptionCustomizada ex) {
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	        sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
+	        String dataFormatada = sdf.format(new Date());
+	        
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
+	}
+
+	@ResponseBody
+	@PatchMapping(value = "/atualizarStatusEntidade/{id}")
+	public ResponseEntity<?> atualizarStatusEntidade(
+	    @PathVariable("id") Long id,
+	    @RequestBody Map<String, String> statusRequest,
+	    HttpServletRequest request) {
+	    
+	    try {
+	        String novoStatusStr = statusRequest.get("descStatusEmtidade");
+	        if (novoStatusStr == null) {
+	            throw new ExceptionCustomizada("O campo 'descStatusEmtidade' é obrigatório");
+	        }
+
+	        // Converte string para enum
+	        StatusEmtidade novoStatus = StatusEmtidade.valueOf(novoStatusStr);
+	        
+	        // Atualiza apenas o status
+	        Entidade entidade = entidadeService.atualizarStatusEntidade(id, novoStatus);
+	        
+	        // Converte para DTO
+	        EntidadeDTO dto = mapper.toDTO(entidade);
+	        
+	        return new ResponseEntity<EntidadeDTO>(dto, HttpStatus.OK);
+	    } catch (IllegalArgumentException ex) {
+	        // Caso o status não seja válido
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	        sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
+	        String dataFormatada = sdf.format(new Date());
+	        
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            "Status inválido. Valores permitidos: " + Arrays.toString(StatusEmtidade.values()),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    } catch (ExceptionCustomizada ex) {
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	        sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
+	        String dataFormatada = sdf.format(new Date());
+	        
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
+	}	
+	
+	
 
 }

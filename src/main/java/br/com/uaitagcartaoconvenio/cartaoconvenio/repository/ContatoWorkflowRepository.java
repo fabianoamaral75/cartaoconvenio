@@ -10,7 +10,10 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContatoWorkflow;
 @Repository
 public interface ContatoWorkflowRepository extends JpaRepository<ContatoWorkflow, Long> {
 	
-    List<ContatoWorkflow> findByWorkflowInformativoIdWorkflowInformativo(Long id);
+    List<ContatoWorkflow> findByWorkflowInformativoIdWorkflowInformativo(Long idWorkflowInformativo);
+    List<ContatoWorkflow> findByNomeContatoContaining(String nome);
+    List<ContatoWorkflow> findByEmail(String email);
+    List<ContatoWorkflow> findByTelefone(String telefone);
 
 }
 

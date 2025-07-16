@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -49,4 +50,43 @@ public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
     		      + "   and pj.id_pessoa = pe.id_pessoa")
     Optional<Pessoa> getPessoaConveniadaPJ(  @Param("id") Long id);
 
+    @Modifying
+    @Query("UPDATE Pessoa p SET p.nomePessoa = :nome, p.logradoro = :logradouro, p.uf = :uf, p.cidade = :cidade, p.cep = :cep, p.numero = :numero, p.complemento = :complemento, p.bairro = :bairro, p.email = :email, p.telefone = :telefone WHERE p.idPessoa = :id")
+    void atualizarPessoaCompleta(
+        @Param("id") Long idPessoa,
+        @Param("nome") String nomePessoa,
+        @Param("logradouro") String logradoro,
+        @Param("uf") String uf,
+        @Param("cidade") String cidade,
+        @Param("cep") String cep,
+        @Param("numero") String numero,
+        @Param("complemento") String complemento,
+        @Param("bairro") String bairro,
+        @Param("email") String email,
+        @Param("telefone") String telefone);
+
+    @Modifying
+    @Query("UPDATE Pessoa p SET p.conveniados.idConveniados = :idConveniados WHERE p.idPessoa = :id")
+    void atualizarConveniadoPessoa(@Param("id") Long idPessoa, @Param("idConveniados") Long idConveniados);
+    
+    @Modifying
+    @Query("UPDATE Pessoa p SET p.nomePessoa = :nome, p.email = :email, p.telefone = :telefone WHERE p.idPessoa = :id")
+    void atualizarDadosBasicosPessoa(
+        @Param("id") Long idPessoa,
+        @Param("nome") String nomePessoa,
+        @Param("email") String email,
+        @Param("telefone") String telefone);
+
+    @Modifying
+    @Query("UPDATE Pessoa p SET p.logradoro = :logradouro, p.uf = :uf, p.cidade = :cidade, p.cep = :cep, " +
+           "p.numero = :numero, p.complemento = :complemento, p.bairro = :bairro WHERE p.idPessoa = :id")
+    void atualizarEnderecoPessoa(
+        @Param("id") Long idPessoa,
+        @Param("logradouro") String logradoro,
+        @Param("uf") String uf,
+        @Param("cidade") String cidade,
+        @Param("cep") String cep,
+        @Param("numero") String numero,
+        @Param("complemento") String complemento,
+        @Param("bairro") String bairro);
 }

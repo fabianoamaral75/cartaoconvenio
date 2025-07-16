@@ -31,31 +31,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxasFaixaVendas;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxasFaixaVendasDTO;
 
-@Mapper
+
+@Mapper(componentModel = "spring") 
 public interface TaxasFaixaVendasMapper {
-    TaxasFaixaVendasMapper INSTANCE = Mappers.getMapper(TaxasFaixaVendasMapper.class);
-
     TaxasFaixaVendasDTO toDto(TaxasFaixaVendas entity);
-
-     TaxasFaixaVendas toEntity(TaxasFaixaVendasDTO dto);
-
-    // Método para mapeamento completo quando necessário
-    default TaxasFaixaVendasDTO toDtoWithCiclos(TaxasFaixaVendas entity, CicloPagamentoVendaMapper cicloMapper) {
-        TaxasFaixaVendasDTO dto = toDto(entity);
-
-        return dto;
-    }
+    TaxasFaixaVendas toEntity(TaxasFaixaVendasDTO dto);
     
-        default List<TaxasFaixaVendasDTO> toDtoList(List<TaxasFaixaVendas> entities) {
-        return entities.stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    default List<TaxasFaixaVendasDTO> toDtoList(List<TaxasFaixaVendas> entities) {
+        return entities.stream().map(this::toDto).collect(Collectors.toList());
     }
-
 }
-

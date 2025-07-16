@@ -47,7 +47,7 @@ public class AuthenticationController {
 	    try {
 	    	
 			if(data == null) {
-				throw new ExceptionCustomizada("Não existe informação para ser autenticada." );
+				throw new ExceptionCustomizada( "Não existe informação para ser autenticada." );
 			}
 	    	
 	        // Não codifique a senha novamente aqui - ela deve ser enviada já codificada do cliente

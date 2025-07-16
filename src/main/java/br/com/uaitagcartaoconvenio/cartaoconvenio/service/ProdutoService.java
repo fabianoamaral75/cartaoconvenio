@@ -1,5 +1,6 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.ProdutoMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Produto;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ProdutoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ProdutoRepository;
+import jakarta.transaction.Transactional;
 
 
 @Service
@@ -83,5 +85,56 @@ public class ProdutoService {
     public void delete(Long id) {
         produtoRepository.deleteById(id);
     }	
-	
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	    
+    @Transactional
+    public ProdutoDTO atualizarNomeProduto(Long idProduto, String novoNome, Long idConveniado) {
+        int updated = produtoRepository.atualizarNomeProduto(idProduto, novoNome, idConveniado);
+        
+        if (updated == 0) {
+            throw new IllegalArgumentException("Produto não encontrado ou não pertence ao conveniado informado");
+        }
+        
+        return produtoRepository.findById(idProduto)
+                .map(produtoMapper::toDTO)
+                .orElseThrow(() -> new IllegalArgumentException("Erro ao recuperar produto atualizado"));
+    }
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+   @Transactional
+    public ProdutoDTO atualizarValorProduto(Long idProduto, BigDecimal novoValor, Long idConveniado) {
+        if (novoValor.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O valor do produto não pode ser negativo");
+        }
+        
+        int updated = produtoRepository.atualizarValorProduto(idProduto, novoValor, idConveniado);
+        
+        if (updated == 0) {
+            throw new IllegalArgumentException("Produto não encontrado ou não pertence ao conveniado informado");
+        }
+        
+        return produtoRepository.findById(idProduto)
+                .map(produtoMapper::toDTO)
+                .orElseThrow(() -> new IllegalArgumentException("Erro ao recuperar produto atualizado"));
+    }
+   
+   public Produto atualizarProduto(Long id, Produto produtoAtualizado) {
+       Produto produtoExistente = produtoRepository.findById(id)
+           .orElseThrow(() -> new RuntimeException("Produto não encontrado com o ID: " + id));
+
+       // Atualiza todos os campos
+       produtoExistente.setProduto(produtoAtualizado.getProduto());
+       produtoExistente.setIdProduto(produtoAtualizado.getIdProduto());
+       produtoExistente.setVlrProduto(produtoAtualizado.getVlrProduto());
+       produtoExistente.setConveniados(produtoAtualizado.getConveniados());
+
+       return produtoRepository.save(produtoExistente);
+   }
+
 }

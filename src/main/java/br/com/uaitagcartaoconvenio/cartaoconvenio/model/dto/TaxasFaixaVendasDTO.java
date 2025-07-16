@@ -2,6 +2,7 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -30,5 +31,5 @@ public class TaxasFaixaVendasDTO {
     private BigDecimal valorFaixaTaxaMax;
     private BigDecimal valorFaixaTaxaMin;
     private String statusTaxa;
-   
+    private List<CicloPagamentoVendaDTO> ciclosPagamento;
 }

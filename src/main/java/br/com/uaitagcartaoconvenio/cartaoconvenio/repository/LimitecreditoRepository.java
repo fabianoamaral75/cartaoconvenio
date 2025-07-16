@@ -51,5 +51,12 @@ public interface LimitecreditoRepository extends JpaRepository<LimiteCredito, Lo
 	   @Modifying(flushAutomatically = true, clearAutomatically = true)
 	   @Query(nativeQuery = true, value = "UPDATE limite_credito SET valor_utilizado = GREATEST(0, (valor_utilizado + :valor)) WHERE id_funcionario = :id")
 	   int updateRollbackRestabelecerLimiteCredito( @Param("id") Long idFuncionario, @Param("valor") BigDecimal valorUtilizado);
-		   
+
+	   @Modifying(flushAutomatically = true, clearAutomatically = true)
+	   @Query("UPDATE LimiteCredito lc SET lc.limite = :novoLimite WHERE lc.idLimiteCredito = :id")
+	   int updateLimite(@Param("id") Long idLimiteCredito, @Param("novoLimite") BigDecimal novoLimite);
+
+	   @Modifying(flushAutomatically = true, clearAutomatically = true)
+	   @Query("UPDATE LimiteCredito lc SET lc.valorUtilizado = :novoValorUtilizado WHERE lc.idLimiteCredito = :id")
+	   int updateValorUtilizado(@Param("id") Long idLimiteCredito, @Param("novoValorUtilizado") BigDecimal novoValorUtilizado);
 }

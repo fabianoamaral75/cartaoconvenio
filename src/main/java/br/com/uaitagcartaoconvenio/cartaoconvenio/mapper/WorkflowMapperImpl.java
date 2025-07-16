@@ -1,5 +1,6 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.mapper;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -53,43 +54,6 @@ public class WorkflowMapperImpl implements WorkflowMapper {
 	    
 	    return entity;
 	}
-/*	
-    @Override
-    public WorkflowInformativoDTO toDto(WorkflowInformativo entity) {
-        if (entity == null) return null;
-        
-        WorkflowInformativoDTO dto = new WorkflowInformativoDTO();
-        dto.setIdWorkflowInformativo(entity.getIdWorkflowInformativo());
-        dto.setWorkflowInformativo(entity.getWorkflowInformativo());
-        dto.setStatusWorkflowInformativo(entity.getStatusWorkflowInformativo());
-        dto.setContatoWorkflow(entity.getContatoWorkflow());
-        return dto;
-    }
-
-    @Override
-    public WorkflowInformativo toEntity(WorkflowInformativoDTO dto) {
-        if (dto == null) return null;
-        
-        WorkflowInformativo entity = new WorkflowInformativo();
-        entity.setIdWorkflowInformativo(dto.getIdWorkflowInformativo());
-        entity.setWorkflowInformativo(dto.getWorkflowInformativo());
-        entity.setStatusWorkflowInformativo(dto.getStatusWorkflowInformativo());
-        for( int i = 0; i < dto.getContatoWorkflow().size(); i++ ) {
-        	ContatoWorkflow contatoWorkflow = new ContatoWorkflow();
-        	
-        	contatoWorkflow.setIdContatoWorkflow( dto.getContatoWorkflow().get(i).getIdContatoWorkflow() );
-        	contatoWorkflow.setEmail            ( dto.getContatoWorkflow().get(i).getEmail()             );
-        	contatoWorkflow.setNomeContato      ( dto.getContatoWorkflow().get(i).getNomeContato()       );
-        	contatoWorkflow.setTelefone         ( dto.getContatoWorkflow().get(i).getTelefone()          );
-        	
-        	entity.getContatoWorkflow().add(contatoWorkflow);
-        }
-        
-        return entity;
-        
-        // private List<ContatoWorkflow> contatoWorkflow = new ArrayList<ContatoWorkflow>();
-    }
-*/
     @Override
     public ContatoWorkflowDTO contatoToDto(ContatoWorkflow entity) {
         if (entity == null) return null;
@@ -114,5 +78,23 @@ public class WorkflowMapperImpl implements WorkflowMapper {
         return entity;
     }
 
-
+    @Override
+    public List<ContatoWorkflowDTO> contatosToDtos(List<ContatoWorkflow> contatos) {
+        if (contatos == null) return null;
+        
+        return contatos.stream()
+                .map(this::contatoToDto) // Reutiliza o método contatoToDto
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<ContatoWorkflow> contatosToEntities(List<ContatoWorkflowDTO> contatosDtos) {
+        if (contatosDtos == null) return null;
+        
+        return contatosDtos.stream()
+                .map(this::contatoToEntity) // Reutiliza o método contatoToEntity
+                .collect(Collectors.toList());
+    }  
+    
+    
 }

@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveniados;
 
@@ -67,5 +68,9 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
     @Modifying
     @Query("UPDATE Conveniados e SET e.anoMesUltinoFechamento = :mesRecebimento, e.dtAlteracao = CURRENT_TIMESTAMP WHERE e.idConveniados IN :ids")
     int updateMesRecebimentoPosFechamentoEmLote(@Param("ids") List<Long> ids, @Param("mesRecebimento") String mesRecebimento);
+
+    @Modifying
+    @Query("UPDATE Conveniados c SET c.descStatusConveniada = :status WHERE c.idConveniados = :id")
+    void atualizarStatus(@Param("id") Long id, @Param("status") StatusConveniada status);
 
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.RestabelecerLimitCreditoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.LimitecreditoRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class LimitecreditoService {
@@ -63,5 +64,29 @@ public class LimitecreditoService {
         
     }
 
+    
+    public void atualizarLimite(Long idLimiteCredito, BigDecimal novoLimite) {
+        if (novoLimite.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O limite não pode ser negativo");
+        }
+        
+        int updated = limitecreditoRepository.updateLimite(idLimiteCredito, novoLimite);
+        
+        if (updated == 0) {
+            throw new EntityNotFoundException("Limite de crédito não encontrado com ID: " + idLimiteCredito);
+        }
+    }
+
+    public void atualizarValorUtilizado(Long idLimiteCredito, BigDecimal novoValorUtilizado) {
+        if (novoValorUtilizado.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O valor utilizado não pode ser negativo");
+        }
+        
+        int updated = limitecreditoRepository.updateValorUtilizado(idLimiteCredito, novoValorUtilizado);
+        
+        if (updated == 0) {
+            throw new EntityNotFoundException("Limite de crédito não encontrado com ID: " + idLimiteCredito);
+        }
+    }   
     
 }

@@ -16,5 +16,5 @@ public class ContatoWorkflowDTO {
 	private String nomeContato;
 	private String email;
 	private String telefone;
-
+	private Long idWorkflowInformativo; // Para facilitar o relacionamento
 }

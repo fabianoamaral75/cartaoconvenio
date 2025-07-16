@@ -9,10 +9,14 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusFuncionario;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTipoFuncionario;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
@@ -64,6 +68,14 @@ public class Funcionario {
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "ID_LIMITE_CREDITO", referencedColumnName = "ID_LIMITE_CREDITO", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_funcionario_limite_credito"))
 	private LimiteCredito limiteCredito;
+	
+	@Column(name = "STATUS_TIPO_FUNCIONARIO")
+	@Enumerated(EnumType.STRING)
+	private StatusTipoFuncionario descStatusTipoFuncionario = StatusTipoFuncionario.EFETIVO;	
+	
+	@Column(name = "STATUS_FUNCIONARIO")
+	@Enumerated(EnumType.STRING)
+	private StatusFuncionario descStatusFuncionario = StatusFuncionario.ATIVO;	
 
 	@JsonIgnoreProperties(allowGetters = true)
 	@NotNull(message = "O Salário do Funcionário deverá ser informado!")

@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusContrato;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,6 +27,7 @@ public class VigenciaContratoConveniadaDTO {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDateTime dataDesativacao;
     private String usuarioDesativacao;
+    private StatusContrato descStatusContrato;
     private Boolean renovacao;
     private String observacao;
     private Long contratoConveniadoId; // Apenas o ID para evitar complexidade

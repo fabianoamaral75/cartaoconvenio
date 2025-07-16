@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusFuncionario;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTipoFuncionario;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,6 +26,8 @@ public class FuncionarioDTO {
     private Date dtCriacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private Date dtAlteracao;
+    private StatusTipoFuncionario descStatusTipoFuncionario;
+    private StatusFuncionario descStatusFuncionario;
     
     private LimiteCreditoResumoDTO limiteCredito = new LimiteCreditoResumoDTO(); // Remova inicialização
     private SalarioResumoDTO salario             = new SalarioResumoDTO(); // Remova inicialização

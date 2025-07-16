@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,5 +35,15 @@ public interface TaxaConveniadosRepository extends JpaRepository<TaxaConveniados
                  + " where con.idConveniados = ?1        "
                  + "   and tc.descStatusTaxaCon = 'ATUAL'" )
     TaxaConveniados taxaConveniadosAtualByIdConveniados( Long idConveniados ) ; 
+
+    @Query("SELECT tc FROM TaxaConveniados tc JOIN tc.conveniados con WHERE con.idConveniados = ?1 AND tc.descStatusTaxaCon = ?2")
+    List<TaxaConveniados> findByConveniadosIdAndStatus(Long idConveniados, StatusTaxaConv status);
+
+    @Query("SELECT tc FROM TaxaConveniados tc WHERE tc.conveniados.idConveniados = ?1 ORDER BY tc.idTaxaConveniados DESC")
+    List<TaxaConveniados> findLastByConveniadosId(Long idConveniados);
+
+    @Modifying
+    @Query("UPDATE TaxaConveniados tc SET tc.descStatusTaxaCon = ?2 WHERE tc.idTaxaConveniados = ?1")
+    int updateStatusTaxa(Long idTaxaConveniados, StatusTaxaConv novoStatus);
 
 }

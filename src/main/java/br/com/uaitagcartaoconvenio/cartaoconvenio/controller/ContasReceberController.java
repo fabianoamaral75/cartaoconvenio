@@ -53,8 +53,8 @@ public class ContasReceberController {
 	/*                                                                */
 	/******************************************************************/	
 	@ResponseBody
-	@GetMapping(value = "/getContasReceberByAnoMes/{anoMes}")
-	public ResponseEntity<?> getContasReceberByAnoMes( @PathVariable("anoMes") String anoMes , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
+	@GetMapping(value = "/getAllContasReceberByAnoMes/{anoMes}")
+	public ResponseEntity<?> getAllContasReceberByAnoMes( @PathVariable("anoMes") String anoMes , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
 		try {
 		List<ContasReceber> listaContasReceber = contasReceberService.getContasReceberByAnoMes( anoMes );
 		
@@ -190,8 +190,8 @@ public class ContasReceberController {
 	/*                                                                */
 	/******************************************************************/	
 	@ResponseBody
-	@GetMapping(value = "/getContasReceberVendaByIdConveniados/{idEntidade}")
-	public ResponseEntity<?> getContasReceberVendaByIdConveniados( @PathVariable("idEntidade") Long idEntidade , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
+	@GetMapping(value = "/getContasReceberVendaByIdEntidade/{idEntidade}")
+	public ResponseEntity<?> getContasReceberVendaByIdEntidade( @PathVariable("idEntidade") Long idEntidade , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
 		try {
 			List<ContasReceber> listaContasReceber = contasReceberService.getCicloPagamentoVendaByIdConveniados( idEntidade );
 			

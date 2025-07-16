@@ -7,26 +7,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.FechamentoConvItensVendas;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ItemTaxaExtraConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CicloPagamentoVendaDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ConveniadosResumoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.FechamentoConvItensVendasDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ItemTaxaExtraConveniadaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.PeriodoCobrancaTaxaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaExtraConveniadaDTO;
-/*
-@Mapper(uses = {TaxaConveniadosMapper.class, ConveniadosMapper.class, FechamentoConvItensVendasMapper.class})
-public interface CicloPagamentoVendaInterfaceMapper {
-
-	CicloPagamentoVendaInterfaceMapper INSTANCE = Mappers.getMapper(CicloPagamentoVendaInterfaceMapper.class);
-	
-	CicloPagamentoVendaDTO toDto(CicloPagamentoVenda cicloPagamentoVenda);
-	List<CicloPagamentoVendaDTO> toListDto(List<CicloPagamentoVenda> listCicloPagamentoVenda); 
-	CicloPagamentoVenda toEntity(CicloPagamentoVendaDTO cicloPagamentoVendaDTO);
-	
-}
-
-*/
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TipoPeriodoDTO;
 
 @Mapper(componentModel = "spring")
@@ -111,6 +100,17 @@ public interface CicloPagamentoVendaInterfaceMapper {
             .collect(Collectors.toList());
     }    
     
+    default ConveniadosResumoDTO mapConveniados(Conveniados conveniados) {
+        if (conveniados == null) {
+            return null;
+        }
+        
+        ConveniadosResumoDTO dto = new ConveniadosResumoDTO();
+        dto.setIdConveniados(conveniados.getIdConveniados());
+        // Assumindo que Conveniados tem um método getNome() ou similar para obter o nome
+        dto.setNome(conveniados.getPessoa() != null ? conveniados.getPessoa().getNomePessoa() : null);
+        return dto;
+    }
     
     
 }

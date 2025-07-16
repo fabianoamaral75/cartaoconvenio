@@ -368,6 +368,4 @@ public class UsuarioController {
 	}
 	
 	
-	// public Usuario validaUserLogadoByIdOrLogin( Long idUserLogado, String login )
-	
 }

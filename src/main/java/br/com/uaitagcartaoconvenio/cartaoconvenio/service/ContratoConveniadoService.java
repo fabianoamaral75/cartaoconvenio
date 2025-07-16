@@ -85,15 +85,14 @@ public class ContratoConveniadoService {
         }
 
         // Atualiza vigencias - implementação simplificada
-        // Em uma implementação real, seria necessário tratar atualizações mais complexas
         if (dto.getVigencias() != null) {
             contrato.getVigencias().clear();
             dto.getVigencias().forEach(vigenciaDTO -> {
                 VigenciaContratoConveniada vigencia = new VigenciaContratoConveniada();
-                vigencia.setDataInicio(vigenciaDTO.getDataInicio());
-                vigencia.setDataFinal(vigenciaDTO.getDataFinal());
-                vigencia.setRenovacao(vigenciaDTO.getRenovacao());
-                vigencia.setObservacao(vigenciaDTO.getObservacao());
+                vigencia.setDataInicio( vigenciaDTO.getDataInicio() );
+                vigencia.setDataFinal ( vigenciaDTO.getDataFinal()  );
+                vigencia.setRenovacao ( vigenciaDTO.getRenovacao()  );
+                vigencia.setObservacao( vigenciaDTO.getObservacao() );
                 contrato.adicionarVigencia(vigencia);
             });
         }

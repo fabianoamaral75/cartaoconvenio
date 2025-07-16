@@ -11,8 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -22,6 +24,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ErrorResponse;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Nicho;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.NichoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.NichoRepository;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.service.NichoService;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
@@ -29,6 +32,9 @@ public class NichoController {
 
 	@Autowired
 	private NichoRepository nichoRepository;
+	
+	@Autowired
+	private NichoService nichoService;
 	
 	@ResponseBody
 	@PostMapping(value = "/salvarNicho")
@@ -172,5 +178,70 @@ public class NichoController {
 	    }
 
 	}
+   /////////////////
+   ///
+   ///
+	@ResponseBody
+	@PutMapping(value = "/atualizarNicho/{id}")
+	public ResponseEntity<?> atualizarNichoCompleto(
+	        @PathVariable("id") Long id,
+	        @RequestBody Nicho nichoAtualizado,
+	        HttpServletRequest request) {
+	    try {
+	        if (!id.equals(nichoAtualizado.getIdNicho())) {
+	            throw new ExceptionCustomizada("ID do nicho não corresponde ao ID na URL");
+	        }
 
+	        Nicho nichoAtualizadoSalvo = nichoService.atualizarNichoCompleto(nichoAtualizado);
+	        NichoDTO dto = NichoMapper.INSTANCE.toDto(nichoAtualizadoSalvo);
+	        
+	        return new ResponseEntity<>(dto, HttpStatus.OK);
+	    } catch (Exception ex) {
+	        return criarRespostaErro(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+	    }
+	}
+
+	@ResponseBody
+	@PatchMapping(value = "/atualizarDescricaoNicho/{id}")
+	public ResponseEntity<?> atualizarDescricaoNicho(
+	        @PathVariable("id") Long id,
+	        @RequestBody String novaDescricao,
+	        HttpServletRequest request) {
+	    try {
+	        nichoService.atualizarDescricao(id, novaDescricao);
+	        return new ResponseEntity<>("Descrição do nicho atualizada com sucesso", HttpStatus.OK);
+	    } catch (Exception ex) {
+	        return criarRespostaErro(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+	    }
+	}
+
+	@ResponseBody
+	@PatchMapping(value = "/atualizarConveniadoNicho/{id}")
+	public ResponseEntity<?> atualizarConveniadoNicho(
+	        @PathVariable("id") Long id,
+	        @RequestBody Long idConveniados,
+	        HttpServletRequest request) {
+	    try {
+	        nichoService.atualizarConveniado(id, idConveniados);
+	        return new ResponseEntity<>("Conveniado do nicho atualizado com sucesso", HttpStatus.OK);
+	    } catch (Exception ex) {
+	        return criarRespostaErro(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+	    }
+	}
+
+	// Adicione este método para evitar duplicação de código
+	private ResponseEntity<?> criarRespostaErro(HttpStatus status, String mensagem, HttpServletRequest request) {
+	    long timestamp = System.currentTimeMillis();
+	    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
+	    String dataFormatada = sdf.format(new Date(timestamp));
+	    
+	    ErrorResponse error = new ErrorResponse(
+	        status.value(),
+	        mensagem,
+	        request.getRequestURI(),
+	        dataFormatada
+	    );
+	    return ResponseEntity.status(status).body(error);
+	}
 }

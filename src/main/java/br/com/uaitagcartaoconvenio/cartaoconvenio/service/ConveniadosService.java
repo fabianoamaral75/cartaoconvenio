@@ -10,14 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusContrato;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContratoConveniado;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Nicho;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Pessoa;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.RamoAtividade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaConveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaExtraConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.VigenciaContratoConveniada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ConveniadosDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.ConveniadosRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
 import jakarta.transaction.Transactional;
@@ -106,6 +110,7 @@ public class ConveniadosService {
 	            vigenciaPadrao.setDataInicio(LocalDate.now());
 	            vigenciaPadrao.setDataFinal(LocalDate.now().plusYears(1));
 	            vigenciaPadrao.setObservacao("Vigência inicial criada automaticamente");
+	            vigenciaPadrao.setDescStatusContrato(StatusContrato.VIGENTE);
 	            vigenciaPadrao.setContratoConveniado(contrato);
 	            contrato.getVigencias().add(vigenciaPadrao);
 	        } else {
@@ -268,4 +273,121 @@ public class ConveniadosService {
         return conveniadosRepository.updateMesRecebimentoPosFechamentoEmLote(ids, mesRecebimento);
     }
 
+    
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+   public Pessoa atualizarConveniadaCompleta(Pessoa pessoaAtualizada) throws ExceptionCustomizada {
+        // Validações básicas
+        if (pessoaAtualizada.getConveniados() == null) {
+            throw new ExceptionCustomizada("Dados da conveniada não podem ser nulos");
+        }
+        
+        // Busca a conveniada existente
+        Conveniados conveniadaExistente = conveniadosRepository.findById(pessoaAtualizada.getConveniados().getIdConveniados())
+                .orElseThrow(() -> new ExceptionCustomizada("Conveniada não encontrada"));
+        
+        // Atualiza os dados básicos
+        conveniadaExistente.setSite(pessoaAtualizada.getConveniados().getSite());
+        conveniadaExistente.setObs(pessoaAtualizada.getConveniados().getObs());
+        conveniadaExistente.setDiaPagamento(pessoaAtualizada.getConveniados().getDiaPagamento());
+        
+        // Atualiza relacionamentos
+        if (pessoaAtualizada.getConveniados().getNicho() != null) {
+            conveniadaExistente.setNicho(pessoaAtualizada.getConveniados().getNicho());
+        }
+        
+        if (pessoaAtualizada.getConveniados().getRamoAtividade() != null) {
+            conveniadaExistente.setRamoAtividade(pessoaAtualizada.getConveniados().getRamoAtividade());
+        }
+        
+        // Atualiza taxas
+        if (pessoaAtualizada.getConveniados().getTaxaConveniados() != null && 
+            !pessoaAtualizada.getConveniados().getTaxaConveniados().isEmpty()) {
+            
+            // Marca taxas antigas como desatualizadas
+            conveniadaExistente.getTaxaConveniados().forEach(t -> t.setDescStatusTaxaCon(StatusTaxaConv.DESATUALIZADA));
+            
+            // Adiciona nova taxa
+            TaxaConveniados novaTaxa = new TaxaConveniados();
+            novaTaxa.setTaxa(pessoaAtualizada.getConveniados().getTaxaConveniados().get(0).getTaxa());
+            novaTaxa.setDescStatusTaxaCon(StatusTaxaConv.ATUAL);
+            novaTaxa.setConveniados(conveniadaExistente);
+            conveniadaExistente.getTaxaConveniados().add(novaTaxa);
+        }
+        
+        // Salva a pessoa (que cascateia para a conveniada)
+        return pessoaService.savarPassoa(pessoaAtualizada);
+    }
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    public Conveniados atualizarStatusConveniada(Long id, StatusConveniada novoStatus) throws ExceptionCustomizada {
+        Conveniados conveniada = conveniadosRepository.findById(id)
+                .orElseThrow(() -> new ExceptionCustomizada("Conveniada não encontrada"));
+        
+        // Valida transições de status permitidas
+        if (conveniada.getDescStatusConveniada() == StatusConveniada.DESATIVADA && 
+            novoStatus != StatusConveniada.ATIVA) {
+            throw new ExceptionCustomizada("Só é possível reativar uma conveniada desativada");
+        }
+        
+        conveniada.setDescStatusConveniada(novoStatus);
+        return conveniadosRepository.save(conveniada);
+    }
+    
+    @Transactional
+    public Conveniados atualizarConveniadaSimples(ConveniadosDTO conveniadosDTO) throws ExceptionCustomizada {
+        // Validações básicas
+        if (conveniadosDTO == null) {
+            throw new ExceptionCustomizada("Dados da conveniada não podem ser nulos");
+        }
+        
+        // Busca a conveniada existente
+        Conveniados conveniadaExistente = conveniadosRepository.findById(conveniadosDTO.getIdConveniados())
+                .orElseThrow(() -> new ExceptionCustomizada("Conveniada não encontrada"));
+        
+        // Atualiza os dados básicos
+        conveniadaExistente.setSite(conveniadosDTO.getSite());
+        conveniadaExistente.setObs(conveniadosDTO.getObs());
+        conveniadaExistente.setDiaPagamento(conveniadosDTO.getDiaPagamento());
+        
+        // Atualiza relacionamentos
+        if (conveniadosDTO.getNicho() != null) {
+            Nicho nicho = new Nicho();
+            nicho.setIdNicho(conveniadosDTO.getNicho().getIdNicho());
+            conveniadaExistente.setNicho(nicho);
+            nicho.setConveniados(conveniadaExistente);
+        }
+        
+        if (conveniadosDTO.getRamoAtividade() != null) {
+            RamoAtividade ramoAtividade = new RamoAtividade();
+            ramoAtividade.setIdRamoAtividade(conveniadosDTO.getRamoAtividade().getIdRamoAtividade());
+            conveniadaExistente.setRamoAtividade(ramoAtividade);
+            ramoAtividade.setConveniados(conveniadaExistente);
+        }
+        
+        // Atualiza taxas
+        if (conveniadosDTO.getTaxaConveniados() != null && !conveniadosDTO.getTaxaConveniados().isEmpty()) {
+            // Marca taxas antigas como desatualizadas
+            conveniadaExistente.getTaxaConveniados().forEach(t -> t.setDescStatusTaxaCon(StatusTaxaConv.DESATUALIZADA));
+            
+            // Adiciona nova taxa
+            TaxaConveniados novaTaxa = new TaxaConveniados();
+            novaTaxa.setTaxa(conveniadosDTO.getTaxaConveniados().get(0).getTaxa());
+            novaTaxa.setDescStatusTaxaCon(StatusTaxaConv.ATUAL);
+            novaTaxa.setConveniados(conveniadaExistente);
+            conveniadaExistente.getTaxaConveniados().add(novaTaxa);
+        }
+        
+        try {
+            return conveniadosRepository.save(conveniadaExistente);
+        } catch (Exception e) {
+            logger.error("Erro ao atualizar conveniada", e);
+            throw new ExceptionCustomizada("Erro ao atualizar conveniada: " + e.getMessage());
+        }
+    }
 }
