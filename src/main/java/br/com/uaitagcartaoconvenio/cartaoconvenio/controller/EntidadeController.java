@@ -341,7 +341,7 @@ public class EntidadeController {
 	/*                                                                */
 	/******************************************************************/	
 	@ResponseBody
-	@GetMapping(value = "/getTodasEntidadesPaginadas")
+	@GetMapping(value = "/getTodasEntidadesPaginadas/paginados")
 	public ResponseEntity<?> listarTodasEntidadesPaginadas( 
 			@RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "10") int tamanho, 
@@ -381,7 +381,7 @@ public class EntidadeController {
 	/*                                                                */
 	/******************************************************************/	
 	@ResponseBody
-	@GetMapping(value = "/getPorParteDoNomePaginadas/{name}")
+	@GetMapping(value = "/getPorParteDoNomePaginadas/paginados/{name}")
 	public ResponseEntity<?> buscarPorParteDoNomePaginadas(
 			@PathVariable("name") String name,
 			@RequestParam(defaultValue = "0") int pagina,
