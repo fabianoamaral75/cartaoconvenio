@@ -9,6 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Entidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Funcionario;
@@ -99,5 +100,7 @@ public interface EntidadeMapper {
         // Configurações pós-mapeamento podem ser adicionadas aqui
     }
     
-
+    default Page<EntidadeDTO> toDTOPage(Page<Entidade> page) {
+        return page.map(this::toSimpleDTO);
+    }
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -258,6 +260,160 @@ public class EntidadeController {
 	    }		
 	}
 
+	/********************************************************************/
+	/*                                                                  */
+	/*Endpoint 1: Buscar todas as entidades ordenadas por ID (limit 10) */
+	/*                                                                  */
+	/********************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getTodasEntidadesOrdenadasPorId")
+	public ResponseEntity<?> buscarTodasEntidadesOrdenadasPorId( HttpServletRequest request ) throws ExceptionCustomizada{
+
+		try {
+			List<Entidade> listaEntidade = entidadeService.buscarTodasEntidadesOrdenadasPorId();
+			
+			List<EntidadeDTO> dto = mapper.toDTOList(listaEntidade); 
+			
+			return new ResponseEntity<List<EntidadeDTO>>(dto, HttpStatus.OK);
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }		
+	}
+	
+	
+	/******************************************************************/
+	/*                                                                */
+	/*  Endpoint 2: Buscar entidades por parte do nome (limit 10)     */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getPorParteDoNome/{name}")
+	public ResponseEntity<?> buscarPorParteDoNome( @PathVariable("name") String name, HttpServletRequest request ) throws ExceptionCustomizada{
+
+		try {
+			List<Entidade> listaEntidade = entidadeService.buscarEntidadesPorParteDoNome( name );
+			
+			List<EntidadeDTO> dto = mapper.toDTOList(listaEntidade); 
+			
+			return new ResponseEntity<List<EntidadeDTO>>(dto, HttpStatus.OK);
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }		
+	}
+	
+	
+	
+	/******************************************************************/
+	/*                                                                */
+	/*  Versões com paginação                                         */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getTodasEntidadesPaginadas")
+	public ResponseEntity<?> listarTodasEntidadesPaginadas( 
+			@RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "10") int tamanho, 
+            HttpServletRequest request ) throws ExceptionCustomizada{
+
+		try {
+			Page<Entidade> listaEntidade = entidadeService.buscarTodasEntidadesPaginadas(pagina, tamanho);
+					
+	        Page<EntidadeDTO> dtoPage = mapper.toDTOPage(listaEntidade);
+	        
+	        return new ResponseEntity<Page<EntidadeDTO>>(dtoPage, HttpStatus.OK);
+			
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }		
+	}
+
+	/******************************************************************/
+	/*                                                                */
+	/*  Versões com paginação                                         */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getPorParteDoNomePaginadas/{name}")
+	public ResponseEntity<?> buscarPorParteDoNomePaginadas(
+			@PathVariable("name") String name,
+			@RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "10") int tamanho, 
+            HttpServletRequest request ) throws ExceptionCustomizada{
+
+		try {
+
+			Page<Entidade> listaEntidade = entidadeService.buscarEntidadesPorParteDoNomePaginadas(name, pagina, tamanho);
+	        Page<EntidadeDTO> dtoPage = mapper.toDTOPage(listaEntidade);
+	        
+	        return new ResponseEntity<Page<EntidadeDTO>>(dtoPage, HttpStatus.OK);
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }		
+	}
 	
 	@ResponseBody
 	@PutMapping(value = "/atualizarEntidade/{id}")

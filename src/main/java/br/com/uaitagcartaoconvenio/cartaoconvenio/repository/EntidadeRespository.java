@@ -2,12 +2,14 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.jpa.repository.Modifying;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Entidade;
 
@@ -86,5 +88,20 @@ public interface EntidadeRespository extends JpaRepository<Entidade, Long> {
            "LEFT JOIN FETCH ce.servicos " +
            "WHERE e.idEntidade = :id")
     Entidade findByIdWithRelationships(@Param("id") Long id);    
+ 
     
+    // Pesquisar todas as entidades ordenadas por idEntidade (limit 10)
+    List<Entidade> findTop10ByOrderByIdEntidade();
+    
+    // Pesquisar entidades por parte do nome, ordenadas por idEntidade (limit 10)
+    List<Entidade> findTop10ByNomeEntidadeContainingIgnoreCaseOrderByIdEntidade(String parteNome);
+    
+    // Alternativa com paginação (mais flexível)
+    Page<Entidade> findAllByOrderByIdEntidade(Pageable pageable);
+    
+    Page<Entidade> findByNomeEntidadeContainingIgnoreCaseOrderByIdEntidade(String parteNome, Pageable pageable);
+    
+    // Alternativa com JPQL
+    @Query("SELECT e FROM Entidade e WHERE UPPER(e.nomeEntidade) LIKE UPPER(CONCAT('%', :parteNome, '%')) ORDER BY e.idEntidade")
+    List<Entidade> pesquisarPorParteDoNome(@Param("parteNome") String parteNome, Pageable pageable);
 }

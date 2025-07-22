@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
@@ -17,7 +20,6 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ServicoContrato;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.VigenciaContratoEntidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.EntidadeRespository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
-
 
 @Service
 public class EntidadeService {
@@ -144,6 +146,48 @@ public class EntidadeService {
 		return listaEntidades;
 		
 	}	
+
+	/********************************************************************/
+	/*                                                                  */
+	/*  Método 1: Buscar todas as entidades ordenadas por ID (limit 10) */
+	/*                                                                  */
+	/********************************************************************/	
+    public List<Entidade> buscarTodasEntidadesOrdenadasPorId() {
+        return entidadeRespository.findTop10ByOrderByIdEntidade();
+    }
+
+	/******************************************************************/
+	/*                                                                */
+	/*  Método 2: Buscar entidades por parte do nome (limit 10)       */
+	/*                                                                */
+	/******************************************************************/	
+    public List<Entidade> buscarEntidadesPorParteDoNome(String parteNome) {
+        return entidadeRespository.findTop10ByNomeEntidadeContainingIgnoreCaseOrderByIdEntidade(parteNome);
+    }
+
+	/******************************************************************/
+	/*                                                                */
+	/*  Versões com paginação (mais flexíveis)                        */
+	/*                                                                */
+	/******************************************************************/	
+    public Page<Entidade> buscarTodasEntidadesPaginadas(int pagina, int tamanho) {
+        Pageable pageable = PageRequest.of(pagina, tamanho);
+        return entidadeRespository.findAllByOrderByIdEntidade(pageable);
+    }
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    public Page<Entidade> buscarEntidadesPorParteDoNomePaginadas(String parteNome, int pagina, int tamanho) {
+        Pageable pageable = PageRequest.of(pagina, tamanho);
+        return entidadeRespository.findByNomeEntidadeContainingIgnoreCaseOrderByIdEntidade(parteNome, pageable);
+    }	
+	
+	
+	
+	
+	
 		
 	/******************************************************************/
 	/*                                                                */

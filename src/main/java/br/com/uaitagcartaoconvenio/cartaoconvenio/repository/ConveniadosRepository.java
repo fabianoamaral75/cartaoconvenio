@@ -2,6 +2,9 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -73,4 +76,28 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
     @Query("UPDATE Conveniados c SET c.descStatusConveniada = :status WHERE c.idConveniados = :id")
     void atualizarStatus(@Param("id") Long id, @Param("status") StatusConveniada status);
 
+    
+    @Query("SELECT DISTINCT c FROM Conveniados c LEFT JOIN FETCH c.pessoa ORDER BY c.idConveniados")
+    List<Conveniados> findTop10ByOrderByIdConveniados(Pageable pageable);
+    
+       
+    @Query("SELECT DISTINCT c FROM Conveniados c LEFT JOIN FETCH c.pessoa p " +
+    	       "WHERE UPPER(p.nomePessoa) LIKE UPPER(CONCAT('%', :parteNome, '%')) " +
+    	       "ORDER BY c.idConveniados")
+    	List<Conveniados> findTop10ByPessoaNomePessoaContainingIgnoreCase(@Param("parteNome") String parteNome, Pageable pageable);
+    
+ 
+    
+    @EntityGraph(attributePaths = {"pessoa"})
+    @Query("SELECT c FROM Conveniados c JOIN c.pessoa p " +
+           "ORDER BY c.idConveniados")
+    Page<Conveniados> findAllByOrderByIdConveniados(Pageable pageable);
+   
+    
+
+    @EntityGraph(attributePaths = {"pessoa"})
+    @Query("SELECT c FROM Conveniados c JOIN c.pessoa p " +
+           "WHERE UPPER(p.nomePessoa) LIKE UPPER(CONCAT('%', :parteNome, '%')) " +
+           "ORDER BY c.idConveniados")
+    Page<Conveniados> findByPessoaNomePessoaContainingIgnoreCase(@Param("parteNome") String parteNome, Pageable pageable);
 }

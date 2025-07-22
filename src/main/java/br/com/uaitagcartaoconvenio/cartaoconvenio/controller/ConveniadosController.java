@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
@@ -112,8 +114,184 @@ public class ConveniadosController {
 	        );
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	    }
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*  Buscar todos os conveniados ordenados por ID (limit 10)       */
+	/*                                                                */
+	/******************************************************************/
+	@ResponseBody
+	@GetMapping(value = "/getTodosConveniadosLimit10")
+	public ResponseEntity<?> listarTodosConveniadosLimit10( HttpServletRequest request ) throws ExceptionCustomizada, IOException{
+		try {
+						
+	        List<Conveniados> listaConveniada = conveniadosService.buscarTodosConveniadosOrdenadosPorId();
+			
+			if( listaConveniada == null ) {
+				throw new ExceptionCustomizada("Não existe a Conveniada Cadastrada" );
+			}
+			
+			List<ConveniadosDTO> dto = ConveniadosMapper.INSTANCE.toListDto(listaConveniada);
+			
+			return new ResponseEntity<List<ConveniadosDTO>>(dto, HttpStatus.OK);	
+			
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
 
 	}
+
+	/******************************************************************/
+	/*                                                                */
+	/* Buscar conveniados por parte do nome da pessoa (limit 10)      */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getPorParteDoNomePessoaLimit10/{name}")
+	public ResponseEntity<?> buscarPorParteDoNomePessoaLimit10( @PathVariable("name") String name, HttpServletRequest request ) throws ExceptionCustomizada, IOException{
+		try {
+						
+			List<Conveniados> listaConveniada = conveniadosService.buscarConveniadosPorParteDoNomePessoa(name);
+						
+			List<ConveniadosDTO> dto = ConveniadosMapper.INSTANCE.toListDto(listaConveniada);
+			
+			return new ResponseEntity<List<ConveniadosDTO>>(dto, HttpStatus.OK);	
+			
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
+
+	}
+	
+	
+	
+	/******************************************************************/
+	/*                                                                */
+	/*  Buscar todos os conveniados ordenados por ID (limit 10)       */
+	/*  Versões com paginação                                         */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getTodosConveniadosPaginados/paginados")
+	public ResponseEntity<?> listarTodosConveniadosPaginados( @RequestParam(defaultValue = "0" ) int pagina ,
+                                                              @RequestParam(defaultValue = "10") int tamanho, 
+                                                              HttpServletRequest request                      ) throws ExceptionCustomizada, IOException{
+		try {
+						
+			Page<Conveniados> listaConveniada = conveniadosService.buscarTodosConveniadosPaginados(pagina, tamanho);
+	        Page<ConveniadosDTO> dtoPage = ConveniadosMapper.INSTANCE.toPageDto(listaConveniada);
+	        return new ResponseEntity<Page<ConveniadosDTO>>(dtoPage, HttpStatus.OK);
+			
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
+
+	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*  Buscar conveniados por parte do nome da pessoa (limit 10)     */
+	/*  Versões com paginação                                         */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getPorParteDoNomePessoaPaginados/paginados/{name}")
+	public ResponseEntity<?> buscarPorParteDoNomePessoaPaginados( @PathVariable("name") String name             ,
+			                                                      @RequestParam(defaultValue = "0" ) int pagina ,
+                                                                  @RequestParam(defaultValue = "10") int tamanho, 
+                                                                  HttpServletRequest request                      ) throws ExceptionCustomizada, IOException{
+		try {
+						
+	        Page<Conveniados> listaConveniada = conveniadosService.buscarConveniadosPorParteDoNomePessoaPaginados(name, pagina, tamanho);
+	        Page<ConveniadosDTO> dtoPage = ConveniadosMapper.INSTANCE.toPageDto(listaConveniada);
+	        return new ResponseEntity<Page<ConveniadosDTO>>(dtoPage, HttpStatus.OK);
+			
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
+
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	/******************************************************************/
 	/*                                                                */

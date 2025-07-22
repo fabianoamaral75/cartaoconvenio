@@ -7,7 +7,11 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusContrato;
@@ -236,7 +240,9 @@ public class ConveniadosService {
 		return listaConveniados;
 		
 	}
-
+	
+	
+	
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */
@@ -389,5 +395,30 @@ public class ConveniadosService {
             logger.error("Erro ao atualizar conveniada", e);
             throw new ExceptionCustomizada("Erro ao atualizar conveniada: " + e.getMessage());
         }
+    }
+    
+
+    // Método 1: Buscar todos os conveniados ordenados por ID (limit 10)
+    public List<Conveniados> buscarTodosConveniadosOrdenadosPorId() {
+    	Pageable topTen = PageRequest.of(0, 10);
+        return conveniadosRepository.findTop10ByOrderByIdConveniados(topTen);
+    }
+
+    // Método 2: Buscar conveniados por parte do nome da pessoa (limit 10)
+    public List<Conveniados> buscarConveniadosPorParteDoNomePessoa(String parteNome) {
+    	Pageable topTen = PageRequest.of(0, 10);
+        return conveniadosRepository.findTop10ByPessoaNomePessoaContainingIgnoreCase(parteNome, topTen);
+    }
+
+    // Versões com paginação
+    public Page<Conveniados> buscarTodosConveniadosPaginados(int pagina, int tamanho) {
+        Pageable pageable = PageRequest.of(pagina, tamanho);
+        return conveniadosRepository.findAllByOrderByIdConveniados(pageable);
+    }
+ 
+
+    public Page<Conveniados> buscarConveniadosPorParteDoNomePessoaPaginados(String parteNome, int pagina, int tamanho) {
+        Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by("idConveniados"));
+        return conveniadosRepository.findByPessoaNomePessoaContainingIgnoreCase(parteNome, pageable);
     }
 }

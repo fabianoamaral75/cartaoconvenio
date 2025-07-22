@@ -6,6 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
@@ -119,5 +120,9 @@ public interface ConveniadosMapper {
         }
         
         return dto;
+    }
+    
+    default Page<ConveniadosDTO> toPageDto(Page<Conveniados> page) {
+        return page.map(this::toDto);
     }
 }
