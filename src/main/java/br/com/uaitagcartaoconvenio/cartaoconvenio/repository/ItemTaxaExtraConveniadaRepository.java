@@ -63,4 +63,13 @@ public interface ItemTaxaExtraConveniadaRepository extends JpaRepository<ItemTax
      * @return Quantidade de itens
      */
     long countByCicloPagamentoVenda(CicloPagamentoVenda cicloPagamentoVenda);
+    
+    
+    @Query("SELECT t FROM TaxaExtraConveniada t " +
+    	       "LEFT JOIN FETCH t.itemTaxaExtraConveniada " +  // Adicione esta linha
+    	       "LEFT JOIN FETCH t.periodoCobrancaTaxa p " +
+    	       "LEFT JOIN FETCH p.tipoPeriodo " +
+    	       "LEFT JOIN FETCH t.conveniados " +
+    	       "WHERE t.conveniados.id = :idConveniado")
+    List<TaxaExtraConveniada> findByConveniadoId(@Param("idConveniado") Long idConveniado);
 }

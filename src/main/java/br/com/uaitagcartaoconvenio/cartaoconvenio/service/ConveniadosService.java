@@ -10,13 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusContrato;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.excecoes.BusinessException;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContratoConveniado;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Nicho;
@@ -421,4 +422,4 @@ public class ConveniadosService {
         Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by("idConveniados"));
         return conveniadosRepository.findByPessoaNomePessoaContainingIgnoreCase(parteNome, pageable);
     }
-}
+ }

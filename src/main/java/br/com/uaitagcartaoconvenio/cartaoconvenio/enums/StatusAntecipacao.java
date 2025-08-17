@@ -2,11 +2,12 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.enums;
 
 public enum StatusAntecipacao {
 	
-	APROVADO            ("Antecipação aprovada e realizada!"                       ),
-	AGUARDANDO_APROVACAO("Antecipação aguardando aprovação da Conveniada!"         ),
-	REPROVADO           ("Antecipação reprovada pela Conveniada!"                  ),
-	CANCELADO           ("Antecipação cancelada!"                                  ),
-	EXPIRADO            ("Antecipação expirada por falta de retorno da Conveniada!");	
+	APROVADO  ("Antecipação aprovada e realizada!"                       ),
+	PENDENTE  ("Antecipação aguardando aprovação da Conveniada!"         ),
+	REPROVADO ("Antecipação reprovada pela Conveniada!"                  ),
+	CANCELADO ("Antecipação cancelada!"                                  ),
+	FINALIZADA("Antecipação Finalizada com sucesso!"                     ),
+	EXPIRADO  ("Antecipação expirada por falta de retorno da Conveniada!");	
 
 	private String descStatusAntecipacao;
 	

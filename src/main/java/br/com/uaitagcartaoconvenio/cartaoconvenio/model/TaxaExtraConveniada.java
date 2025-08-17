@@ -28,6 +28,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+
 
 @Entity
 @Getter
@@ -65,7 +67,6 @@ public class TaxaExtraConveniada {
     @Column(name = "COBRANCA_VALOR_BRUTO", nullable = false, columnDefinition = "boolean default false")
     private Boolean cobrancaValorBruto;
 
-
     @ManyToOne(targetEntity = Conveniados.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_CONVENIADOS", nullable = false, foreignKey = @ForeignKey(name = "fk_taxa_extra_conveniados"))
     private Conveniados conveniados;
@@ -76,6 +77,7 @@ public class TaxaExtraConveniada {
     private PeriodoCobrancaTaxa periodoCobrancaTaxa;
      
     // Adicionar relacionamento com a tabela de junção
+    @ToString.Exclude
     @OneToMany(mappedBy = "taxaExtraConveniada", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ItemTaxaExtraConveniada> itemTaxaExtraConveniada = new ArrayList<ItemTaxaExtraConveniada>();   
@@ -93,14 +95,43 @@ public class TaxaExtraConveniada {
             periodo.setTaxaExtraConveniada(this);
         }
     }
+    
+    /** Conveniência: garante os dois lados do relacionamento */
+    public void addItem(ItemTaxaExtraConveniada item) {
+        if (item == null) return;
+        item.setTaxaExtraConveniada(this);
+        this.itemTaxaExtraConveniada.add(item);
+    }
 
-	@Override
-	public String toString() {
-		return "TaxaExtraConveniada [id=" + id + ", descricaoTaxa=" + descricaoTaxa + ", dataCriacao=" + dataCriacao
-				+ ", valorTaxa=" + valorTaxa + ", statusTaxa=" + statusTaxa + ", tipoCobrancaPercentual="
-				+ tipoCobrancaPercentual + ", cobrancaValorBruto=" + cobrancaValorBruto + ", conveniados=" + conveniados
-				+ ", periodoCobrancaTaxa=" + periodoCobrancaTaxa + ", itemTaxaExtraConveniada="
-				+ itemTaxaExtraConveniada + "]";
-	}
+    public void removeItem(ItemTaxaExtraConveniada item) {
+        if (item == null) return;
+        this.itemTaxaExtraConveniada.remove(item);
+        item.setTaxaExtraConveniada(null);
+    }
+
+    /** IMPORTANTE: atualiza in-place, não troca a referência da lista */
+    public void setItemTaxaExtraConveniada(List<ItemTaxaExtraConveniada> novos) {
+        this.itemTaxaExtraConveniada.clear();
+        if (novos != null) {
+            for (ItemTaxaExtraConveniada it : novos) {
+                addItem(it); // garante o parent no filho
+            }
+        }
+    }
+    
+    public void addItemTaxaExtraConveniada(ItemTaxaExtraConveniada item) {
+        if (this.itemTaxaExtraConveniada == null) {
+            this.itemTaxaExtraConveniada = new ArrayList<>();
+        }
+        this.itemTaxaExtraConveniada.add(item);
+        item.setTaxaExtraConveniada(this);
+    }
+
+    public void removeItemTaxaExtraConveniada(ItemTaxaExtraConveniada item) {
+        if (this.itemTaxaExtraConveniada != null) {
+            this.itemTaxaExtraConveniada.remove(item);
+            item.setTaxaExtraConveniada(null);
+        }
+    }
     
 }

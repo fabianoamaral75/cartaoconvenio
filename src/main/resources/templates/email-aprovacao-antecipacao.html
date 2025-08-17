@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitação de Aprovação de Antecipação - Cartão Convênio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        h2 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-section {
+            margin-bottom: 30px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .data-table th {
+            background-color: #f8f9fa;
+            text-align: left;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+        .data-table td {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 13px;
+            color: #6c757d;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .signature {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .actions {
+            margin: 30px 0;
+            text-align: center;
+        }
+        .action-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            color: white !important;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .approve-btn {
+            background-color: #28a745;
+        }
+        .reject-btn {
+            background-color: #dc3545;
+        }
+        .action-btn i {
+            margin-right: 8px;
+        }
+        .value-highlight {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .text-muted {
+            color: #6c757d !important;
+        }
+        .fallback-link {
+            color: #007bff;
+            text-decoration: underline;
+        }
+        .popup-blocked-warning {
+            display: none;
+            color: #dc3545;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <img src="cid:logo" alt="Logo Cartão Convênio" class="logo">
+            <h1>Solicitação de Aprovação de Antecipação</h1>
+            <p class="text-muted">ID: ${idAntecipacao} | Data: ${dataEnvio}</p>
+        </div>
+
+        <div class="info-section">
+            <h2>Informações da Conveniada</h2>
+            <table class="data-table">
+                <tr>
+                    <th>Nome</th>
+                    <td>${nomeConveniada}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="info-section">
+            <h2>Detalhes da Antecipação</h2>
+            <table class="data-table">
+                <tr>
+                    <th>ID Antecipação</th>
+                    <td>${idAntecipacao}</td>
+                </tr>
+                <tr>
+                    <th>Data de Corte</th>
+                    <td>${dtCorte}</td>
+                </tr>
+                <tr>
+                    <th>Data de Pagamento</th>
+                    <td>${dtPagamento}</td>
+                </tr>
+                <tr>
+                    <th>Data de Vencimento</th>
+                    <td>${dtVencimento}</td>
+                </tr>
+                <tr>
+                    <th>Período (dias)</th>
+                    <td>${periodoDias}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="info-section">
+            <h2>Valores Financeiros</h2>
+            <table class="data-table">
+                <tr>
+                    <th>Valor Base</th>
+                    <td class="value-highlight">${valorBase}</td>
+                </tr>
+                <tr>
+                    <th>Valor Nominal</th>
+                    <td class="value-highlight">${valorNominal}</td>
+                </tr>
+                <tr>
+                    <th>Valor do Desconto</th>
+                    <td class="value-highlight">${valorDesconto}</td>
+                </tr>
+                <tr>
+                    <th>Taxa Mês</th>
+                    <td>${taxaMes}%</td>
+                </tr>
+                <tr>
+                    <th>Taxa Dia</th>
+                    <td>${taxaDia}%</td>
+                </tr>
+                <tr>
+                    <th>Taxa Período</th>
+                    <td>${taxaPeriodo}%</td>
+                </tr>
+            </table>
+        </div>
+
+		<div class="info-section">
+		  <h2>Ações Requeridas</h2>
+		  <p>Por favor, clique em um dos botões abaixo para aprovar ou reprovar esta solicitação de antecipação:</p>
+
+		  <!-- Substitua esta parte no seu template de e-mail -->
+		  <div class="actions">
+		      <a href="${baseUrl}/antecipacao/popup?id=${idAntecipacao}&token=${token}&action=approve" 
+		         target="_blank" 
+		         class="action-btn approve-btn">
+		          <i class="bi bi-check-circle"></i> Aprovar Antecipação
+		      </a>
+		      <a href="${baseUrl}/antecipacao/popup?id=${idAntecipacao}&token=${token}&action=reject" 
+		         target="_blank" 
+		         class="action-btn reject-btn">
+		          <i class="bi bi-x-circle"></i> Reprovar Antecipação
+		      </a>
+		  </div>
+
+		</div>
+
+        <div class="footer">
+            <p><i class="bi bi-envelope"></i> Este é um e-mail automático, por favor não responda.</p>
+            <div class="signature">
+                <p>Atenciosamente,</p>
+                <p><strong>Equipe de Antecipações - Cartão Convênio</strong></p>
+            </div>
+            <p style="margin-top: 15px;">
+                <i class="bi bi-shield-lock"></i> Esta mensagem contém informações confidenciais.
+            </p>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const approveBtn = document.getElementById('approveBtn');
+            const rejectBtn = document.getElementById('rejectBtn');
+            const popupBlockedWarning = document.getElementById('popupBlockedWarning');
+            const fallbackLink = document.getElementById('fallbackLink');
+            
+            // Configura os handlers de clique para os botões
+            approveBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openApprovalPopup('approve');
+            });
+            
+            rejectBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openApprovalPopup('reject');
+            });
+            
+            // Configura o fallback link
+            fallbackLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                const action = this.getAttribute('data-action');
+                const popupUrl = `${baseUrl}/antecipacao/popup?id=${encodeURIComponent('${idAntecipacao}')}&token=${encodeURIComponent('${token}')}&action=${action}`;
+                window.location.href = popupUrl;
+            });
+            
+            function openApprovalPopup(action) {
+                const width = 600;
+                const height = 500;
+                const left = (screen.width - width) / 2;
+                const top = (screen.height - height) / 2;
+                
+                const popupUrl = `${baseUrl}/antecipacao/popup?id=${encodeURIComponent('${idAntecipacao}')}&token=${encodeURIComponent('${token}')}&action=${action}`;
+                
+                // Tenta abrir o popup
+                const popup = window.open(
+                    popupUrl, 
+                    'AntecipacaoPopup', 
+                    `width=${width},height=${height},top=${top},left=${left},resizable=no,scrollbars=no,toolbar=no,location=no,status=no`
+                );
+                
+                // Verifica se o popup foi bloqueado
+                if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+                    popupBlockedWarning.style.display = 'block';
+                    document.querySelector('.fallback-text').style.display = 'block';
+                    fallbackLink.setAttribute('data-action', action);
+                } else {
+                    popup.focus();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

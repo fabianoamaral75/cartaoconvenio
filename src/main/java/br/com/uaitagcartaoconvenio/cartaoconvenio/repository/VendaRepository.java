@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaPg;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendaReceb;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusVendas;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.LimiteCredito;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaEntidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Venda;
@@ -144,10 +145,10 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
                 + " from                                                 "
                 + "       Venda             ven                          "
                 + "  JOIN ven.conveniados   con                          "
-                + " where ven.anoMes            = ?1                     "
-                + "   and ven.descStatusVendas  = ?2                     "
+                + " where ven.anoMes            = ?1             "
+                + "   and ven.descStatusVendas  = ?2   "
                 + "   and ven.descStatusVendaPg = 'AGUARDANDO_PAGAMENTO' "
-                + "   and con.idConveniados     = ?3                     " )
+                + "   and con.idConveniados     = ?3      " )
    List<Venda> listaVendaByIdConveniadosStatusAnoMes( String anoMes, StatusVendas descStatusVendas, Long idConveniados ) ; 
 
 	/******************************************************************/
@@ -352,7 +353,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
    /*                                                                */
    /******************************************************************/	
    @Query(nativeQuery = true, value = " SELECT EXISTS (  SELECT 1 FROM public.venda  WHERE ano_mes = ?1                                        "
-   		                            + "                     AND STATUS                    IN ( 'PAGAMENTO_APROVADO', 'AGUARDANDO_FECHAMENTO', 'AGUARDANDO_FECHAMENTO_MANUAL' ) "
+   		                            + "                     AND STATUS                    IN ( 'PAGAMENTO_APROVADO', 'AGUARDANDO_FECHAMENTO', 'AGUARDANDO_FECHAMENTO_MANUAL', 'PRE_ANTECIPACAO' ) "
    		                            + "                     AND STATUS_VENDA_RECEBIDA NOT IN ( 'VENDA_RECEBIDA'    , 'FECHAMENTO_CONCLUIDO'  ) "
    		                            + "                     AND STATUS_VENDA_PAGA     NOT IN ( 'VENDA_PAGA'        , 'FECHAMENTO_CONCLUIDO'  ) "
    		                            + "               )                                                                                        " )
@@ -416,22 +417,22 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 	/*                                                                */
 	/******************************************************************/
    @Transactional(readOnly = true)
-   @Query(value = "SELECT                                                                 "
-                + "    ven.ano_mes AS anoMes                                            , "
-                + "    SUM(ven.valor_venda) AS somatorioValorVenda                      , "
-                + "    SUM(ven.valor_calc_taxa_conveniado) AS somatorioVlrCalcTxConv    , "
-                + "    ven.id_conveniados                  AS idConveniados             , "
-                + "    ven.id_taxa_conveiniados            AS idTaxaConveniados         , "
-                + "    ven.id_taxa_conveniados_entidate    AS idTaxaConveniadosEntidate   "
-                + " FROM public.venda ven                                                 "
-                + " WHERE ven.ano_mes           = :anoMes                                 "
-                + "   AND ven.status            = 'PAGAMENTO_APROVADO'                    "
-                + "   AND ven.status_venda_paga = 'AGUARDANDO_PAGAMENTO'                  " 
-                + " GROUP BY                                                              "
-                + "    ven.ano_mes,                                                       "
-                + "    ven.id_conveniados,                                                "
-                + "    ven.id_taxa_conveiniados,                                          "
-                + "    ven.id_taxa_conveniados_entidate                                   ", 
+   @Query(value = "SELECT                                                                       "
+                + "    ven.ano_mes AS anoMes                                            ,       "
+                + "    SUM(ven.valor_venda) AS somatorioValorVenda                      ,       "
+                + "    SUM(ven.valor_calc_taxa_conveniado) AS somatorioVlrCalcTxConv    ,       "
+                + "    ven.id_conveniados                  AS idConveniados             ,       "
+                + "    ven.id_taxa_conveiniados            AS idTaxaConveniados         ,       "
+                + "    ven.id_taxa_conveniados_entidate    AS idTaxaConveniadosEntidate         "
+                + " FROM public.venda ven                                                       "
+                + " WHERE ven.ano_mes           = :anoMes                                       "
+                + "   AND ven.status            IN ('PAGAMENTO_APROVADO'  , 'PRE_ANTECIPACAO' ) "
+                + "   AND ven.status_venda_paga IN ('AGUARDANDO_PAGAMENTO', 'PRE_ANTECIPACAO' ) " 
+                + " GROUP BY                                                                    "
+                + "    ven.ano_mes,                                                             "
+                + "    ven.id_conveniados,                                                      "
+                + "    ven.id_taxa_conveiniados,                                                "
+                + "    ven.id_taxa_conveniados_entidate                                         ", 
         nativeQuery = true)
     List<DadosFechamentoPagamentoCicloProjection> listaFechamentoVendaPorMesAutomatica(@Param("anoMes") String anoMes);  
    
@@ -503,6 +504,101 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
     @Modifying(flushAutomatically = true)
     @Query("UPDATE Venda v SET v.descStatusVendaReceb = :status,  v.dtAlteracao = CURRENT_TIMESTAMP WHERE v.idVenda IN :ids")
     int atualizarStatusVendaRecebEmMassa(@Param("ids") List<Long> ids, @Param("status") StatusVendaReceb status);
+    
+    @Query(value = "SELECT                                                                 "
+            + "    ven.ano_mes AS anoMes                                            , "
+            + "    SUM(ven.valor_venda) AS somatorioValorVenda                      , "
+            + "    SUM(ven.valor_calc_taxa_conveniado) AS somatorioVlrCalcTxConv    , "
+            + "    ven.id_conveniados                  AS idConveniados             , "
+            + "    ven.id_taxa_conveiniados            AS idTaxaConveniados         , "
+            + "    ven.id_taxa_conveniados_entidate    AS idTaxaConveniadosEntidate   "
+            + " FROM public.venda ven                                                 "
+            + " WHERE ven.ano_mes           = :anoMes                                 "
+            + "   AND ven.status            = 'PAGAMENTO_APROVADO'                    "
+            + "   AND ven.status_venda_paga = 'AGUARDANDO_PAGAMENTO'                  "
+            + "   AND ven.id_conveniados    = :idConveniado                           "
+            + "   AND (:idsVendas IS NULL OR ven.id_venda IN (:idsVendas))            " 
+            + " GROUP BY                                                              "
+            + "    ven.ano_mes,                                                       "
+            + "    ven.id_conveniados,                                                "
+            + "    ven.id_taxa_conveiniados,                                          "
+            + "    ven.id_taxa_conveniados_entidate                                   ", 
+    nativeQuery = true)
+    List<DadosFechamentoPagamentoCicloProjection> listaFechamentoVendaPorMesAutomatica( @Param("anoMes") String anoMes, @Param("idConveniado") Long idConveniado, @Param("idsVendas") List<Long> idsVendas);    
+    
+    /******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/
+    /*
+    @Modifying
+    @Query("UPDATE Venda v SET v.descStatusVendas = 'PRE_ANTECIPACAO', v.descStatusVendaPg = 'PRE_ANTECIPACAO', v.dtAlteracao = CURRENT_TIMESTAMP WHERE v.idVenda IN :ids")
+    void atualizarStatusParaPreAntecipacao(@Param("ids") List<Long> ids);    
+*/    
+    @Modifying
+    @Transactional
+    @Query("UPDATE Venda v SET v.descStatusVendas = :statusVenda, " +
+           "v.descStatusVendaPg = :statusVendaPg, " +
+           "v.dtAlteracao = CURRENT_TIMESTAMP " +
+           "WHERE v.idVenda IN :ids")
+    void atualizarStatusParaPreAntecipacao(
+        @Param("ids") List<Long> ids,
+        @Param("statusVenda") StatusVendas statusVenda,
+        @Param("statusVendaPg") StatusVendaPg statusVendaPg);
+    
+    
+    /******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/
+ /*   
+    @Query("SELECT v FROM Venda v JOIN v.antecipacaoVendas av WHERE av.antecipacao.id = :idAntecipacao")
+    List<Venda> findVendasByAntecipacaoId(@Param("idAntecipacao") Long idAntecipacao);
+*/    
+    @Query("select distinct av.venda " +
+            "from AntecipacaoVenda av " +
+            "where av.antecipacao.id = :idAntecipacao")
+     List<Venda> findVendasByAntecipacaoId(@Param("idAntecipacao") Long idAntecipacao);
+
+
+    /******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	    
+    @Query("SELECT v FROM Venda v WHERE v.idVenda IN :ids AND v.descStatusVendas = :status AND v.descStatusVendaPg = :statusPg")
+    List<Venda> findByIdVendaInAndDescStatusVendasAndDescStatusVendaPg( @Param("ids") List<Long> ids, @Param("status") StatusVendas status, @Param("statusPg") StatusVendaPg statusPg);
+
+    /******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	    
+    @Modifying
+    @Query("UPDATE Venda v SET " +
+           "v.descStatusVendas = :status, " +
+           "v.descStatusVendaPg = :statusPg, " +
+           "v.dtAlteracao = CURRENT_TIMESTAMP " +
+           "WHERE v.idVenda IN :ids")
+    void updateStatusVendasAndStatusVendaPgByIdIn(
+        @Param("ids") List<Long> ids,
+        @Param("status") String status,
+        @Param("statusPg") String statusPg);
+    
+    @Modifying
+    @Transactional
+    @Query("UPDATE Venda v SET v.descStatusVendas = :statusVendas, v.descStatusVendaPg = :statusVendaPg WHERE v.idVenda IN :idsVendas")
+    int updateStatusVendasAntecipacaoProcessada(
+        @Param("idsVendas"    ) List<Long>    idsVendas    ,
+        @Param("statusVendas" ) StatusVendas  statusVendas ,
+        @Param("statusVendaPg") StatusVendaPg statusVendaPg);
+    
+    List<Venda> findByIdVendaInAndConveniadosAndDescStatusVendasAndDescStatusVendaPg(
+            List<Long> idsVendas, 
+            Conveniados conveniados, 
+            StatusVendas statusVendas, 
+            StatusVendaPg statusVendaPg);
+    
+   
+    
     
 }
 

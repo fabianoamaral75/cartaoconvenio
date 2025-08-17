@@ -8,7 +8,8 @@ public enum StatusCicloPgVenda {
 	PAGAMENTO_REJEITADO ("Pagamento Rejeitado!"                     ),
 	PAGAMENTO_CANCELADO ("Pagamento Cancelado!"                     ),
 	PAGAMENTO_APROVADO  ("Pagamento Aprovado!"                      ),
-	AGUARDANDO_UPLOAD_NF("Aguardando Upload NF da Conveniada!"      );	
+	AGUARDANDO_UPLOAD_NF("Aguardando Upload NF da Conveniada!"      ),
+	PAGAMENTO_ANTECIPADO("Pagamento feito por Antecipação!"         );	
 	
 	private String descStatusPagamento;
 

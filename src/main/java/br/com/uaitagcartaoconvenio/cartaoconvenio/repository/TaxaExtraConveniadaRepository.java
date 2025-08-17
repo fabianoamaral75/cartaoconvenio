@@ -18,14 +18,12 @@ public interface TaxaExtraConveniadaRepository extends JpaRepository<TaxaExtraCo
 		   "    LEFT JOIN FETCH p.tipoPeriodo           " +
 		   "    LEFT JOIN FETCH t.conveniados           " +
 		   " WHERE t.conveniados.id = :idConveniado     ")
-		List<TaxaExtraConveniada> findByConveniadoId(@Param("idConveniado") Long idConveniado);
+		List<TaxaExtraConveniada> findByConveniadoId( @Param("idConveniado") Long idConveniado );
 
     @Query("SELECT t FROM TaxaExtraConveniada t WHERE t.conveniados.id = :idConveniado AND t.id = :idTaxa")
-    Optional<TaxaExtraConveniada> findByConveniadoIdAndTaxaId(@Param("idConveniado") Long idConveniado, 
-                                                    @Param("idTaxa") Long idTaxa);
+    Optional<TaxaExtraConveniada> findByConveniadoIdAndTaxaId( @Param("idConveniado") Long idConveniado, @Param("idTaxa") Long idTaxa );
 
     @Query("SELECT t FROM TaxaExtraConveniada t WHERE t.conveniados.id = :idConveniado AND t.statusTaxa = :status")
-    List<TaxaExtraConveniada> findByConveniadoIdAndStatus(@Param("idConveniado") Long idConveniado, 
-                                                        @Param("status") String status);
+    List<TaxaExtraConveniada> findByConveniadoIdAndStatus( @Param("idConveniado") Long idConveniado, @Param("status") String status );
 
 }

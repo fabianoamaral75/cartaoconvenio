@@ -584,7 +584,25 @@ public class FuncoesUteis {
     }    
     
     
-    
+    /**
+     * Converte uma data no formato yyyy-MM-dd (LocalDate) para uma String no formato yyyymm.
+     * 
+     * @param data - Objeto LocalDate contendo a data a ser formatada.
+     * @return String - Data formatada no padrão yyyymm (ano e mês, sem separadores).
+     */
+    public static String formataAnoMes(LocalDate data) {
+        // Extrai o ano e formata com 4 dígitos
+        int ano = data.getYear();
+        
+        // Extrai o mês e formata com 2 dígitos (1-12)
+        int mes = data.getMonthValue();
+        
+        // Formata a String no padrão yyyymm (concatena ano e mês)
+        // Usa String.format para garantir que o mês tenha 2 dígitos (ex: 01, 02, ..., 12)
+        String anoMesFormatado = String.format("%04d%02d", ano, mes);
+        
+        return anoMesFormatado;
+    }   
     
     
 /*

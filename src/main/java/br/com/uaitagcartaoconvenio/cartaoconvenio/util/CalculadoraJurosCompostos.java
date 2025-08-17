@@ -8,18 +8,17 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ResultadoCalculoAntecipacaoDTO;
+
 public class CalculadoraJurosCompostos {
 
-    private static final MathContext MATH_CTX = new MathContext(10, RoundingMode.HALF_UP);
+    private static final MathContext MATH_CTX   = new MathContext(10, RoundingMode.HALF_UP);
     private static final BigDecimal DIAS_NO_MES = new BigDecimal("30");
-    private static final BigDecimal CEM = new BigDecimal("100");
-    private static final BigDecimal UM = BigDecimal.ONE;
+    private static final BigDecimal CEM         = new BigDecimal("100");
+    private static final BigDecimal UM          = BigDecimal.ONE;
 
-    public static ResultadoJuros calcularJuros(BigDecimal taxaNominalMensal,
-                                             LocalDate dataCorte,
-                                             LocalDate dataAdiantamento,
-                                             LocalDate dataVencimento,
-                                             BigDecimal valorBase) {
+//    public static ResultadoJuros calcularJuros(BigDecimal taxaNominalMensal, LocalDate dataCorte, LocalDate dataAdiantamento, LocalDate dataVencimento, BigDecimal valorBase ) {
+    public static ResultadoCalculoAntecipacaoDTO calcularJuros(BigDecimal taxaNominalMensal, LocalDate dataCorte, LocalDate dataAdiantamento, LocalDate dataVencimento, BigDecimal valorBase ) {
 
         // 1. Calcular período em dias entre adiantamento e vencimento
         long periodoDias = ChronoUnit.DAYS.between(dataAdiantamento, dataVencimento);
@@ -47,7 +46,7 @@ public class CalculadoraJurosCompostos {
         // Converter taxas para porcentagem
         BigDecimal taxaDiariaPercent = taxaDiariaDecimal.multiply(CEM);
         BigDecimal taxaPeriodoPercent = taxaPeriodoDecimal.multiply(CEM);
-
+/*
         return new ResultadoJuros(
             taxaNominalMensal,
             taxaDiariaPercent,
@@ -60,6 +59,51 @@ public class CalculadoraJurosCompostos {
             valorComDesconto,
             valorBase
         );
+*/
+        ResultadoJuros reult = new ResultadoJuros(
+                taxaNominalMensal,
+                taxaDiariaPercent,
+                taxaPeriodoPercent,
+                dataCorte,
+                dataAdiantamento,
+                dataVencimento,
+                periodoDias,
+                valorJuros,
+                valorComDesconto,
+                valorBase
+            );
+        
+//        @SuppressWarnings("deprecation")
+//	    NumberFormat formato = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+        
+        ResultadoCalculoAntecipacaoDTO dto = new ResultadoCalculoAntecipacaoDTO();
+        
+        dto.setTaxaMes       ( reult.getTaxaMensal()        );
+        dto.setTaxaDia       ( reult.getTaxaDiaria()        );
+        dto.setTaxaPeriodo   ( reult.getTaxaPeriodo()       );
+        dto.setDtCorte       ( reult.getDataCorte()         );
+        dto.setDtPagamento   ( reult.getDataAdiantamento()  );
+        dto.setDtVencimento  ( reult.getDataVencimento()    );
+        dto.setPeriodoDias   ( (int) reult.getPeriodoDias() );
+        dto.setValorDesconto ( reult.getValorJuros()        );
+        dto.setValorNominal  ( reult.getValorComDesconto()  );
+        dto.setValorBase     ( reult.getValorBase()         );
+ 
+ /*       
+         dto.setTaxaMes       ( reult.getTaxaMensal().toString()  + "%"  );
+        dto.setTaxaDia       ( reult.getTaxaDiaria().toString()  + "%"  );
+        dto.setTaxaPeriodo   ( reult.getTaxaPeriodo().toString() + "%"  );
+        dto.setDtCorte       ( reult.getDataCorte().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))                                );
+        dto.setDtPagamento   ( reult.getDataAdiantamento().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))                         );
+        dto.setDtVencimento  ( reult.getDataVencimento().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))                           );
+        dto.setPeriodoDias   ( Long.toString(reult.getPeriodoDias())   );
+        dto.setValorDesconto ( formato.format(reult.getValorJuros() )                             );
+        dto.setValorNominal  ( formato.format(reult.getValorComDesconto()  )                       );
+        dto.setValorBase     ( formato.format(reult.getValorBase()  )                              );
+
+ */
+        return dto;
+        
     }
 
     // Método auxiliar para cálculo de potência com BigDecimal
@@ -99,17 +143,18 @@ public class CalculadoraJurosCompostos {
         }
 
         // Getters
-        public BigDecimal getTaxaMensal() { return taxaMensal.setScale(2, RoundingMode.HALF_UP); }
-        public BigDecimal getTaxaDiaria() { return taxaDiaria.setScale(4, RoundingMode.HALF_UP); }
-        public BigDecimal getTaxaPeriodo() { return taxaPeriodo.setScale(4, RoundingMode.HALF_UP); }
-        public LocalDate getDataCorte() { return dataCorte; }
-        public LocalDate getDataAdiantamento() { return dataAdiantamento; }
-        public LocalDate getDataVencimento() { return dataVencimento; }
-        public long getPeriodoDias() { return periodoDias; }
-        public BigDecimal getValorJuros() { return valorJuros.setScale(2, RoundingMode.HALF_UP); }
+        public BigDecimal getTaxaMensal()       { return taxaMensal.setScale(2, RoundingMode.HALF_UP);       }
+        public BigDecimal getTaxaDiaria()       { return taxaDiaria.setScale(4, RoundingMode.HALF_UP);       }
+        public BigDecimal getTaxaPeriodo()      { return taxaPeriodo.setScale(4, RoundingMode.HALF_UP);      }
+        public LocalDate getDataCorte()         { return dataCorte;                                          }
+        public LocalDate getDataAdiantamento()  { return dataAdiantamento;                                   }
+        public LocalDate getDataVencimento()    { return dataVencimento;                                     }
+        public long getPeriodoDias()            { return periodoDias;                                        }
+        public BigDecimal getValorJuros()       { return valorJuros.setScale(2, RoundingMode.HALF_UP);       }
         public BigDecimal getValorComDesconto() { return valorComDesconto.setScale(2, RoundingMode.HALF_UP); }
-        public BigDecimal getValorBase() { return valorBase.setScale(2, RoundingMode.HALF_UP); }
+        public BigDecimal getValorBase()        { return valorBase.setScale(2, RoundingMode.HALF_UP);        }
 
+       
         @Override
         public String toString() {
             return String.format(
@@ -127,25 +172,29 @@ public class CalculadoraJurosCompostos {
                 formato.format(getValorBase())
             );
         }
+        
     }
 /*
     public static void main(String[] args) {
+    	
         // Exemplo com os valores fornecidos
-        BigDecimal taxaNominal = new BigDecimal("2");
-        LocalDate dataCorte = LocalDate.of(2023, 12, 27);
-        LocalDate dataAdiantamento = LocalDate.of(2024, 1, 16);
-        LocalDate dataVencimento = LocalDate.of(2024, 2, 27);
-        BigDecimal valorBase = new BigDecimal("3627.36");
+        BigDecimal taxaNominal     = new BigDecimal("2");
+        LocalDate dataCorte        = LocalDate.of(2023, 12, 27);
+        LocalDate dataAdiantamento = LocalDate.of(2024, 1 , 16);
+        LocalDate dataVencimento   = LocalDate.of(2024, 2 , 27);
+        BigDecimal valorBase       = new BigDecimal("3627.36");
 
-        ResultadoJuros resultado = calcularJuros(
+        ResultadoCalculoAntecipacaoDTO resultado = calcularJuros(
             taxaNominal,
             dataCorte,
             dataAdiantamento,
             dataVencimento,
             valorBase
         );
-
-        System.out.println(resultado);
+        
+ 
+        System.out.println( resultado);
+        
     }
-    */
+*/    
 }

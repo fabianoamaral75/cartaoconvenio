@@ -1,15 +1,19 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 
 
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusAntecipacao;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -18,28 +22,35 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusAntecipacao;
 @Builder
 public class AntecipacaoDTO {
 
-    private Long id;
+    private Long idAntecipacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
-    private LocalDateTime dataSolicitacao;
-    private BigDecimal valorAntecipacao;
-    private String responsavelSolicitacao;
-    private String nomeArquivoDocumentoBanco;
-    private StatusAntecipacao status;
-    private String conteudoBase64;
-    private Integer tamanhoBytes;
+    private Date dtCriacao;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
-    private LocalDateTime dataUpload;
-    private BigDecimal taxaNominal;
+    private Date dtAlteracao;
+    private BigDecimal taxaMes;
     private BigDecimal taxaDia;
     private BigDecimal taxaPeriodo;
     @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
-    private LocalDate dataCorte;
+    private LocalDate dtCorte;
     @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
-    private LocalDate dataPagamento;
+    private LocalDate dtPagamento;
     @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
-    private LocalDate dataVencimentoOriginal;
-    private Long quantidadeDias;
-    private BigDecimal valorTaxa;
-    private BigDecimal valorOriginal;
-    private Long cicloPagamentoVendaId; // Apenas o ID para evitar complexidade
+    private LocalDate dtVencimento;
+    private Integer periodoDias;
+    private BigDecimal valorDesconto;
+    private BigDecimal valorNominal;
+    private BigDecimal valorBase;
+    private String observacao;
+    private String nomeArquivoAprovacao;
+    private String conteudoBase64Aprovacao;
+    private String nomeArquivoComprovante;
+    private String conteudoBase64Comprovante;
+    private Long tamanhoBytesAprovacao;
+    private Long tamanhoBytesComprovante;
+    private String loginUser;
+    private StatusAntecipacao descStatusAntecipacao;
+    private Long idConveniados;
+    private Long idCicloPagamentoVenda;
+    private List<Long> idsVendas;
+    
 }

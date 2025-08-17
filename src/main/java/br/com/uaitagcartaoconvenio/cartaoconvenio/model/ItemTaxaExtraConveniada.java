@@ -19,6 +19,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,13 +37,14 @@ public class ItemTaxaExtraConveniada {
     @SequenceGenerator(name = "seq_item_taxa_extra_conveniada", sequenceName = "seq_item_taxa_extra_conveniada", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_item_taxa_extra_conveniada")
     @Column(name = "ID_ITEM_TAXA_EXTRA_CONVENIADA")
+    @EqualsAndHashCode.Include
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ID_TAXAS_EXTRA_CONVENIADA", nullable = false, referencedColumnName = "ID_TAXAS_EXTRA_CONVENIADA", foreignKey = @ForeignKey(name = "fk_item_taxa_extra_conv"))
     private TaxaExtraConveniada taxaExtraConveniada;
 	
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ID_CICLO_PAGAMENTO_VENDA", nullable = false, referencedColumnName = "ID_CICLO_PAGAMENTO_VENDA", foreignKey = @ForeignKey(name = "fk_item_conta_pagar"))
     private CicloPagamentoVenda cicloPagamentoVenda;
     
@@ -63,14 +65,6 @@ public class ItemTaxaExtraConveniada {
     public void setDataCadastro() {
         this.dataCadastro = LocalDateTime.now();
     }
-
-	@Override
-	public String toString() {
-		return "ItemTaxaExtraConveniada [id=" + id + ", taxaExtraConveniada=" + taxaExtraConveniada
-				+ ", cicloPagamentoVenda=" + cicloPagamentoVenda + ", valorTaxa=" + valorTaxa + ", dataCadastro="
-				+ dataCadastro + ", tipoCobrancaPercentual=" + tipoCobrancaPercentual + ", cobrancaValorBruto="
-				+ cobrancaValorBruto + "]";
-	}
 
 
 }

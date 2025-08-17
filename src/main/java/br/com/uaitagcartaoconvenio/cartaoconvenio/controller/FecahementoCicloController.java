@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ErrorResponse;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.service.FecahementoCicloService;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.service.FechamentoCicloService;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -25,7 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class FecahementoCicloController {
 
 	@Autowired
-	private FecahementoCicloService fecahementoCicloService;
+	private FechamentoCicloService fechamentoCicloService;
 	
 	@ResponseBody                         
 	@PostMapping(value = "/fechamentoCicloAutomatico") 
@@ -33,7 +33,7 @@ public class FecahementoCicloController {
 		try {
 			String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
 			
-			String retornoMensagem = fecahementoCicloService.fechamentoCiclo( anoMesAnterior, false);
+			String retornoMensagem = fechamentoCicloService.fechamentoCiclo( anoMesAnterior, false);
 			
 			if(!retornoMensagem.equals("FECHAMENTO_AUTOMATICO_OK")) {
 				// throw new ExceptionCustomizada("Erro ao realizar o Fechamento Automatico!");
@@ -70,7 +70,7 @@ public class FecahementoCicloController {
 		try {
 			if( !FuncoesUteis.isValidYearMonth(anoMes) ) throw new ExceptionCustomizada("Favor informar um período valido: " + anoMes );
 			
-			String retornoMensagem = fecahementoCicloService.fechamentoCiclo( anoMes, true);
+			String retornoMensagem = fechamentoCicloService.fechamentoCiclo( anoMes, true);
 			return new ResponseEntity<String>(retornoMensagem, HttpStatus.OK);
 	    } catch (ExceptionCustomizada ex) {
 	    	

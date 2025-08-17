@@ -1,6 +1,8 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.repository;
 
 import java.util.List;
+import java.util.Optional;
+
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -100,4 +102,10 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
            "WHERE UPPER(p.nomePessoa) LIKE UPPER(CONCAT('%', :parteNome, '%')) " +
            "ORDER BY c.idConveniados")
     Page<Conveniados> findByPessoaNomePessoaContainingIgnoreCase(@Param("parteNome") String parteNome, Pageable pageable);
+        
+ // No repositório
+    @Query("SELECT c FROM Conveniados c " +
+           "WHERE c.idConveniados = :id")
+    Optional<Conveniados> findByIdWithBasicRelationships(@Param("id") Long id);
+    
 }

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Antecipação - Cartão Convênio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .info-section {
+            margin-bottom: 30px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .data-table th {
+            background-color: #f2f2f2;
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .data-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            text-align: center;
+        }
+        .signature {
+            margin-top: 30px;
+            font-weight: bold;
+        }
+        .status-aprovado {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .status-reprovado {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="cid:logo" alt="Logo Cartão Convênio" class="logo">
+    </div>
+
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center">
+                <h1 style="margin-bottom: 5px;">
+                    Confirmação de Antecipação - <span class="status-${statusLower}">${status}</span>
+                </h1>
+                <p style="margin-top: 0;"><strong>Data:</strong> ${dataEnvio}</p>
+            </td>
+        </tr>
+    </table>
+
+    <div class="info-section">
+        <h2>Informações da Antecipação</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Conveniada</th>
+                    <th>ID Antecipação</th>
+                    <th>Status</th>
+                    <th>Valor Nominal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${nomeConveniada}</td>
+                    <td>${idAntecipacao}</td>
+                    <td class="status-${statusLower}">${status}</td>
+                    <td>R$ ${valorNominal}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-section">
+        <h2>Detalhes</h2>
+        <table class="data-table">
+            <tr>
+                <th>Data de Pagamento</th>
+                <td>${dtPagamento}</td>
+            </tr>
+            <tr>
+                <th>Data de Vencimento</th>
+                <td>${dtVencimento}</td>
+            </tr>
+            <tr>
+                <th>Taxa Aplicada</th>
+                <td>${taxaPeriodo}%</td>
+            </tr>
+            ${motivoRow}
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Em caso de dúvida entre em contato com a equipe responsável.</p>
+        <div class="signature">
+            <p>Atenciosamente,</p>
+            <p><strong>Equipe Cartão Convênio</strong></p>
+        </div>
+        <p>E-mail informativo enviado automaticamente pelo Sistema</p>
+    </div>
+</body>
+</html>

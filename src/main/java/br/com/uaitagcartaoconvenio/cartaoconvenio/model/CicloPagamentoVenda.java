@@ -36,6 +36,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.AccessLevel;
+
 
 @Entity
 @Getter
@@ -143,7 +145,9 @@ public class CicloPagamentoVenda implements Serializable{
 	
 	
     // Adicionar relacionamento com a tabela de junção
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "cicloPagamentoVenda", cascade = CascadeType.ALL, orphanRemoval = true)
+
     private List<ItemTaxaExtraConveniada> itemTaxaExtraConveniada = new ArrayList<ItemTaxaExtraConveniada>();   
     
 	@PreUpdate
@@ -154,6 +158,27 @@ public class CicloPagamentoVenda implements Serializable{
 	@PrePersist
 	protected void onCreate() {
 	    dtCriacao = Calendar.getInstance().getTime();
+	}
+	
+	// Adicione métodos auxiliares similares
+	public void addItemTaxaExtraConveniada(ItemTaxaExtraConveniada item) {
+	    itemTaxaExtraConveniada.add(item);
+	    item.setCicloPagamentoVenda(this);
+	}
+
+	public void removeItemTaxaExtraConveniada(ItemTaxaExtraConveniada item) {
+	    itemTaxaExtraConveniada.remove(item);
+	    item.setCicloPagamentoVenda(null);
+	}
+	
+	public void setItemTaxaExtraConveniada(List<ItemTaxaExtraConveniada> novos) {
+	    // Nunca troque a referência da coleção gerenciada pelo Hibernate.
+	    this.itemTaxaExtraConveniada.clear();
+	    if (novos != null) {
+	        for (ItemTaxaExtraConveniada it : novos) {
+	            this.addItemTaxaExtraConveniada(it); // garante o back-reference: it.setCicloPagamentoVenda(this)
+	        }
+	    }
 	}
 
 	@Override

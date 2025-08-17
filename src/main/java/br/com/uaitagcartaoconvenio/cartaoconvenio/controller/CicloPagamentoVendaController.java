@@ -350,8 +350,7 @@ public class CicloPagamentoVendaController {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/
-    @PutMapping("/registrarPagamento/{id}")
-    
+    @PutMapping("/registrarPagamento/{id}")    
     public ResponseEntity<?> registrarRecebimento( @PathVariable Long id, @Valid @RequestBody RegistroRecebimentoDTO registro, HttpServletRequest request ) throws ExceptionCustomizada, IOException{
     	try {
     		
