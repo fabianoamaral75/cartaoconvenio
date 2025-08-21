@@ -17,7 +17,6 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusContrato;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusConveniada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaConv;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.excecoes.BusinessException;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ContratoConveniado;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Conveniados;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Nicho;

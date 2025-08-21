@@ -3,6 +3,8 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -602,9 +604,103 @@ public class FuncoesUteis {
         String anoMesFormatado = String.format("%04d%02d", ano, mes);
         
         return anoMesFormatado;
-    }   
+    }  
     
+    /**
+     * Retorna o primeiro dia do mês no formato "dd/MM/yyyy"
+     * @param yyyymm String no formato "YYYYMM" (ex: "202408")
+     * @return String no formato "dd/MM/yyyy" (ex: "01/08/2024")
+     * @throws IllegalArgumentException se o parâmetro for inválido
+     */
+    public static String getPrimeiroDiaMes(String yyyymm) {
+        // Validação básica do parâmetro
+        if (yyyymm == null || yyyymm.length() != 6) {
+            throw new IllegalArgumentException("Parâmetro deve ter 6 dígitos no formato YYYYMM");
+        }
+        
+        try {
+            // Extrair ano e mês da string
+            int ano = Integer.parseInt(yyyymm.substring(0, 4));
+            int mes = Integer.parseInt(yyyymm.substring(4, 6));
+            
+            // Validar se o mês está entre 1 e 12
+            if (mes < 1 || mes > 12) {
+                throw new IllegalArgumentException("Mês deve estar entre 01 e 12");
+            }
+            
+            // Criar data do primeiro dia do mês
+            LocalDate primeiroDia = LocalDate.of(ano, mes, 1);
+            
+            // Formatar para o padrão desejado
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            
+            return primeiroDia.format(formatter);
+            
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Parâmetro deve conter apenas números", e);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Data inválida", e);
+        }
+    }
+
+    /**
+     * Retorna o último dia do mês no formato "dd/MM/yyyy"
+     * @param yyyymm String no formato "YYYYMM" (ex: "202408")
+     * @return String no formato "dd/MM/yyyy" (ex: "31/08/2024")
+     * @throws IllegalArgumentException se o parâmetro for inválido
+     */
+    public static String getUltimoDiaMes(String yyyymm) {
+        // Validação básica do parâmetro
+        if (yyyymm == null || yyyymm.length() != 6) {
+            throw new IllegalArgumentException("Parâmetro deve ter 6 dígitos no formato YYYYMM");
+        }
+        
+        try {
+            // Extrair ano e mês da string
+            int ano = Integer.parseInt(yyyymm.substring(0, 4));
+            int mes = Integer.parseInt(yyyymm.substring(4, 6));
+            
+            // Validar se o mês está entre 1 e 12
+            if (mes < 1 || mes > 12) {
+                throw new IllegalArgumentException("Mês deve estar entre 01 e 12");
+            }
+            
+            // Criar data do primeiro dia do mês e ir para o último dia
+            LocalDate primeiroDia = LocalDate.of(ano, mes, 1);
+            LocalDate ultimoDia = primeiroDia.withDayOfMonth(primeiroDia.lengthOfMonth());
+            
+            // Formatar para o padrão desejado
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            
+            return ultimoDia.format(formatter);
+            
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Parâmetro deve conter apenas números", e);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Data inválida", e);
+        }
+    }
     
+    /**
+     * Formata um BigDecimal como percentual no formato brasileiro
+     * @param valor BigDecimal com o valor (ex: 5.00)
+     * @return String formatada (ex: "5,00 %")
+     */
+    public static String formatarPercentual(BigDecimal valor) {
+        if (valor == null) {
+            return "0,00 %";
+        }
+        
+        // CORREÇÃO: Usando Locale.of() em vez do construtor depreciado
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.of("pt", "BR"));
+        symbols.setDecimalSeparator(',');
+        symbols.setGroupingSeparator('.');
+        
+        DecimalFormat percentFormat = new DecimalFormat("#,##0.00", symbols);
+        
+        return percentFormat.format(valor) + " %";
+    }
+       
 /*
     public static void main(String[] args) {
         // Exemplo 1: Resultado positivo

@@ -478,7 +478,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
                  + "    , cartao      car                                           "
                  + "    , funcionario fun                                           "
                  + " WHERE ven.ano_mes               = ?1                   "
-                 + "   AND ven.status                = 'PAGAMENTO_APROVADO'         "
+                 + "   AND ven.status                IN ( 'PAGAMENTO_APROVADO', 'ANTECIPACAO_CONCLUIDA' ) "
                  + "   AND ven.status_venda_recebida = 'AGURARDANDO_RECEBIMENTO'    "
                  + "   AND car.id_cartao             = ven.id_cartao                "
                  + "   AND fun.id_funcionario        = car.id_funcionario           "

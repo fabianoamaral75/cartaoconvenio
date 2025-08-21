@@ -1,10 +1,14 @@
-package br.com.uaitagcartaoconvenio.cartaoconvenio.model;
+package br.com.uaitagcartaoconvenio.cartaoconvenio.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ItemTaxaExtraConveniada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.PeriodoCobrancaTaxa;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TaxaExtraConveniada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.TipoPeriodo;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ItemTaxaExtraConveniadaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.PeriodoCobrancaTaxaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaExtraConveniadaDTO;

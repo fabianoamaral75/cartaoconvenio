@@ -35,7 +35,7 @@ public interface LimitecreditoRepository extends JpaRepository<LimiteCredito, Lo
 	                + "	, cartao      car                                                    "
 	                + "	, funcionario fun                                                    "
 	                + " WHERE ven.ano_mes                             = ?1                   "
-	                + "   AND ven.status                              = 'PAGAMENTO_APROVADO' "
+	                + "   AND ven.status                              IN ('PAGAMENTO_APROVADO', 'ANTECIPACAO_CONCLUIDA') "
 	                + "   AND ven.status_limite_credito_restabelecido = 'VENDA_REALIZADA'    "
 	                + "   AND car.id_cartao                           = ven.id_cartao        "
 	                + "   AND fun.id_funcionario                      = car.id_funcionario   "

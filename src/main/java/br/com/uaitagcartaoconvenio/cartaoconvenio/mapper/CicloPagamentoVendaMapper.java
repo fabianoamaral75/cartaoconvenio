@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
-import br.com.uaitagcartaoconvenio.cartaoconvenio.model.ItemTaxaExtraConveniadaMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CicloPagamentoVendaDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ConveniadosResumoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TaxaConveniadosResumoDTO;

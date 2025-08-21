@@ -69,6 +69,9 @@ public class FechamentoCicloAntecipacaoService {
     @Autowired
     private TaxasExtraordinariasRepository taxasExtraordinariasRepository;
     
+    @Autowired
+	private ConveniadosService conveniadosService;
+    
     private static final Logger logger = LogManager.getLogger(FechamentoCicloAntecipacaoService.class);
 
     /******************************************************************/
@@ -116,11 +119,16 @@ public class FechamentoCicloAntecipacaoService {
 	 
 	        // 12. Atualização do status das vendas para ANTECIPACAO_PROCESSADA
 	        atualizarStatusVendasAntecipacaoProcessada( idsVendas );
+	        
+	        // 13. Atualizata a tabela de Conveniados com a informação da última data de faturamento para a Conveniadas.
+	        if (antecipacao.getConveniados() != null && antecipacao.getConveniados().getIdConveniados() != null) {
+	            atualizarUltimoFechamentoConveniada(antecipacao.getConveniados().getIdConveniados());
+	        }
 	
-	        // 13. Log de conclusão do processo
+	        // 14. Log de conclusão do processo
 	        logger.info("Antecipação concluída com sucesso para conveniada {}", antecipacao.getConveniados().getIdConveniados());
 	        
-	        // 14. Retorno do ciclo de pagamento criado
+	        // 15. Retorno do ciclo de pagamento criado
 	        return ciclo;
 	        
         } catch (BusinessException e) {
@@ -131,6 +139,26 @@ public class FechamentoCicloAntecipacaoService {
             throw new ExceptionCustomizada("Falha ao processar antecipação: " + e.getMessage());
         }
     }
+    
+    /******************************************************************/
+    /*                                                                */
+    /*                                                                */
+    /******************************************************************/	
+    private void atualizarUltimoFechamentoConveniada( Long idConveniado ) {
+        try {
+        	String                  anoMes = FuncoesUteis.getDataAtualFormatoYYYMM();
+        	List<Long> listaIdsConveniados = new ArrayList<Long>();
+        	listaIdsConveniados.add(idConveniado);
+        	
+        	// Atualizata a tabela de Conveniados com a informação da última data de faturamento para a Conveniadas.
+            conveniadosService.atualizarAnoMesRecebimentoPosFechamentoEmLote(listaIdsConveniados, anoMes);
+            
+        } catch (Exception e) {
+            logger.error("Erro ao criar taxa extra para adiantamento: {}", e.getMessage(), e);
+            throw new BusinessException("Erro ao processar taxa de adiantamento: " + e.getMessage());
+        }
+    }
+
 
     /******************************************************************/
     /*                                                                */

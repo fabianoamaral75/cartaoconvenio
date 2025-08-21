@@ -58,12 +58,7 @@ public class PessoaJuridica implements Serializable{
 	@NotNull(message = "O Razão Social da Pessoa Jurídica deverá ser informado!")
 	@Column(name = "RAZAO_SOCIAL", length = 200, nullable = false)
 	private String razaoSocial;
-/*
-	@OneToOne
-	@JoinColumn(name = "ID_PESSOA", referencedColumnName = "ID_PESSOA", nullable = true,foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_pessoa_juridica_pessoa"))
-	private Pessoa pessoa;			
-*/	
-//	@JsonIgnore
+
 	@ManyToOne(targetEntity = Pessoa.class)
 	@JoinColumn(name = "ID_PESSOA", nullable = true, referencedColumnName = "ID_PESSOA", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_JURIDICA_PESSOA"))
 	private Pessoa pessoa;
