@@ -93,7 +93,7 @@ public class Conveniados implements Serializable {
 
 
 	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JsonManagedReference // Indica que este lado DEVE ser serializado
+	@JsonManagedReference("conveniados-ciclos") // Indica que este lado DEVE ser serializado
 	private List<CicloPagamentoVenda> CicloPagamentoVenda = new ArrayList<CicloPagamentoVenda>();
 
 	@NotNull(message = "A Taxa de Desconto da Conveniada deverá ser informado!")
@@ -131,6 +131,9 @@ public class Conveniados implements Serializable {
     public void prePersist() {
         dtCriacao   = Calendar.getInstance().getTime();
         dtAlteracao = Calendar.getInstance().getTime();
+        if (isTaxasFaixaVendas == null) {
+            isTaxasFaixaVendas = Boolean.TRUE;
+        }        
     }
 
  // Método para gerenciar relacionamento bidirecional
@@ -144,4 +147,5 @@ public class Conveniados implements Serializable {
         }
     }
     
+
 }

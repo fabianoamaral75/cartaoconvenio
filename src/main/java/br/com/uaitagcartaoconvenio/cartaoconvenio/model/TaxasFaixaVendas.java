@@ -71,7 +71,7 @@ public class TaxasFaixaVendas {
     @Column(name = "STATUS_TAXA", length = 200, nullable = false)
     private String statusTaxa;
     
-    @JsonManagedReference // Adicione esta anotação
+    @JsonManagedReference("taxaFaixaVendas-ciclos") // Adicione esta anotação
     @OneToMany(mappedBy = "taxasFaixaVendas", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CicloPagamentoVenda> ciclosPagamento = new ArrayList<CicloPagamentoVenda>();
 

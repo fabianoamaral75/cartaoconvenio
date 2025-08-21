@@ -87,6 +87,9 @@ public class TaxaExtraConveniada {
         if (statusTaxa == null || statusTaxa.isEmpty()) {
             statusTaxa = "ATIVA"; // Valor padrão
         }
+        if (cobrancaValorBruto     == null) cobrancaValorBruto     = Boolean.TRUE;
+        if (tipoCobrancaPercentual == null) tipoCobrancaPercentual = Boolean.FALSE;
+        
     }
     
     public void setPeriodoCobrancaTaxa(PeriodoCobrancaTaxa periodo) {

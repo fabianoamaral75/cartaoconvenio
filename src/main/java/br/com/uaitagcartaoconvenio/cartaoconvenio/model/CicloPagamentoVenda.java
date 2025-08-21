@@ -125,14 +125,14 @@ public class CicloPagamentoVenda implements Serializable{
 	private StatusCicloPgVenda descStatusPagamento;
 	
     // Adiciona relacionamento com TaxasFaixaVendas
-	@JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_TAXAS_FAIXA_VENDAS", nullable = true)
+	@JsonBackReference("taxaFaixaVendas-ciclos")
     private TaxasFaixaVendas taxasFaixaVendas;
 	
 	@ManyToOne(targetEntity = Conveniados.class)
 	@JoinColumn(name = "ID_CONVENIADOS", nullable = true, referencedColumnName = "ID_CONVENIADOS", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CICLO_PG_VENDA_CONV"))
-	@JsonBackReference // Indica que este lado NÃO deve ser serializado
+	@JsonBackReference("conveniados-ciclos")// Indica que este lado NÃO deve ser serializado
 	private Conveniados conveniados;
 	
 //	@NotNull(message = "O Tipo da mudança deve(m) ser informado!")

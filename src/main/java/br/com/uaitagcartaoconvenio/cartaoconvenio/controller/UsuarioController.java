@@ -7,6 +7,7 @@ import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -122,7 +123,12 @@ public class UsuarioController {
      * @throws ExceptionCustomizada Se os Valores referente as dados da Pessoa Fisica estiverem vazios.
      */
 	@ResponseBody
-	@PostMapping(value = "/salvarUsuarioPJConveniada")
+	//@PostMapping(value = "/salvarUsuarioPJConveniada")
+	@PostMapping(
+			  value = "/salvarUsuarioPJConveniada",
+			  consumes = MediaType.APPLICATION_JSON_VALUE,
+			  produces = MediaType.APPLICATION_JSON_VALUE
+			)
 	public ResponseEntity<?> salvarUsuarioPJConveniada( @RequestBody Usuario userPJ, HttpServletRequest request ) throws ExceptionCustomizada, UnsupportedEncodingException{
 
 		try {

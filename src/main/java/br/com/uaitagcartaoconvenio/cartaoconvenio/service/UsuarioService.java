@@ -42,6 +42,11 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.VigenciaContratoConvenia
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.CartaoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.EntidadeLogadoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.FuncionarioDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.LimiteCreditoResumoDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.PessoaFisicaDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.PessoaJuridicaDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.SalarioResumoDTO;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.SecretariaResumoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UauarioDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioAcessoDTO;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.UsuarioDTO;
@@ -615,145 +620,291 @@ public class UsuarioService implements UserDetailsService{
 		 
 		 return usuarioLogado;		 
 	 }
-	
-	
-	/******************************************************************/
-	/*                                                                */
-	/*                                                                */
-	/******************************************************************/	
-    public UsuarioLogadoDTO validaUserLogado( Usuario userlogado ) {
-//    	Usuario userlogado = usuarioRepository.findById( idUserLogado )
-//	            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
-    	
-    	UsuarioLogadoDTO usuarioLogado = new UsuarioLogadoDTO();
-    	
-    	usuarioLogado.setIdUsuario( userlogado.getIdUsuario() );
-    	usuarioLogado.setLogin    ( userlogado.getLogin()     );
-    	usuarioLogado.setSenha    ( userlogado.getSenha()     );  	
+	 
+	 /**
+	  * Método para validar e construir o DTO do usuário logado com todas as informações necessárias
+	  * Inclui verificações robustas de null pointer para prevenir erros
+	  * 
+	  * @param userlogado Objeto Usuario contendo os dados do usuário autenticado
+	  * @return UsuarioLogadoDTO DTO preenchido com todas as informações do usuário logado
+	  * @throws NullPointerException Prevenida através de verificações em todos os níveis
+	  */
+	 public UsuarioLogadoDTO validaUserLogado(Usuario userlogado) {
+	     
+	     // Inicializa o DTO de retorno
+	     UsuarioLogadoDTO usuarioLogado = new UsuarioLogadoDTO();
+	     
+	     // Preenche informações básicas do usuário
+	     usuarioLogado.setIdUsuario( userlogado.getIdUsuario() );
+	     usuarioLogado.setLogin    ( userlogado.getLogin()     );
+	     usuarioLogado.setSenha    ( userlogado.getSenha()     );
 
-    	// Carrega os tipos de acessos do Usuário.
-		for( int i = 0; i < userlogado.getUsuarioAcesso().size(); i++ ) {
-			UsuarioAcessoDTO usuarioAcesso = new UsuarioAcessoDTO();
-			usuarioAcesso.setIdUsuarioAcesso( userlogado.getUsuarioAcesso().get(i).getIdUsuarioAcesso() );
-						
-			usuarioAcesso.getAcesso().setIdAcesso  ( userlogado.getUsuarioAcesso().get(i).getAcesso().getIdAcesso()   );
-			usuarioAcesso.getAcesso().setDescAcesso( userlogado.getUsuarioAcesso().get(i).getAcesso().getDescAcesso() );
-			
-			usuarioAcesso.getUsuario().setIdUsuario( userlogado.getUsuarioAcesso().get(i).getUsuario().getIdUsuario()  );
-			usuarioAcesso.getUsuario().setLogin    ( userlogado.getUsuarioAcesso().get(i).getUsuario().getLogin() );
-			
-			usuarioLogado.getUsuarioAcesso().add(usuarioAcesso);
-		}
-		
-		// Info. pertinentes aos Usuários.
-		usuarioLogado.getPessoa().setIdPessoa  ( userlogado.getPessoa().getIdPessoa()   );
-		usuarioLogado.getPessoa().setNomePessoa( userlogado.getPessoa().getNomePessoa() );
-   	
-    	// verifica o tipo de unsuario logado (User de Sistema / User Conveniado / User Entidade)
-		
-		if( userlogado.getPessoa().getConveniados() != null ) { // User do tipo Conveniado
-			usuarioLogado.setIsConveniada ( true  );
-			usuarioLogado.setIsUserSistema( false );
-			usuarioLogado.setIsEntidade   ( false );
-			
-			
-			Pessoa pessoaConveniadoPJ = pessoaRepository.getPessoaConveniadaPJ( userlogado.getPessoa().getConveniados().getIdConveniados() )
-		            .orElseThrow(() -> new UsernameNotFoundException("Pessoa da Conveiada não encontrado"));
+	     // =========================================================================
+	     // CARREGA OS TIPOS DE ACESSO DO USUÁRIO
+	     // =========================================================================
+	     if (userlogado.getUsuarioAcesso() != null) {
+	         for (int i = 0; i < userlogado.getUsuarioAcesso().size(); i++) {
+	             UsuarioAcessoDTO usuarioAcesso = new UsuarioAcessoDTO();
+	             
+	             // Preenche ID do acesso do usuário
+	             usuarioAcesso.setIdUsuarioAcesso(userlogado.getUsuarioAcesso().get(i).getIdUsuarioAcesso());
+	             
+	             // Verifica e preenche informações do acesso (role)
+	             if (userlogado.getUsuarioAcesso().get(i).getAcesso() != null) {
+	                 usuarioAcesso.getAcesso().setIdAcesso  ( userlogado.getUsuarioAcesso().get(i).getAcesso().getIdAcesso()   );
+	                 usuarioAcesso.getAcesso().setDescAcesso( userlogado.getUsuarioAcesso().get(i).getAcesso().getDescAcesso() );
+	             }
+	             
+	             // Verifica e preenche informações do usuário relacionado ao acesso
+	             if (userlogado.getUsuarioAcesso().get(i).getUsuario() != null) {
+	                 usuarioAcesso.getUsuario().setIdUsuario( userlogado.getUsuarioAcesso().get(i).getUsuario().getIdUsuario() );
+	                 usuarioAcesso.getUsuario().setLogin    ( userlogado.getUsuarioAcesso().get(i).getUsuario().getLogin()     );
+	             }
+	             
+	             // Adiciona o acesso à lista do DTO
+	             usuarioLogado.getUsuarioAcesso().add( usuarioAcesso );
+	         }
+	     }
 
-//			Conveniados conveniado = conveniadosRepository.findById( userlogado.getPessoa().getConveniados().getIdConveniados() )
-//		            .orElseThrow(() -> new UsernameNotFoundException("Pessoa da Conveiada não encontrado"));
-			
-			usuarioLogado.getPessoa().getConveniados().setIdConveniados ( userlogado.getPessoa().getConveniados().getIdConveniados() );
-			usuarioLogado.getPessoa().getConveniados().setNomeConveniado( pessoaConveniadoPJ.getNomePessoa()                     );
-			
-		}else {
-			
-			Optional<Funcionario> funcionario = funcionarioRepository.findByIdPessoa( userlogado.getPessoa().getIdPessoa() );
-			funcionario.ifPresentOrElse(
-				    f -> { // código se existir  
-							usuarioLogado.setIsConveniada ( false  );
-							usuarioLogado.setIsUserSistema( false );
-							usuarioLogado.setIsEntidade   ( true );
-							
-					        // Garante que o FuncionarioDTO está inicializado
-					        if (usuarioLogado.getPessoa().getFuncionario() == null) {
-					            usuarioLogado.getPessoa().setFuncionario(new FuncionarioDTO());
-					        }
+	     // =========================================================================
+	     // INFORMAÇÕES PERTINENTES À PESSOA DO USUÁRIO
+	     // =========================================================================
+	     if (userlogado.getPessoa() != null) {
+	         usuarioLogado.getPessoa().setIdPessoa  ( userlogado.getPessoa().getIdPessoa()   );
+	         usuarioLogado.getPessoa().setNomePessoa( userlogado.getPessoa().getNomePessoa() );
+	     }
 
-							usuarioLogado.getPessoa().getFuncionario().setIdFuncionario( f.getIdFuncionario() );
-							usuarioLogado.getPessoa().getFuncionario().setDtCriacao    ( f.getDtCriacao()     );
-							usuarioLogado.getPessoa().getFuncionario().setDtAlteracao  ( f.getDtAlteracao()   );
-							// Info. sobre limite de credito usuario logado
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setIdLimiteCredito( f.getLimiteCredito().getIdLimiteCredito() );
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setLimite         ( f.getLimiteCredito().getLimite()          );
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setValorUtilizado ( f.getLimiteCredito().getValorUtilizado()  );
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtCriacao      ( f.getLimiteCredito().getDtCriacao()       );
-							usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtAlteracao    ( f.getLimiteCredito().getDtAlteracao()     );
-							// Info. sobre salario usuario logado
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setIdSalario   ( f.getSalario().getIdSalario()    );
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setValorBruto  ( f.getSalario().getValorBruto()   );
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setValorLiquido( f.getSalario().getValorLiquido() );
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setDtCriacao   ( f.getSalario().getDtCriacao()    );
-							usuarioLogado.getPessoa().getFuncionario().getSalario().setDtAlteracao ( f.getSalario().getDtAlteracao()  );
-							// Info. sobre a pessoa, neste caso não será necessario. informado acima no objeto
-							usuarioLogado.getPessoa().getFuncionario().setPessoa(null);
-							// Info. sobre a Secretária caso o funcionário perteça a uma.
-							usuarioLogado.getPessoa().getFuncionario().getSecretaria().setIdSecretaria  ( f.getSecretaria().getIdSecretaria()   );
-							usuarioLogado.getPessoa().getFuncionario().getSecretaria().setNomeSecretaria( f.getSecretaria().getNomeSecretaria() );
-							// Info. dos cartões do usuario logado. Cartões Desativados e Ativo.
-							for( Cartao carta : f.getCartao() ) {
-								CartaoDTO cartaoDTO = new CartaoDTO();
-								cartaoDTO.setIdCartao    ( carta.getIdCartao()     );
-								cartaoDTO.setNumeracao   ( carta.getNumeracao()    );
-								cartaoDTO.setDtCriacao   ( carta.getDtCriacao()    );
-								cartaoDTO.setDtAlteracao ( carta.getDtAlteracao()  );
-								cartaoDTO.setDtValidade  ( carta.getDtValidade()   );
-								cartaoDTO.setStatusCartao( carta.getStatusCartao() );
-								usuarioLogado.getPessoa().getFuncionario().getCartao().add(cartaoDTO);
-							}
-							
-							usuarioLogado.getPessoa().getFuncionario().getEntidade().setIdEntidade  ( f.getEntidade().getIdEntidade()   );
-							usuarioLogado.getPessoa().getFuncionario().getEntidade().setNomeEntidade( f.getEntidade().getNomeEntidade() );
-							
-					        // Garante que o FuncionarioDTO está inicializado
-					        if (usuarioLogado.getPessoa().getEntidade() == null) {
-					            usuarioLogado.getPessoa().setEntidade(new EntidadeLogadoDTO());
-					        }
+	     // =========================================================================
+	     // VERIFICAÇÃO DO TIPO DE USUÁRIO LOGADO
+	     // (User de Sistema / User Conveniado / User Entidade)
+	     // =========================================================================
+	     if (userlogado.getPessoa() != null && userlogado.getPessoa().getConveniados() != null) {
+	         // =====================================================================
+	         // USUÁRIO DO TIPO CONVENIADO
+	         // =====================================================================
+	         usuarioLogado.setIsConveniada ( true  );
+	         usuarioLogado.setIsUserSistema( false );
+	         usuarioLogado.setIsEntidade   ( false );
 
-							
-							usuarioLogado.getPessoa().getEntidade().setIdEntidade  ( f.getEntidade().getIdEntidade()   );
-							usuarioLogado.getPessoa().getEntidade().setNomeEntidade( f.getEntidade().getNomeEntidade() );
-				    	
-				    },
-				    () -> { // código se não existir 
-						usuarioLogado.setIsConveniada ( false );
-						usuarioLogado.setIsUserSistema( true  );
-						usuarioLogado.setIsEntidade   ( false );
-				    }
-				);			
-		}
-				
-		if( userlogado.getPessoa().getPessoaFisica() != null ) {
-			
-			usuarioLogado.getPessoa().getPessoaFisica().setIdPessoaFisica( userlogado.getPessoa().getPessoaFisica().getIdPessoaFisica() );
-			usuarioLogado.getPessoa().getPessoaFisica().setDtNascimento  ( userlogado.getPessoa().getPessoaFisica().getDtNascimento()   );
-			usuarioLogado.getPessoa().getPessoaFisica().setCpf           ( userlogado.getPessoa().getPessoaFisica().getCpf()            );
-			usuarioLogado.getPessoa().getPessoaFisica().setPessoa(null);
-			
-		}else  if( userlogado.getPessoa().getPessoaJuridica() != null ) {
-			
-			usuarioLogado.getPessoa().getPessoaJuridica().setIdPessoa     ( userlogado.getPessoa().getPessoaJuridica().getIdPessoaJuridica() );
-			usuarioLogado.getPessoa().getPessoaJuridica().setCnpj         ( userlogado.getPessoa().getPessoaJuridica().getCnpj()             );
-			usuarioLogado.getPessoa().getPessoaJuridica().setInscEstadual ( userlogado.getPessoa().getPessoaJuridica().getInscEstadual()     );
-			usuarioLogado.getPessoa().getPessoaJuridica().setInscMunicipal( userlogado.getPessoa().getPessoaJuridica().getInscMunicipal()    );
-			usuarioLogado.getPessoa().getPessoaJuridica().setNomeFantasia ( userlogado.getPessoa().getPessoaJuridica().getNomeFantasia()     );			
-			usuarioLogado.getPessoa().getPessoaJuridica().setRazaoSocial  ( userlogado.getPessoa().getPessoaJuridica().getRazaoSocial()      );
-			usuarioLogado.getPessoa().getPessoaJuridica().setIdPessoa     ( userlogado.getPessoa().getIdPessoa());
-		}
-		
-		return usuarioLogado;
-	}
-	
-	
+	         try {
+	             // Busca informações adicionais da pessoa conveniada PJ
+	             Pessoa pessoaConveniadoPJ = pessoaRepository.getPessoaConveniadaPJ(
+	                 userlogado.getPessoa().getConveniados().getIdConveniados()
+	             ).orElseThrow(() -> new UsernameNotFoundException("Pessoa da Conveniada não encontrado"));
+
+	             // Preenche informações do conveniado no DTO
+	             usuarioLogado.getPessoa().getConveniados().setIdConveniados(
+	                 userlogado.getPessoa().getConveniados().getIdConveniados()
+	             );
+	             usuarioLogado.getPessoa().getConveniados().setNomeConveniado(
+	                 pessoaConveniadoPJ.getNomePessoa()
+	             );
+	         } catch (Exception e) {
+	             // Log do erro e definição de valor padrão em caso de falha
+	             logger.error("Erro ao buscar pessoa conveniada", e);
+	             usuarioLogado.getPessoa().getConveniados().setNomeConveniado("Nome não disponível");
+	         }
+	     } else {
+	         // =====================================================================
+	         // USUÁRIO DO TIPO FUNCIONÁRIO (ENTIDADE) OU USUÁRIO DE SISTEMA
+	         // =====================================================================
+	         Optional<Funcionario> funcionario = Optional.empty();
+	         
+	         // Busca informações do funcionário se a pessoa existir
+	         if (userlogado.getPessoa() != null) {
+	             funcionario = funcionarioRepository.findByIdPessoa( userlogado.getPessoa().getIdPessoa() );
+	         }
+
+	         // Processa o funcionário se existir, caso contrário trata como usuário de sistema
+	         funcionario.ifPresentOrElse(
+	             f -> {
+	                 // =============================================================
+	                 // USUÁRIO DO TIPO FUNCIONÁRIO (ENTIDADE)
+	                 // =============================================================
+	                 usuarioLogado.setIsConveniada ( false );
+	                 usuarioLogado.setIsUserSistema( false );
+	                 usuarioLogado.setIsEntidade   ( true  );
+
+	                 // Garante que o FuncionarioDTO está inicializado
+	                 if (usuarioLogado.getPessoa().getFuncionario() == null) {
+	                     usuarioLogado.getPessoa().setFuncionario( new FuncionarioDTO() );
+	                 }
+
+	                 // Informações básicas do funcionário
+	                 usuarioLogado.getPessoa().getFuncionario().setIdFuncionario( f.getIdFuncionario() );
+	                 usuarioLogado.getPessoa().getFuncionario().setDtCriacao    ( f.getDtCriacao()     );
+	                 usuarioLogado.getPessoa().getFuncionario().setDtAlteracao  ( f.getDtAlteracao()   );
+
+	                 // =============================================================
+	                 // INFORMAÇÕES SOBRE LIMITE DE CRÉDITO DO FUNCIONÁRIO
+	                 // =============================================================
+	                 if (f.getLimiteCredito() != null) {
+	                     // Garante que o LimiteCreditoDTO está inicializado
+	                     if (usuarioLogado.getPessoa().getFuncionario().getLimiteCredito() == null) {
+	                         usuarioLogado.getPessoa().getFuncionario().setLimiteCredito( new LimiteCreditoResumoDTO() );
+	                     }
+	                     // Preenche todos os dados do limite de crédito
+	                     usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setIdLimiteCredito(
+	                         f.getLimiteCredito().getIdLimiteCredito()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setLimite(
+	                         f.getLimiteCredito().getLimite()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setValorUtilizado(
+	                         f.getLimiteCredito().getValorUtilizado()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtCriacao(
+	                         f.getLimiteCredito().getDtCriacao()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getLimiteCredito().setDtAlteracao(
+	                         f.getLimiteCredito().getDtAlteracao()
+	                     );
+	                 }
+
+	                 // =============================================================
+	                 // INFORMAÇÕES SOBRE SALÁRIO DO FUNCIONÁRIO
+	                 // =============================================================
+	                 if (f.getSalario() != null) {
+	                     // Garante que o SalarioDTO está inicializado
+	                     if (usuarioLogado.getPessoa().getFuncionario().getSalario() == null) {
+	                         usuarioLogado.getPessoa().getFuncionario().setSalario( new SalarioResumoDTO() );
+	                     }
+	                     // Preenche todos os dados do salário
+	                     usuarioLogado.getPessoa().getFuncionario().getSalario().setIdSalario(
+	                         f.getSalario().getIdSalario()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getSalario().setValorBruto(
+	                         f.getSalario().getValorBruto()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getSalario().setValorLiquido(
+	                         f.getSalario().getValorLiquido()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getSalario().setDtCriacao(
+	                         f.getSalario().getDtCriacao()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getSalario().setDtAlteracao(
+	                         f.getSalario().getDtAlteracao()
+	                     );
+	                 }
+
+	                 // =============================================================
+	                 // INFORMAÇÕES SOBRE SECRETARIA (SE HOUVER ASSOCIAÇÃO)
+	                 // =============================================================
+	                 if (f.getSecretaria() != null) {
+	                     // Garante que o SecretariaDTO está inicializado
+	                     if (usuarioLogado.getPessoa().getFuncionario().getSecretaria() == null) {
+	                         usuarioLogado.getPessoa().getFuncionario().setSecretaria( new SecretariaResumoDTO() );
+	                     }
+	                     // Preenche dados da secretária
+	                     usuarioLogado.getPessoa().getFuncionario().getSecretaria().setIdSecretaria(
+	                         f.getSecretaria().getIdSecretaria()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getSecretaria().setNomeSecretaria(
+	                         f.getSecretaria().getNomeSecretaria()
+	                     );
+	                 }
+
+	                 // =============================================================
+	                 // INFORMAÇÕES SOBRE CARTÕES DO FUNCIONÁRIO
+	                 // =============================================================
+	                 if (f.getCartao() != null) {
+	                     for (Cartao carta : f.getCartao()) {
+	                         CartaoDTO cartaoDTO = new CartaoDTO();
+	                         cartaoDTO.setIdCartao    ( carta.getIdCartao()     );
+	                         cartaoDTO.setNumeracao   ( carta.getNumeracao()    );
+	                         cartaoDTO.setDtCriacao   ( carta.getDtCriacao()    );
+	                         cartaoDTO.setDtAlteracao ( carta.getDtAlteracao()  );
+	                         cartaoDTO.setDtValidade  ( carta.getDtValidade()   );
+	                         cartaoDTO.setStatusCartao( carta.getStatusCartao() );
+	                         usuarioLogado.getPessoa().getFuncionario().getCartao().add(cartaoDTO);
+	                     }
+	                 }
+
+	                 // =============================================================
+	                 // INFORMAÇÕES SOBRE ENTIDADE DO FUNCIONÁRIO
+	                 // =============================================================
+	                 if (f.getEntidade() != null) {
+	                     usuarioLogado.getPessoa().getFuncionario().getEntidade().setIdEntidade(
+	                         f.getEntidade().getIdEntidade()
+	                     );
+	                     usuarioLogado.getPessoa().getFuncionario().getEntidade().setNomeEntidade(
+	                         f.getEntidade().getNomeEntidade()
+	                     );
+	                 }
+
+	                 // Garante que o EntidadeLogadoDTO está inicializado
+	                 if (usuarioLogado.getPessoa().getEntidade() == null) {
+	                     usuarioLogado.getPessoa().setEntidade( new EntidadeLogadoDTO() );
+	                 }
+
+	                 // Preenche informações da entidade no nível da pessoa
+	                 if (f.getEntidade() != null) {
+	                     usuarioLogado.getPessoa().getEntidade().setIdEntidade  ( f.getEntidade().getIdEntidade()   );
+	                     usuarioLogado.getPessoa().getEntidade().setNomeEntidade( f.getEntidade().getNomeEntidade() );
+	                 }
+	             },
+	             () -> {
+	                 // =============================================================
+	                 // USUÁRIO DO TIPO SISTEMA (NÃO É FUNCIONÁRIO NEM CONVENIADO)
+	                 // =============================================================
+	                 usuarioLogado.setIsConveniada ( false );
+	                 usuarioLogado.setIsUserSistema( true  );
+	                 usuarioLogado.setIsEntidade   ( false );
+	             }
+	         );
+	     }
+
+	     // =========================================================================
+	     // INFORMAÇÕES SOBRE PESSOA FÍSICA/JURÍDICA
+	     // =========================================================================
+	     if (userlogado.getPessoa() != null) {
+	         if (userlogado.getPessoa().getPessoaFisica() != null) {
+	             // Garante que o PessoaFisicaDTO está inicializado
+	             if (usuarioLogado.getPessoa().getPessoaFisica() == null) {
+	                 usuarioLogado.getPessoa().setPessoaFisica( new PessoaFisicaDTO() );
+	             }
+	             // Preenche dados da pessoa física
+	             usuarioLogado.getPessoa().getPessoaFisica().setIdPessoaFisica(
+	                 userlogado.getPessoa().getPessoaFisica().getIdPessoaFisica()
+	             );
+	             usuarioLogado.getPessoa().getPessoaFisica().setDtNascimento(
+	                 userlogado.getPessoa().getPessoaFisica().getDtNascimento()
+	             );
+	             usuarioLogado.getPessoa().getPessoaFisica().setCpf(
+	                 userlogado.getPessoa().getPessoaFisica().getCpf()
+	             );
+	         } else if (userlogado.getPessoa().getPessoaJuridica() != null) {
+	             // Garante que o PessoaJuridicaDTO está inicializado
+	             if (usuarioLogado.getPessoa().getPessoaJuridica() == null) {
+	                 usuarioLogado.getPessoa().setPessoaJuridica( new PessoaJuridicaDTO() );
+	             }
+	             // Preenche dados da pessoa jurídica
+	             usuarioLogado.getPessoa().getPessoaJuridica().setIdPessoa(
+	                 userlogado.getPessoa().getPessoaJuridica().getIdPessoaJuridica()
+	             );
+	             usuarioLogado.getPessoa().getPessoaJuridica().setCnpj(
+	                 userlogado.getPessoa().getPessoaJuridica().getCnpj()
+	             );
+	             usuarioLogado.getPessoa().getPessoaJuridica().setInscEstadual(
+	                 userlogado.getPessoa().getPessoaJuridica().getInscEstadual()
+	             );
+	             usuarioLogado.getPessoa().getPessoaJuridica().setInscMunicipal(
+	                 userlogado.getPessoa().getPessoaJuridica().getInscMunicipal()
+	             );
+	             usuarioLogado.getPessoa().getPessoaJuridica().setNomeFantasia(
+	                 userlogado.getPessoa().getPessoaJuridica().getNomeFantasia()
+	             );
+	             usuarioLogado.getPessoa().getPessoaJuridica().setRazaoSocial(
+	                 userlogado.getPessoa().getPessoaJuridica().getRazaoSocial()
+	             );
+	             usuarioLogado.getPessoa().getPessoaJuridica().setIdPessoa(
+	                 userlogado.getPessoa().getIdPessoa()
+	             );
+	         }
+	     }
+
+	     // Retorna o DTO completamente preenchido
+	     return usuarioLogado;
+	 }	 	
 }
 

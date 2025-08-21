@@ -30,11 +30,11 @@ public class FuncionarioDTO {
     private StatusFuncionario descStatusFuncionario;
     
     private LimiteCreditoResumoDTO limiteCredito = new LimiteCreditoResumoDTO(); // Remova inicialização
-    private SalarioResumoDTO salario             = new SalarioResumoDTO(); // Remova inicialização
-    private List<CartaoDTO> cartao = new ArrayList<CartaoDTO>();               // Remova inicialização
-    private PessoaResumoDTO pessoa = new PessoaResumoDTO();              // Remova inicialização
-    private SecretariaResumoDTO secretaria = new SecretariaResumoDTO();       // Remova inicialização
-    private EntidadeResumoDTO entidade = new EntidadeResumoDTO();           // Remova inicialização
+    private SalarioResumoDTO salario             = new SalarioResumoDTO();       // Remova inicialização
+    private List<CartaoDTO> cartao               = new ArrayList<CartaoDTO>();   // Remova inicialização
+    private PessoaResumoDTO pessoa               = new PessoaResumoDTO();        // Remova inicialização
+    private SecretariaResumoDTO secretaria       = new SecretariaResumoDTO();    // Remova inicialização
+    private EntidadeResumoDTO entidade           = new EntidadeResumoDTO();      // Remova inicialização
 /*
     // Getters com inicialização lazy
     public List<CartaoDTO> getCartao() {
