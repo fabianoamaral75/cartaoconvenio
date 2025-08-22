@@ -52,7 +52,7 @@ public class RelatorioFaturamentoController {
         
         try {
             // Chama o service para gerar o relatório
-            RelatorioFaturamentoResponseDTO response = relatorioFaturamentoService.gerarRelatorioFaturamento(requestDTO);
+            RelatorioFaturamentoResponseDTO response = relatorioFaturamentoService.gerarRelatorioFaturamento( requestDTO );
             // Retorna resposta com status CREATED (201) e o relatório gerado
             return new ResponseEntity<>(response, HttpStatus.CREATED);
             
@@ -61,6 +61,31 @@ public class RelatorioFaturamentoController {
             return handleException(ex, request);
         }
     }
+    
+    /**
+     * Endpoint para gerar um novo relatório de faturamento
+     * @param requestDTO DTO com dados necessários para gerar o relatório
+     * @param request Objeto HttpServletRequest para informações da requisição
+     * @return ResponseEntity com o relatório gerado ou erro
+     */
+    @ResponseBody // Indica que o retorno deve ser serializado como corpo da resposta
+    @PostMapping(value = "/gerarNovo") // Mapeia POST para /api/relatorios-faturamento/gerar
+    public ResponseEntity<?> gerarRelatorioNovo(
+            @Valid @RequestBody RelatorioFaturamentoRequestDTO requestDTO, // Valida e desserializa o JSON do body
+            HttpServletRequest request) {
+        
+        try {
+        	
+        	RelatorioFaturamentoResponseDTO response = relatorioFaturamentoService.gerarRelatorioFaturamentoPorTipoRel(requestDTO);
+            // Retorna resposta com status CREATED (201) e o relatório gerado
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            
+        } catch (ExceptionCustomizada ex) {
+            // Em caso de erro, trata a exceção customizada
+            return handleException(ex, request);
+        }
+    }
+
 
     /**
      * Endpoint para buscar um relatório existente pelo ID

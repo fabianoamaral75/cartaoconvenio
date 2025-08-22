@@ -5,9 +5,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal; // Já deve estar importado, mas confirmando\
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat; // Para formatação de datas
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.core.io.ClassPathResource;
@@ -17,16 +22,25 @@ import org.springframework.transaction.annotation.Transactional;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.Image;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+//NOVOS IMPORTS
+import com.lowagie.text.pdf.PdfPageEventHelper;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.draw.LineSeparator;
+
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.LayoutModelo;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusRelatorioFaturamento;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.RelatorioFaturamentoConveniado;
@@ -42,8 +56,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
-
+/////////////////////////
 
 /**
  * Service responsável pela lógica de negócio de relatórios de faturamento
@@ -66,6 +79,11 @@ public class RelatorioFaturamentoService {
     private final RelCicloPagamentoVendasService relVendasService;
     // Service para itens de produtos das vendas
     private final RelCicloPagamentoVendasItensService relVendasItensService;
+    
+    private static final Locale PT_BR = Locale.forLanguageTag("pt-BR");
+    private static final NumberFormat NF = NumberFormat.getCurrencyInstance(PT_BR);
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("dd/MM/yyyy");
+
 
     /**
      * Gera um novo relatório de faturamento baseado nos dados fornecidos
@@ -122,6 +140,7 @@ public class RelatorioFaturamentoService {
             relatorio.setCicloPagamentoVenda( ciclo                                                      ); // Relaciona com ciclo
             relatorio.setIdConveniados      ( requestDTO.getIdConveniados()                              ); // ID do conveniado
             relatorio.setAnoMes             ( requestDTO.getAnoMes()                                     ); // Período de referência
+            relatorio.setArquivoTipo        ( "application/pdf"                                          );
             relatorio.setNomeArquivo        ( "relatorio_faturamento_" + requestDTO.getAnoMes() + ".pdf" ); // Nome do arquivo
             relatorio.setConteudoBase64     ( base64                                                     ); // Conteúdo do PDF em Base64
             relatorio.setTamanhoBytes       ( (long) pdfBytes.length                                     ); // Tamanho em bytes
@@ -364,7 +383,7 @@ public class RelatorioFaturamentoService {
         // Dados da empresa
         Paragraph empresa = new Paragraph();
         empresa.add(new Chunk("CNPJ: ", fontNegrito));
-        empresa.add(new Chunk(dadosCiclo.getCnpj(), fontNormal));
+        empresa.add(new Chunk(FuncoesUteis.formatar( dadosCiclo.getCnpj() ), fontNormal));
         empresa.add(new Chunk(" - ", fontNormal));
         empresa.add(new Chunk("ENDEREÇO: ", fontNegrito));
         empresa.add(new Chunk(end, fontNormal));
@@ -614,4 +633,882 @@ public class RelatorioFaturamentoService {
         // Formata com separador de milhar e decimal brasileiro
         return String.format("R$ %,.2f", valor);
     }
+    
+    
+/***************************************************************************************************/    
+/***************************************************************************************************/    
+/***************************************************************************************************/    
+/***************************************************************************************************/    
+/***************************************************************************************************/    
+    
+
+    
+    @Transactional
+    public RelatorioFaturamentoResponseDTO gerarRelatorioFaturamentoPorTipoRel(RelatorioFaturamentoRequestDTO requestDTO) {
+	
+        Objects.requireNonNull(requestDTO                           , "requestDTO é obrigatório"            );
+        Objects.requireNonNull(requestDTO.getIdCicloPagamentoVenda(), "idCicloPagamentoVenda é obrigatório" );
+        Objects.requireNonNull(requestDTO.getIdConveniados()        , "idConveniados é obrigatório"         );
+        Objects.requireNonNull(requestDTO.getAnoMes()               , "anoMes é obrigatório"                );
+        
+        LayoutModelo layout = requestDTO.getLayout() == null ? LayoutModelo.MODERNO :  LayoutModelo.valueOf(requestDTO.getLayout());
+
+        // 1) BUSCAS
+        RelCicloPagamentoConveniadosDTO dadosCiclo =
+                relCicloService.buscarDadosCicloPorId(requestDTO.getIdCicloPagamentoVenda());
+
+        List<RelCicloPagamentoConveniadosTaxasDTO> taxas =
+                relTaxasService.buscarTaxasPorCiclo(requestDTO.getIdCicloPagamentoVenda());
+
+        List<RelCicloPagamentoVendasDTO> vendas =
+                relVendasService.buscarVendasPorCiclo(requestDTO.getIdCicloPagamentoVenda());
+
+        List<RelCicloPagamentoVendasItemProdutosDTO> itensProdutos =
+                relVendasItensService.buscarItensProdutosPorCiclo(requestDTO.getIdCicloPagamentoVenda());
+
+        // 2) TOTAIS
+        BigDecimal totalTaxasExtras = taxas.stream()
+                .map(RelCicloPagamentoConveniadosTaxasDTO::getValorTaxa)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalValorCalcTaxaConveniado = vendas.stream()
+                .map(RelCicloPagamentoVendasDTO::getValorCalcTaxaConveniado)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalValorCalcTaxaEntidade = vendas.stream()
+                .map(RelCicloPagamentoVendasDTO::getValorCalcTaxaEntidade)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalValorVendas = vendas.stream()
+                .map(RelCicloPagamentoVendasDTO::getValorVenda)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalTaxaPercentual = vendas.stream()
+                .map(RelCicloPagamentoVendasDTO::getTaxa)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // 3) GERA PDF
+        byte[] pdf = buildPdf(layout, requestDTO, dadosCiclo, taxas, vendas, itensProdutos,
+                totalTaxasExtras, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade,
+                totalValorVendas, totalTaxaPercentual);
+
+        // 4) REGRAS DE NEGÓCIO – ATUALIZAÇÃO E PERSISTÊNCIA
+        Optional<RelatorioFaturamentoConveniado> relatorioExistente =
+                relatorioFaturamentoRepository.findByIdConveniadosAndAnoMesAndStatus(
+                        requestDTO.getIdConveniados(),
+                        requestDTO.getAnoMes(),
+                        StatusRelatorioFaturamento.ATUAL);
+
+        relatorioExistente.ifPresent(rel -> {
+            rel.setStatus(StatusRelatorioFaturamento.REL_DESATUALIZADO);
+            relatorioFaturamentoRepository.save(rel);
+        });
+        
+        // 5) Busca entidade do ciclo de pagamento para relacionamento
+        CicloPagamentoVenda ciclo = cicloPagamentoVendaRepository.findById(requestDTO.getIdCicloPagamentoVenda())
+            .orElseThrow(() -> new ExceptionCustomizada("Ciclo de pagamento não encontrado"));
+        
+        // 6) Converte para Base64
+        String base64 = Base64.getEncoder().encodeToString(pdf);
+ 
+        RelatorioFaturamentoConveniado relatorio = new RelatorioFaturamentoConveniado();
+        relatorio.setCicloPagamentoVenda( ciclo                              ); // Relaciona com ciclo
+        relatorio.setIdConveniados      ( requestDTO.getIdConveniados()      ); // ID do conveniado
+        relatorio.setAnoMes             ( requestDTO.getAnoMes()             ); // Período de referência
+        relatorio.setNomeArquivo        ( buildFileName(requestDTO)          ); // Nome do arquivo
+        relatorio.setConteudoBase64     ( base64                             ); // Conteúdo do PDF em Base64
+        relatorio.setArquivoTipo        ( "application/pdf"                  ); // Tipo de arquivo gerado
+        relatorio.setTamanhoBytes       ( (long) pdf.length                  ); // Tamanho em bytes
+        relatorio.setStatus             ( StatusRelatorioFaturamento.ATUAL   ); // Status como atual
+        relatorio.setObservacao         ( "Relatório gerado automaticamente" ); // Observação padrão
+
+
+        // 7) Salva relatório no banco de dados
+        relatorio = relatorioFaturamentoRepository.save(relatorio);
+
+        // 8) Converte entidade para DTO de resposta
+        return toResponseDTO(relatorio);
+
+    }
+
+
+    // =========================
+    //   CONSTRUÇÃO DO PDF
+    // =========================
+/*    
+    private byte[] buildPdf(LayoutModelo layout,
+                            RelatorioFaturamentoRequestDTO req,
+                            RelCicloPagamentoConveniadosDTO dados,
+                            List<RelCicloPagamentoConveniadosTaxasDTO> taxas,
+                            List<RelCicloPagamentoVendasDTO> vendas,
+                            List<RelCicloPagamentoVendasItemProdutosDTO> itens,
+                            BigDecimal totalTaxasExtras,
+                            BigDecimal totalValorCalcTaxaConveniado,
+                            BigDecimal totalValorCalcTaxaEntidade,
+                            BigDecimal totalValorVendas,
+                            BigDecimal totalTaxaPercentual) {
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+        	// Cria novo documento PDF em formato A4 paisagem (landscape)
+            Document doc = new Document(PageSize.A4.rotate(), 30, 30, 36, 36);
+            PdfWriter.getInstance(doc, baos);
+            doc.open();
+
+            switch (layout) {
+                case MODERNO -> buildPdfModerno(doc, req, dados, taxas, vendas, itens,
+                        totalTaxasExtras, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade,
+                        totalValorVendas, totalTaxaPercentual);
+                case TABELADO -> buildPdfTabelado(doc, req, dados, taxas, vendas, itens,
+                        totalTaxasExtras, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade,
+                        totalValorVendas, totalTaxaPercentual);
+                case MINIMAL -> buildPdfMinimal(doc, req, dados, taxas, vendas, itens,
+                        totalTaxasExtras, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade,
+                        totalValorVendas, totalTaxaPercentual);
+            }
+
+            doc.close();
+            return baos.toByteArray();
+        } catch (DocumentException e) {
+            throw new RuntimeException("Erro ao gerar PDF", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao carregar recursos do PDF", e);
+        }
+    }
+*/
+    
+    private byte[] buildPdf(LayoutModelo layout,
+            RelatorioFaturamentoRequestDTO req,
+            RelCicloPagamentoConveniadosDTO dados,
+            List<RelCicloPagamentoConveniadosTaxasDTO> taxas,
+            List<RelCicloPagamentoVendasDTO> vendas,
+            List<RelCicloPagamentoVendasItemProdutosDTO> itens,
+            BigDecimal totalTaxasExtras,
+            BigDecimal totalValorCalcTaxaConveniado,
+            BigDecimal totalValorCalcTaxaEntidade,
+            BigDecimal totalValorVendas,
+            BigDecimal totalTaxaPercentual) {
+
+    	try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			// A4 paisagem
+			Document doc = new Document(PageSize.A4.rotate(), 30, 30, 36, 36);
+			
+			// >>> Writer + rodapé em todas as páginas
+			PdfWriter writer = PdfWriter.getInstance(doc, baos);
+			Image logoFooter = null;
+			try {
+				logoFooter = tryLoadLogo(); // tenta carregar a logo do classpath
+			} catch (Exception ignore) {}
+			
+			writer.setPageEvent(new UaiTagFooter(logoFooter)); // remova esta linha se NÃO quiser rodapé
+			
+			doc.open();
+			
+			switch (layout) {
+			case MODERNO -> buildPdfModerno(doc, req, dados, taxas, vendas, itens,
+			        						totalTaxasExtras, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade,
+			        						totalValorVendas, totalTaxaPercentual);
+			case TABELADO -> buildPdfTabelado(doc, req, dados, taxas, vendas, itens,
+			        						  totalTaxasExtras, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade,
+			        						  totalValorVendas, totalTaxaPercentual);
+			case MINIMAL -> buildPdfMinimal(doc, req, dados, taxas, vendas, itens,
+			        						totalTaxasExtras, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade,
+			        						totalValorVendas, totalTaxaPercentual);
+			}
+			
+			doc.close();
+			return baos.toByteArray();
+		
+		} catch (DocumentException e) {
+			throw new RuntimeException("Erro ao gerar PDF", e);
+		} catch (IOException e) {
+			throw new RuntimeException("Erro ao carregar recursos do PDF", e);
+		}
+	}
+    
+    
+ // Bloco de assinatura ao final do relatório
+    private void addAssinaturaUaiTag(Document doc) throws DocumentException, IOException {
+    	
+        Paragraph titulo = new Paragraph("ASSINATURA", font(11, Font.BOLD, null));
+        titulo.setSpacingBefore(18f);
+        titulo.setSpacingAfter(8f);
+        doc.add(titulo);
+
+        // Linha divisória sutil
+        LineSeparator ls = new LineSeparator(0.5f, 100f, new Color(210,210,210), Element.ALIGN_CENTER, 0);
+        doc.add(ls);
+        doc.add(Chunk.NEWLINE);
+
+        PdfPTable table = new PdfPTable(new float[]{25, 75});
+        table.setWidthPercentage(100);
+
+        // Coluna 1: logo
+        Image logo = null;
+        try {
+            logo = tryLoadLogo();
+        } catch (Exception ignore) {}
+
+        if (logo != null) {
+            logo.scaleToFit(120, 40);
+            PdfPCell imgCell = new PdfPCell(logo, false);
+            imgCell.setBorder(Rectangle.NO_BORDER);
+            imgCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            imgCell.setPaddingTop(4f);
+            table.addCell(imgCell);
+        } else {
+            PdfPCell empty = new PdfPCell(new Phrase(""));
+            empty.setBorder(Rectangle.NO_BORDER);
+            table.addCell(empty);
+        }
+
+        // Coluna 2: linha para assinatura + informações
+        PdfPTable assinatura = new PdfPTable(1);
+        assinatura.setWidthPercentage(100);
+
+        // Linha horizontal para assinatura
+        PdfPCell linhaAss = new PdfPCell(new Phrase(" "));
+        linhaAss.setBorder(Rectangle.BOTTOM);
+        linhaAss.setBorderWidthBottom(1.0f);
+        linhaAss.setFixedHeight(24f);
+        linhaAss.setPadding(0f);
+        assinatura.addCell(linhaAss);
+
+        PdfPCell nome = new PdfPCell(new Phrase("UaiTag – Cartão Convênio", font(10, Font.BOLD, null)));
+        nome.setBorder(Rectangle.NO_BORDER);
+        nome.setPaddingTop(6f);
+        assinatura.addCell(nome);
+
+        PdfPCell cargo = new PdfPCell(new Phrase("Representante Legal", font(9, Font.NORMAL, null)));
+        cargo.setBorder(Rectangle.NO_BORDER);
+        cargo.setPaddingTop(2f);
+        assinatura.addCell(cargo);
+
+        // Data do dia
+        PdfPCell data = new PdfPCell(new Phrase("Data: " + SDF.format(new Date()), font(9, Font.NORMAL, null)));
+        data.setBorder(Rectangle.NO_BORDER);
+        data.setPaddingTop(2f);
+        assinatura.addCell(data);
+
+        PdfPCell blocoAss = new PdfPCell(assinatura);
+        blocoAss.setBorder(Rectangle.NO_BORDER);
+        table.addCell(blocoAss);
+
+        doc.add(table);
+    }
+
+    /* ********************************************************* */ 
+    /*                                                           */
+    /* Rodapé em todas as páginas – adicione esta classe interna */
+    /*  - Rodapé com identidade visual em todas as páginas       */
+    /*                                                           */
+    /* ********************************************************* */ 
+    public static class UaiTagFooter extends PdfPageEventHelper {
+        private final Image logo;
+
+        public UaiTagFooter(Image logo) {
+            this.logo = logo;
+            if (this.logo != null) {
+                this.logo.scaleToFit(60, 20);
+            }
+        }
+
+        @Override
+        public void onEndPage(PdfWriter writer, Document document) {
+            PdfContentByte cb = writer.getDirectContent();
+            Rectangle page = document.getPageSize();
+
+            // Faixa de fundo do rodapé
+            float height = 24f;
+            cb.saveState();
+            cb.setColorFill(new Color(246, 246, 246));
+            cb.rectangle(page.getLeft(), page.getBottom(), page.getWidth(), height);
+            cb.fill();
+            cb.restoreState();
+
+            try {
+                PdfPTable footer = new PdfPTable(new float[]{15, 85});
+                footer.setTotalWidth(page.getWidth() - document.leftMargin() - document.rightMargin());
+
+                PdfPCell logoCell;
+                if (logo != null) {
+                    logoCell = new PdfPCell(logo, false);
+                } else {
+                    logoCell = new PdfPCell(new Phrase(""));
+                }
+                logoCell.setBorder(Rectangle.NO_BORDER);
+                logoCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                logoCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                logoCell.setPadding(0f);
+
+                PdfPCell textCell = new PdfPCell(new Phrase(
+                    "UaiTag • Relatório de Prestação de Contas • Página " + writer.getPageNumber(),
+                    FontFactory.getFont(FontFactory.HELVETICA, 8, Font.NORMAL, Color.DARK_GRAY)
+                ));
+                textCell.setBorder(Rectangle.NO_BORDER);
+                textCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                textCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                textCell.setPaddingRight(2f);
+
+                footer.addCell(logoCell);
+                footer.addCell(textCell);
+
+                footer.writeSelectedRows(
+                    0, -1,
+                    document.leftMargin(),
+                    document.bottomMargin() - 4f,
+                    writer.getDirectContent()
+                );
+            } catch (Exception ignored) {}
+        }
+    }
+    
+    
+/**/    
+    
+    
+    
+    // ===== Layout: MODERNO ====================================================
+    private void buildPdfModerno(Document doc,
+                                 RelatorioFaturamentoRequestDTO req,
+                                 RelCicloPagamentoConveniadosDTO dados,
+                                 List<RelCicloPagamentoConveniadosTaxasDTO> taxas,
+                                 List<RelCicloPagamentoVendasDTO> vendas,
+                                 List<RelCicloPagamentoVendasItemProdutosDTO> itens,
+                                 BigDecimal totalTaxasExtras,
+                                 BigDecimal totalValorCalcTaxaConveniado,
+                                 BigDecimal totalValorCalcTaxaEntidade,
+                                 BigDecimal totalValorVendas,
+                                 BigDecimal totalTaxaPercentual) throws DocumentException, IOException {
+
+        Image logo = tryLoadLogo(); // opcional
+        if (logo != null) {
+            logo.scaleToFit(120, 60);
+            logo.setAlignment(Image.LEFT);
+            doc.add(logo);
+        }
+
+        Paragraph titulo = p("PRESTAÇÃO DE CONTAS — CONVENIADO", 16, Font.BOLD, new Color(20, 20, 20));
+        titulo.setSpacingBefore(5);
+        titulo.setSpacingAfter(10);
+        doc.add(titulo);
+
+        doc.add(sectionHeader("RESUMO DO FATURAMENTO"));
+        doc.add(tableResumo(dados, vendas));
+
+        doc.add(space(8));
+
+        doc.add(sectionHeader("VALOR LÍQUIDO"));
+        doc.add(tableValorLiquido(dados));
+
+        doc.add(space(8));
+
+        doc.add(sectionHeader("TAXAS EXTRAS APLICADAS"));
+        doc.add(tableTaxas(taxas, totalTaxasExtras));
+
+        doc.add(space(8));
+
+        doc.add(sectionHeader("VENDAS DO PERÍODO"));
+        doc.add(tableVendas(vendas, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade, totalValorVendas, totalTaxaPercentual));
+
+        doc.add(space(8));
+
+        doc.add(sectionHeader("ITENS DE PRODUTOS DAS VENDAS"));
+        doc.add(tableItens(itens));
+        
+        // <<< NOVO: bloco de assinatura no final
+        addAssinaturaUaiTag(doc);
+    }
+
+    // ===== Layout: TABELADO ===================================================
+    private void buildPdfTabelado(Document doc,
+                                  RelatorioFaturamentoRequestDTO req,
+                                  RelCicloPagamentoConveniadosDTO dados,
+                                  List<RelCicloPagamentoConveniadosTaxasDTO> taxas,
+                                  List<RelCicloPagamentoVendasDTO> vendas,
+                                  List<RelCicloPagamentoVendasItemProdutosDTO> itens,
+                                  BigDecimal totalTaxasExtras,
+                                  BigDecimal totalValorCalcTaxaConveniado,
+                                  BigDecimal totalValorCalcTaxaEntidade,
+                                  BigDecimal totalValorVendas,
+                                  BigDecimal totalTaxaPercentual) throws DocumentException, IOException {
+
+        Image logo = tryLoadLogo();
+        if (logo != null) {
+            logo.scaleToFit(100, 50);
+            logo.setAlignment(Image.RIGHT);
+            doc.add(logo);
+        }
+
+        Paragraph titulo = p("Relatório de Faturamento (Modelo Tabelado)", 14, Font.BOLD, null);
+        titulo.setAlignment(Element.ALIGN_CENTER);
+        titulo.setSpacingAfter(8);
+        doc.add(titulo);
+
+        doc.add(tableResumo(dados, vendas));
+        doc.add(space(6));
+        doc.add(tableValorLiquido(dados));
+        doc.add(space(6));
+        doc.add(tableTaxas(taxas, totalTaxasExtras));
+        doc.add(space(6));
+        doc.add(tableVendas(vendas, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade, totalValorVendas, totalTaxaPercentual));
+        doc.add(space(6));
+        doc.add(tableItens(itens));
+        
+        // <<< NOVO
+        addAssinaturaUaiTag(doc);
+    }
+
+    // ===== Layout: MINIMAL ====================================================
+    private void buildPdfMinimal(Document doc,
+                                 RelatorioFaturamentoRequestDTO req,
+                                 RelCicloPagamentoConveniadosDTO dados,
+                                 List<RelCicloPagamentoConveniadosTaxasDTO> taxas,
+                                 List<RelCicloPagamentoVendasDTO> vendas,
+                                 List<RelCicloPagamentoVendasItemProdutosDTO> itens,
+                                 BigDecimal totalTaxasExtras,
+                                 BigDecimal totalValorCalcTaxaConveniado,
+                                 BigDecimal totalValorCalcTaxaEntidade,
+                                 BigDecimal totalValorVendas,
+                                 BigDecimal totalTaxaPercentual) throws DocumentException, IOException {
+
+        Image logo = tryLoadLogo();
+        if (logo != null) {
+            logo.scaleToFit(100, 50);
+            logo.setAlignment(Image.RIGHT);
+            doc.add(logo);
+        }
+        
+        Paragraph titulo = p("Prestação de Contas", 13, Font.BOLD, null);
+        titulo.setSpacingAfter(6);
+        doc.add(titulo);
+
+        doc.add(p("Resumo do faturamento", 11, Font.BOLD, null));
+        doc.add(tableResumoMinimal(dados, req));
+        doc.add(space(4));
+
+        doc.add(p("Valor líquido", 11, Font.BOLD, null));
+        doc.add(tableValorLiquidoMinimal(dados));
+        doc.add(space(4));
+
+        doc.add(p("Taxas extras aplicadas", 11, Font.BOLD, null));
+        doc.add(tableTaxasMinimal(taxas, totalTaxasExtras));
+        doc.add(space(4));
+
+        doc.add(p("Vendas do período", 11, Font.BOLD, null));
+        doc.add(tableVendasMinimal(vendas, totalValorCalcTaxaConveniado, totalValorCalcTaxaEntidade, totalValorVendas, totalTaxaPercentual));
+        doc.add(space(4));
+
+        doc.add(p("Itens de produtos das vendas", 11, Font.BOLD, null));
+        doc.add(tableItensMinimal(itens));
+        
+        // <<< NOVO
+        addAssinaturaUaiTag(doc);
+    }
+
+    // =========================
+    //   TABELAS / SEÇÕES
+    // =========================
+    private PdfPTable tableResumo( RelCicloPagamentoConveniadosDTO d, List<RelCicloPagamentoVendasDTO> vendas ) {
+        PdfPTable t = new PdfPTable(new float[]{30, 70});
+        t.setWidthPercentage(100);
+
+        t.addCell(kv("Conveniado"               , safe(d == null ? null : d.getRazaoSocial()))            );
+        t.addCell(kv("CNPJ"                     , safe(d == null ? null : FuncoesUteis.formatar(d.getCnpj() ))) );
+        t.addCell(kv("Referência"               , safe(d.getAnoMes()))                                    );
+        // Informações basicas.
+        t.addCell(kv("Qtde de Vendas"           , String.valueOf(safe(d == null ? null : vendas.size()))) );
+        t.addCell(kv("Total Vendas"             , fmt(d == null ? null : d.getVlrCicloBruto()))           );
+        t.addCell(kv("Valor Líquido"            , fmt(d == null ? null : d.getVlrLiquido()))              );
+        t.addCell(kv("Valor Líquido a Pagar"    , fmt(d == null ? null : d.getVlrLiquidoPagamento()))     );
+        // Valores das Taxas.
+        t.addCell(kv("Total Taxa (Percentual)"  , fmt(d == null ? null : d.getVlrTaxaExtraPercentual()))  );
+        t.addCell(kv("Total Taxa (Extra)"       , fmt(d == null ? null : d.getVlrTaxaExtraValor()))       );
+        t.addCell(kv("Total Taxa (Secundária)"  , fmt(d == null ? null : d.getVlrTaxaSecundaria()))       );
+        t.addCell(kv("Total Taxa (Faixa Vendas)", fmt(d == null ? null : d.getVlrTaxaExtraValor()))       );
+        return t;
+    }
+
+    private PdfPTable tableResumoMinimal(RelCicloPagamentoConveniadosDTO d, RelatorioFaturamentoRequestDTO req) {
+        PdfPTable t = new PdfPTable(new float[]{40, 60});
+        t.setWidthPercentage(100);
+        t.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+
+        t.addCell(kvNoBorder("Conveniado", safe(d == null ? null : d.getRazaoSocial()))  );
+        t.addCell(kvNoBorder("CNPJ"      , safe(d == null ? null : FuncoesUteis.formatar(d.getCnpj() ) )) );
+        t.addCell(kvNoBorder("Referência", safe(req.getAnoMes()))                        );
+        t.addCell(kvNoBorder("Vendas"    , fmt(d == null ? null : d.getVlrCicloBruto())) );
+        t.addCell(kvNoBorder("Líquido"   , fmt(d == null ? null : d.getVlrLiquido()))    );
+        return t;
+    }
+
+    private PdfPTable tableValorLiquido(RelCicloPagamentoConveniadosDTO d) {
+        PdfPTable t = new PdfPTable(new float[]{50, 50});
+        t.setWidthPercentage(100);
+        t.addCell(cellHeader("Valor Líquido Apurado"));
+        t.addCell(cellValue(fmt(d == null ? null : d.getVlrLiquidoPagamento())));
+        return t;
+    }
+
+    private PdfPTable tableValorLiquidoMinimal(RelCicloPagamentoConveniadosDTO d) {
+        PdfPTable t = new PdfPTable(1);
+        t.setWidthPercentage(100);
+        t.addCell(cellValue(fmt(d == null ? null : d.getVlrLiquidoPagamento())));
+        return t;
+    }
+
+    private PdfPTable tableTaxas(List<RelCicloPagamentoConveniadosTaxasDTO> taxas, BigDecimal total) {
+        PdfPTable t = new PdfPTable(new float[]{50, 20, 30});
+        t.setWidthPercentage(100);
+        t.addCell(th("Descrição"));
+        t.addCell(th("Período"));
+        t.addCell(th("Valor (R$)"));
+
+        for (RelCicloPagamentoConveniadosTaxasDTO it : taxas) {
+            t.addCell(td(safe(it.getDescricaoTaxa())));
+            String periodo = safe(it.getAnoMes()) ;
+//            	   + " " + (it.getDataInicio() != null ? it.getDataInicio() : "") + " - " + (it.getDataFim()    != null ? it.getDataFim()    : "");
+            
+            
+            // t.addCell(td(periodo.trim()));
+            t.addCell(tdCenter(periodo.trim()));
+            t.addCell(tdRight(fmt(it.getValorTaxa())));
+        }
+
+        PdfPCell totalCell = new PdfPCell(new Phrase("TOTAL", font(10, Font.BOLD, null)));
+        totalCell.setColspan(2);
+        totalCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        totalCell.setBackgroundColor(new Color(240, 240, 240));
+        totalCell.setPadding(6f);
+        t.addCell(totalCell);
+        t.addCell(tdRightBold(fmt(total)));
+        return t;
+    }
+    
+    // Centralizar uma celular.
+    private PdfPCell tdCenter(String text) {
+        PdfPCell c = td(text);                 // usa seu helper existente
+        c.setHorizontalAlignment(Element.ALIGN_CENTER);
+        return c;
+    }
+
+    private PdfPTable tableTaxasMinimal(List<RelCicloPagamentoConveniadosTaxasDTO> taxas, BigDecimal total) {
+        PdfPTable t = new PdfPTable(new float[]{70, 30});
+        t.setWidthPercentage(100);
+        t.addCell(th("Descrição"));
+        t.addCell(th("Valor (R$)"));
+        for (RelCicloPagamentoConveniadosTaxasDTO it : taxas) {
+            t.addCell(td(safe(it.getDescricaoTaxa())));
+            t.addCell(tdRight(fmt(it.getValorTaxa())));
+        }
+        t.addCell(tdRightBold("TOTAL"));
+        t.addCell(tdRightBold(fmt(total)));
+        return t;
+    }
+
+    private PdfPTable tableVendas(List<RelCicloPagamentoVendasDTO> vendas,
+                                  BigDecimal totConveniado, BigDecimal totEntidade,
+                                  BigDecimal totVendas, BigDecimal totTaxaPerc) {
+        PdfPTable t = new PdfPTable(new float[]{12, 12, 14, 15, 15, 16, 16});
+        t.setWidthPercentage(100);
+        t.addCell( th("Venda"     ) );
+        t.addCell( th("Data"      ) );
+        t.addCell( th("Entidade"  ) );
+        t.addCell( th("Taxa (%)"  ) );
+        t.addCell( th("Tipo Taxa" ) );
+        t.addCell( th("Vlr Venda" ) );
+        t.addCell( th("Taxa Conv.") );
+
+        for (RelCicloPagamentoVendasDTO v : vendas) {
+        	
+        	PdfPCell idVenda = td(String.valueOf( safe(v.getIdVenda() )));
+            idVenda.setPadding(5f);
+            idVenda.setBorderColor(new Color(230,230,230));
+        	idVenda.setHorizontalAlignment(Element.ALIGN_CENTER);
+        	
+            t.addCell( idVenda );
+            t.addCell( td( v.getDtVenda() != null ? SDF.format(v.getDtVenda()) : "") );
+            t.addCell( td( safe(v.getEntidade())));
+            t.addCell( tdCenter( percent(v.getTaxa() ) ) );
+            
+            t.addCell( tdCenter( v.getTipo_taxa() == true ? "Taxa Expecifica Con. para Ent.": "Taxa Default" ) );
+            t.addCell( tdRight( fmt( v.getValorVenda()              ) ) );
+            t.addCell( tdRight( fmt( v.getValorCalcTaxaConveniado() ) ) );
+           
+        }
+
+        t.addCell( totalCell  ( "TOTAIS", 5)          );
+        t.addCell( tdRightBold( fmt(totVendas     ) ) );
+        t.addCell( tdRightBold( fmt(totConveniado ) ) );
+
+        return t;
+    }
+
+    private PdfPTable tableVendasMinimal(List<RelCicloPagamentoVendasDTO> vendas,
+                                         BigDecimal totConveniado, BigDecimal totEntidade,
+                                         BigDecimal totVendas, BigDecimal totTaxaPerc) {
+        PdfPTable t = new PdfPTable(new float[]{18, 22, 20, 20, 20});
+        t.setWidthPercentage(100);
+        t.addCell( th( "Venda"       ) );
+        t.addCell( th( "Data"        ) );
+        t.addCell( th( "Vlr Venda"   ) );
+        t.addCell( th( "Taxa Conv."  ) );
+        t.addCell( th( "Taxa Entid." ) );
+
+        for (RelCicloPagamentoVendasDTO v : vendas) {
+            t.addCell(td(String.valueOf(safe(v.getIdVenda()))));
+            t.addCell(td(v.getDtVenda() != null ? SDF.format(v.getDtVenda()) : ""));
+            t.addCell(tdRight(fmt(v.getValorVenda())));
+            t.addCell(tdRight(fmt(v.getValorCalcTaxaConveniado())));
+            t.addCell(tdRight(fmt(v.getValorCalcTaxaEntidade())));
+        }
+
+        t.addCell(totalCell  ( "TOTAIS", 2));
+        t.addCell(tdRightBold( fmt( totVendas     ) ) );
+        t.addCell(tdRightBold( fmt( totConveniado ) ) );
+        t.addCell(tdRightBold( fmt( totEntidade   ) ) );
+        return t;
+    }
+
+    private PdfPTable tableItens(List<RelCicloPagamentoVendasItemProdutosDTO> itens) {
+        PdfPTable t = new PdfPTable(new float[]{12, 40, 12, 18, 18});
+        t.setWidthPercentage(100);
+        t.addCell(th( "Venda"             ) );
+        t.addCell(th( "Produto/Descrição" ) );
+        t.addCell(th( "Qtd"               ) );
+        t.addCell(th( "Vlr Unitário"      ) );
+        t.addCell(th( "Vlr Total"         ) );
+
+        // Inicializa total geral
+        BigDecimal VlrUnitario = BigDecimal.ZERO;
+        BigDecimal VlrTotal    = BigDecimal.ZERO;
+        
+        for (RelCicloPagamentoVendasItemProdutosDTO it : itens) {
+        	
+        	PdfPCell idVenda = td(String.valueOf( safe(it.getIdVenda() )));
+            idVenda.setPadding(5f);
+            idVenda.setBorderColor(new Color(230,230,230));
+        	idVenda.setHorizontalAlignment(Element.ALIGN_CENTER);
+        	
+        	PdfPCell qtyItem = td(it.getQtyItem() != null ? it.getQtyItem().toString() : "");
+        	qtyItem.setPadding(5f);
+        	qtyItem.setBorderColor(new Color(230,230,230));
+        	qtyItem.setHorizontalAlignment(Element.ALIGN_CENTER);
+        	
+            t.addCell( idVenda );
+            t.addCell( td( safe(it.getProduto()))                                         );
+            t.addCell( qtyItem );
+            t.addCell( tdRight( fmt( it.getVlrUnitario()  ) )                             );
+            t.addCell( tdRight( fmt( it.getVlrTotalItem() ) )                             );
+            
+            
+            // Acumula total geral
+            if (it.getVlrUnitario()  != null)  VlrUnitario = VlrUnitario.add( it.getVlrUnitario()  );
+            if (it.getVlrTotalItem() != null)  VlrTotal    = VlrTotal.add   ( it.getVlrTotalItem() );
+        }
+        
+        t.addCell(totalCell  ( "TOTAIS", 3        ) );
+        t.addCell(tdRightBold( fmt( VlrUnitario ) ) );
+        t.addCell(tdRightBold( fmt( VlrTotal    ) ) );
+ 
+        return t;
+    }
+
+    private PdfPTable tableItensMinimal(List<RelCicloPagamentoVendasItemProdutosDTO> itens) {
+        PdfPTable t = new PdfPTable(new float[]{15, 55, 15, 15});
+        t.setWidthPercentage(100);
+        t.addCell(th("Venda"));
+        t.addCell(th("Produto"));
+        t.addCell(th("Qtd"));
+        t.addCell(th("Total"));
+
+        for (RelCicloPagamentoVendasItemProdutosDTO it : itens) {
+            t.addCell(td(String.valueOf(safe(it.getIdVenda()))));
+            t.addCell(td(safe(it.getProduto())));
+            t.addCell(tdRight(it.getQtyItem() != null ? it.getQtyItem().toString() : ""));
+            t.addCell(tdRight(fmt(it.getVlrTotalItem())));
+        }
+        return t;
+    }
+
+    // =========================
+    //   COMPONENTES VISUAIS
+    // =========================
+
+    private Paragraph sectionHeader(String text) {
+        Paragraph p = p(text, 12, Font.BOLD, Color.WHITE);
+        PdfPTable box = new PdfPTable(1);
+        box.setWidthPercentage(100);
+        PdfPCell c = new PdfPCell(p);
+        c.setBackgroundColor(new Color(33, 150, 243)); // azul
+        c.setPadding(6f);
+        c.setBorder(Rectangle.NO_BORDER);
+        box.addCell(c);
+        Paragraph wrap = new Paragraph();
+        wrap.add(box);
+        return wrap;
+    }
+
+    private Paragraph space(float h) {
+        Paragraph p = new Paragraph(" ");
+        p.setSpacingAfter(h);
+        return p;
+    }
+
+    private PdfPCell kv(String k, String v) {
+        PdfPTable inner = new PdfPTable(new float[]{35, 65});
+        inner.setWidthPercentage(100);
+        PdfPCell ck = new PdfPCell(new Phrase(safe(k), font(9, Font.BOLD, null)));
+        PdfPCell cv = new PdfPCell(new Phrase(safe(v), font(9, Font.NORMAL, null)));
+        ck.setBackgroundColor(new Color(248, 248, 248));
+        ck.setBorderColor(new Color(230,230,230));
+        cv.setBorderColor(new Color(230,230,230));
+        ck.setPadding(5f);
+        cv.setPadding(5f);
+        PdfPCell container = new PdfPCell(inner);
+        container.setColspan(2);
+        container.setPadding(0);
+        container.setBorder(Rectangle.NO_BORDER);
+
+        inner.addCell(ck);
+        inner.addCell(cv);
+        return container;
+    }
+
+    private PdfPCell kvNoBorder(String k, String v) {
+        PdfPTable inner = new PdfPTable(new float[]{35, 65});
+        inner.setWidthPercentage(100);
+        PdfPCell ck = new PdfPCell(new Phrase(safe(k), font(9, Font.BOLD, null)));
+        PdfPCell cv = new PdfPCell(new Phrase(safe(v), font(9, Font.NORMAL, null)));
+        ck.setBorder(Rectangle.NO_BORDER);
+        cv.setBorder(Rectangle.NO_BORDER);
+        ck.setPadding(3f);
+        cv.setPadding(3f);
+        PdfPCell container = new PdfPCell(inner);
+        container.setColspan(2);
+        container.setPadding(0);
+        container.setBorder(Rectangle.NO_BORDER);
+
+        inner.addCell(ck);
+        inner.addCell(cv);
+        return container;
+    }
+
+    private PdfPCell th(String text) {
+        PdfPCell c = new PdfPCell(new Phrase(text, font(9, Font.BOLD, null)));
+        c.setHorizontalAlignment(Element.ALIGN_CENTER);
+        c.setBackgroundColor(new Color(245, 245, 245));
+        c.setPadding(6f);
+        c.setBorderColor(new Color(230,230,230));
+        return c;
+    }
+
+    private PdfPCell td(String text) {
+        PdfPCell c = new PdfPCell(new Phrase(safe(text), font(9, Font.NORMAL, null)));
+        c.setPadding(5f);
+        c.setBorderColor(new Color(230,230,230));
+        return c;
+    }
+
+    private PdfPCell tdRight(String text) {
+        PdfPCell c = td(text);
+        c.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        return c;
+    }
+
+    private PdfPCell tdRightBold(String text) {
+        PdfPCell c = new PdfPCell(new Phrase(safe(text), font(9, Font.BOLD, null)));
+        c.setPadding(5f);
+        c.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        c.setBackgroundColor(new Color(248, 248, 248));
+        c.setBorderColor(new Color(220,220,220));
+        return c;
+    }
+
+    private PdfPCell totalCell(String label, int colspan) {
+        PdfPCell c = new PdfPCell(new Phrase(label, font(9, Font.BOLD, null)));
+        c.setColspan(colspan);
+        c.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        c.setBackgroundColor(new Color(240, 240, 240));
+        c.setPadding(6f);
+        return c;
+    }
+
+    private PdfPCell cellHeader(String text) {
+        PdfPCell c = new PdfPCell(new Phrase(text, font(10, Font.BOLD, null)));
+        c.setBackgroundColor(new Color(240, 240, 240));
+        c.setPadding(6f);
+        return c;
+    }
+
+    private PdfPCell cellValue(String text) {
+        PdfPCell c = new PdfPCell(new Phrase(text, font(11, Font.BOLD, new Color(0, 120, 0))));
+        c.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        c.setPadding(8f);
+        return c;
+    }
+
+    private Paragraph p(String text, int size, int style, Color color) {
+        Font f = FontFactory.getFont(FontFactory.HELVETICA, size, style, color == null ? Color.BLACK : color);
+        Paragraph p = new Paragraph(text, f);
+        return p;
+    }
+
+    private Font font(int size, int style, Color color) {
+        return FontFactory.getFont(FontFactory.HELVETICA, size, style, color == null ? Color.BLACK : color);
+    }
+
+    private String fmt(BigDecimal v) {
+        return v == null ? "-" : NF.format(v.setScale(2, RoundingMode.HALF_UP));
+    }
+
+    private String percent(BigDecimal v) {
+        if (v == null) return "-";
+        return v.stripTrailingZeros().toPlainString() + " %";
+    }
+
+    private String safe(Object v) {
+        return v == null ? "-" : String.valueOf(v);
+    }
+
+    private Image tryLoadLogo() throws IOException, DocumentException {
+        try {
+            // Usa ClassPathResource para acessar a logo do classpath
+            ClassPathResource logoResource = new ClassPathResource("static/images/LogoPreta.png");
+            
+            // Verifica se o arquivo existe
+            if (logoResource.exists()) {
+                Image logo = Image.getInstance(logoResource.getURL());
+                // Redimensiona a logo para caber no documento
+//                logo.scaleToFit(100, 60);
+                // Centraliza a logo
+//                logo.setAlignment(Image.ALIGN_CENTER);
+                // Adiciona a logo ao documento
+                
+                return logo;
+
+            } else {
+                throw new FileNotFoundException("Logo não encontrada no classpath");
+            }
+        } catch (Exception e) {
+            // Loga aviso se logo não for encontrada, mas continua sem ela
+            log.warn("Logo não encontrada, continuando sem logo: {}", e.getMessage());
+            }        
+
+        return null;   
+    }
+
+    private String buildFileName(RelatorioFaturamentoRequestDTO req) {
+        return "prestacao_contas_" + req.getIdConveniados() + "_" + safe(req.getAnoMes()) + "_" + req.getLayout() + ".pdf";
+    }
+   
+    
+    
+    
+    
+    
 }

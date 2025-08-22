@@ -50,6 +50,9 @@ public class RelatorioFaturamentoConveniado implements Serializable {
 
     @Column(name = "NOME_ARQUIVO", length = 200, nullable = false)
     private String nomeArquivo;
+    
+    @Column(name = "ARQUIVO_TIPO", length = 200, nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'application/pdf'")
+    private String ArquivoTipo;
 
     @Column(name = "CONTEUDO_BASE64", columnDefinition = "TEXT", nullable = false)
     private String conteudoBase64;

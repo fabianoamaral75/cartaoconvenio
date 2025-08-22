@@ -15,4 +15,5 @@ public class RelatorioFaturamentoRequestDTO {
     private Long idCicloPagamentoVenda;
     private Long idConveniados;
     private String anoMes;
+    private String layout;
 }

@@ -700,6 +700,108 @@ public class FuncoesUteis {
         
         return percentFormat.format(valor) + " %";
     }
+    
+
+    /**
+     * Formata um CNPJ no padrão: 00.000.000/0000-00
+     */
+    public static String formatar(String cnpj) {
+        if (cnpj == null || cnpj.trim().isEmpty()) {
+            return cnpj;
+        }
+        
+        String cnpjLimpo = removerFormatacao(cnpj);
+        
+        if (!validarFormato(cnpjLimpo)) {
+            throw new IllegalArgumentException("CNPJ deve conter exatamente 14 dígitos");
+        }
+        
+        return formatarCNPJ(cnpjLimpo);
+    }
+    
+    /**
+     * Remove toda a formatação do CNPJ, deixando apenas números
+     */
+    public static String removerFormatacao(String cnpj) {
+        if (cnpj == null) {
+            return null;
+        }
+        return cnpj.replaceAll("\\D", "");
+    }
+    
+    /**
+     * Verifica se o CNPJ tem o formato correto (14 dígitos)
+     */
+    public static boolean validarFormato(String cnpj) {
+        if (cnpj == null) {
+            return false;
+        }
+        String cnpjLimpo = removerFormatacao(cnpj);
+        return cnpjLimpo.matches("\\d{14}");
+    }
+    
+    /**
+     * Valida os dígitos verificadores do CNPJ
+     */
+    public static boolean validarDigitos(String cnpj) {
+        if (!validarFormato(cnpj)) {
+            return false;
+        }
+        
+        String cnpjLimpo = removerFormatacao(cnpj);
+        
+        try {
+            // Cálculo do primeiro dígito verificador
+            int soma = 0;
+            int peso = 5;
+            for (int i = 0; i < 12; i++) {
+                soma += Integer.parseInt(cnpjLimpo.substring(i, i + 1)) * peso;
+                peso = (peso == 2) ? 9 : peso - 1;
+            }
+            
+            int resto = soma % 11;
+            int digito1 = (resto < 2) ? 0 : 11 - resto;
+            
+            // Cálculo do segundo dígito verificador
+            soma = 0;
+            peso = 6;
+            for (int i = 0; i < 13; i++) {
+                soma += Integer.parseInt(cnpjLimpo.substring(i, i + 1)) * peso;
+                peso = (peso == 2) ? 9 : peso - 1;
+            }
+            
+            resto = soma % 11;
+            int digito2 = (resto < 2) ? 0 : 11 - resto;
+            
+            // Verifica se os dígitos calculados conferem com os informados
+            return (Integer.parseInt(cnpjLimpo.substring(12, 13)) == digito1) && 
+                   (Integer.parseInt(cnpjLimpo.substring(13, 14)) == digito2);
+            
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Formata e valida completamente o CNPJ
+     */
+    public static String formatarEValidar(String cnpj) {
+        if (!validarDigitos(cnpj)) {
+            throw new IllegalArgumentException("CNPJ inválido - dígitos verificadores incorretos");
+        }
+        return formatar(cnpj);
+    }
+    
+    // Método privado para formatação
+    private static String formatarCNPJ(String cnpjNumerico) {
+        return String.format("%s.%s.%s/%s-%s",
+            cnpjNumerico.substring(0, 2),
+            cnpjNumerico.substring(2, 5),
+            cnpjNumerico.substring(5, 8),
+            cnpjNumerico.substring(8, 12),
+            cnpjNumerico.substring(12, 14));
+    }
+
        
 /*
     public static void main(String[] args) {
