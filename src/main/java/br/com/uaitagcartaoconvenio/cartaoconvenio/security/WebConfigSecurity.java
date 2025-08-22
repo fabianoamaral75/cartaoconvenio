@@ -83,7 +83,8 @@ public class WebConfigSecurity {
                   ).permitAll()
                 
                 // Endpoints de antecipação exigem autenticação
-                .requestMatchers("/api/antecipacoes/**").authenticated()
+                .requestMatchers("/api/antecipacoes/**", "/api/relatorios-faturamento/**").authenticated()
+                
                 
                 // Demais endpoints
                 .anyRequest().permitAll()
