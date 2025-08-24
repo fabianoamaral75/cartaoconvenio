@@ -183,7 +183,19 @@ public class CicloPagamentoVendaService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	public List<CicloPagamentoVenda> getCicloPagamentoVendaByNomeConveniado( String nomeConveniado )  {
+	public List<CicloPagamentoVenda> getCicloPagamentoVendaSelectAntecipacao( String anoMes )  {
+		
+		List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaRepository.listaCicloPagamentoVendaSelectAntecipacao( anoMes );
+		
+		return listaCicloPagamentoVenda;
+		
+	}
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public List<CicloPagamentoVenda> getListaCicloPagamentoVendaByNomeConveniado( String nomeConveniado )  {
 		
 		List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaRepository.listaCicloPagamentoVendaByNomeConveniado( nomeConveniado );
 		

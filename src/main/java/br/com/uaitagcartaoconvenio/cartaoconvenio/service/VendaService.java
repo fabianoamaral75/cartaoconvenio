@@ -312,7 +312,16 @@ public class VendaService {
 		List<Venda> listaVenda = vendaRepository.listaVendaByCartaoDescStatusVendas( descStatusVendas, numCatao );		
 		return listaVenda;		
 	}
-	
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public List<Venda> getListaVendaSelecaoAntecipacao( Long idConveniados )  {
+		List<Venda> listaVenda = vendaRepository.findVendasSelectAntecipacao( idConveniados );		
+		return listaVenda;		
+	}
+
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */

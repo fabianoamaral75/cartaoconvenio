@@ -40,6 +40,13 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
+	@Query("SELECT v FROM Venda v WHERE v.conveniados.idConveniados = :idConveniados AND v.descStatusVendas IN ('PAGAMENTO_APROVADO', 'PRE_ANTECIPACAO' ) AND v.descStatusVendaPg IN ('AGUARDANDO_PAGAMENTO', 'PRE_ANTECIPACAO' )")  
+	List<Venda> findVendasSelectAntecipacao(@Param("idConveniados") Long idConveniados);
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
 	@Query(value = "select ven             "
                  + " from Venda ven        "
                  + " where ven.anoMes = ?1 " )

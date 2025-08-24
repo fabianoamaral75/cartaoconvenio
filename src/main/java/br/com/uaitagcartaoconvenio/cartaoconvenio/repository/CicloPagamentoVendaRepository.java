@@ -108,7 +108,17 @@ public interface CicloPagamentoVendaRepository extends JpaRepository<CicloPagame
                  + " JOIN con.pessoa          pe  "
                  + " where upper(trim(pe.nomePessoa)) like upper(concat('%', ?1, '%'))" )
     List<CicloPagamentoVenda> listaCicloPagamentoVendaByNomeConveniado( String nomeConveniado ); 
-	
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@Query(value = "select cp                                                                      "
+            + " from CicloPagamentoVenda cp                                                        "
+            + " where cp.anoMes              = ?1                                  "
+            + "   and cp.descStatusPagamento IN ( 'AGUARDANDO_PAGAMENTO', 'AGUARDANDO_UPLOAD_NF' ) " )
+    List<CicloPagamentoVenda> listaCicloPagamentoVendaSelectAntecipacao( String anoMes ); 
+
 	/******************************************************************/
 	/*                                                                */
 	/* Método para deletar uma lista de ciclos por IDs                */

@@ -31,6 +31,16 @@ public class AuditoriaController {
         this.auditoriaService = auditoriaService;
     }
 
+
+    @GetMapping("/exemplo/antecipacoes")
+    public String exemploAntecipacoes() {
+    	
+    	System.out.println("Teste");
+    	
+      return "exemplos/antecipacoes"; // Thymeleaf -> templates/exemplos/antecipacoes.html
+    }
+    
+    
     @ResponseBody
     @GetMapping(value ="/auditoria/getAuditoriaPaginada/{idAntecipacao}")
     public ResponseEntity<?> getAuditoriaPaginada(

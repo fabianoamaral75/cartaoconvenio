@@ -125,7 +125,7 @@ public class VendaController {
 			Venda venda = vendaService.getVendaByIdVendas(idVenda);
 			
 			if(venda == null) {
-				throw new ExceptionCustomizada("Não existe Entidades relacionada ao CNPJ: " + idVenda );
+				throw new ExceptionCustomizada("ID Não existe: " + idVenda );
 			}
 			
 			VendaDTO dto = vendaMapper.toDto(venda);
@@ -152,7 +152,50 @@ public class VendaController {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	    }
 	}
+
 	
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getListaVendaSelectAntecipacao/{idConv}")
+	public ResponseEntity<?> getListaVendaSelectAntecipacao( @PathVariable("idConv") Long idConv, HttpServletRequest request ) throws ExceptionCustomizada{
+		try {
+			
+			List<Venda> listVenda = vendaService.getListaVendaSelecaoAntecipacao(idConv);
+			
+			List<VendaDTO> dto = vendaMapper.toListDto(listVenda); 
+			
+			if(dto == null) {
+				throw new ExceptionCustomizada("Não existe Vendas para ser Antecipada para a Conveniada de ID " + idConv );
+			}
+			
+		    return new ResponseEntity<List<VendaDTO>>(dto, HttpStatus.OK);		    
+
+		
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
+	}
+
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */

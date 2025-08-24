@@ -258,7 +258,7 @@ public class CicloPagamentoVendaController {
 	@GetMapping(value = "/getCicloPagamentoVendaByNomeConveniado/{nomeConveniado}")
 	public ResponseEntity<?> getCicloPagamentoVendaByNomeConveniado( @PathVariable("nomeConveniado") String nomeConveniado, HttpServletRequest request ) throws ExceptionCustomizada, IOException{
 		try {
-			List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaService.getCicloPagamentoVendaByNomeConveniado( nomeConveniado );
+			List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaService.getListaCicloPagamentoVendaByNomeConveniado( nomeConveniado );
 			
 			if(listaCicloPagamentoVenda == null) {
 				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para a Conveniada: " + nomeConveniado );
@@ -288,6 +288,43 @@ public class CicloPagamentoVendaController {
 	    }
 	}
 	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getCicloPagamentoVendaSelectAntecipacao/{anoMes}")
+	public ResponseEntity<?> getCicloPagamentoVendaSelectAntecipacao( @PathVariable("anoMes ") String anoMes , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
+		try {
+			List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaService.getCicloPagamentoVendaSelectAntecipacao( anoMes  );
+			
+			if(listaCicloPagamentoVenda == null) {
+				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para o período: " + anoMes  );
+			}
+			
+			List<CicloPagamentoVendaDTO> dto = cicloPagamentoVendaInterfaceMapper.toListDto(listaCicloPagamentoVenda);
+			
+			return new ResponseEntity<List<CicloPagamentoVendaDTO>>(dto, HttpStatus.OK);	
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
+	}
 	
 	/******************************************************************/
 	/*                                                                */

@@ -15,13 +15,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DadosCalculoAntcipacaoDTO {
 	
-    private Long idConveniados;
-    private List<Long> idsVendas;
-    private String loginUser;
+    private Long idConveniados;   // Lista de conveniada para selecionar a que solicitou a antecipação.
+    private List<Long> idsVendas; // Lista de ID das vendas que serão antecipadas
+    private String loginUser;     // Login do usuário que esta criando e solicitando a antecipação.
 
-    private LocalDate dataCorte;           // Data Corte
-    private LocalDate dataPagamento;       // Pagamento em 5 dias
-    private LocalDate dataVencimento;      // Vencimento em 1 mês        
-    private BigDecimal taxaNominalMensal;  // 2% ao mês (configurável)
+    private LocalDate dataCorte;           // Ex.: Data Corte
+    private LocalDate dataPagamento;       // Ex.: Pagamento em 5 dias
+    private LocalDate dataVencimento;      // Ex.: Vencimento em 1 mês        
+    private BigDecimal taxaNominalMensal;  // Ex.: 2% ao mês (configurável)
 
 }
