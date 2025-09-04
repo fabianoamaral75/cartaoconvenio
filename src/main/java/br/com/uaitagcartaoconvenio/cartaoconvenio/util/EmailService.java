@@ -98,7 +98,7 @@ public class EmailService {
     public void enviarEmailComAnexo(String destinatario, String assunto, String conteudo, 
                                   String caminhoAnexo) throws MessagingException {
         
-        MimeMessage mensagem = mailSender.createMimeMessage();
+        MimeMessage mensagem     = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mensagem, true);
         
         helper.setTo(destinatario);
@@ -860,8 +860,63 @@ public class EmailService {
         }
     }    
     
+    public String enviarEmailTeste(String destinatario) {
+        try {
+            JavaMailSenderImpl mailSenderImpl = (JavaMailSenderImpl) mailSender;
+            logger.info("Testando conexão SMTP em: {}:{}", 
+                mailSenderImpl.getHost(), 
+                mailSenderImpl.getPort());
+            
+            // Criar mensagem de teste simples
+            SimpleMailMessage mensagem = new SimpleMailMessage();
+            mensagem.setTo(destinatario);
+            mensagem.setSubject("Teste de Configuração SMTP - Cartão Convênio");
+            mensagem.setText(
+                "Este é um e-mail de teste para verificar a configuração SMTP.\n\n" +
+                "Data/Hora: " + FuncoesUteis.getCurrentDateTimeBrasil() + "\n" +
+                "Servidor: " + mailSenderImpl.getHost() + ":" + mailSenderImpl.getPort() + "\n" +
+                "Status: Conexão bem-sucedida!\n\n" +
+                "Sistema Cartão Convênio"
+            );
+            mensagem.setFrom("sistema@uaitag.com.br");
+            
+            // Tentar enviar
+            mailSender.send(mensagem);
+            
+            logger.info("E-mail de teste enviado com sucesso para: {}", destinatario);
+            return "OK - E-mail de teste enviado com sucesso para: " + destinatario;
+            
+        } catch (MailException ex) {
+            logger.error("Erro no envio do e-mail teste:", ex);
+            throw new RuntimeException("Falha ao enviar e-mail teste: " + ex.getMessage(), ex);
+        }
+    }
     
     
+    public String testarConexaoSmtp() {
+        try {
+            JavaMailSenderImpl mailSenderImpl = (JavaMailSenderImpl) mailSender;
+            
+            logger.info("Testando conectividade com: {}:{}", 
+                mailSenderImpl.getHost(), 
+                mailSenderImpl.getPort());
+            
+            // Testa a conexão criando uma sessão
+            mailSenderImpl.testConnection();
+            
+            String resultado = "CONEXÃO SMTP OK - Servidor: " + mailSenderImpl.getHost() + 
+                              ":" + mailSenderImpl.getPort() + 
+                              " - " + FuncoesUteis.getCurrentDateTimeBrasil();
+            
+            logger.info(resultado);
+            return resultado;
+            
+        } catch (Exception ex) {
+            String erro = "FALHA NA CONEXÃO SMTP: " + ex.getMessage();
+            logger.error(erro, ex);
+            return erro;
+        }
+    }   
     
 }
 
