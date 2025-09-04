@@ -38,7 +38,8 @@ public class EmailController {
 
             
             // return "E-mail enviado com sucesso!";
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("E-mail enviado com sucesso!");
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("E-mail enviado com sucesso!");
+            return new ResponseEntity<String>("E-mail enviado com sucesso!", HttpStatus.OK);
         } catch (ExceptionCustomizada ex) {
 	    	
 	    	long timestamp = System.currentTimeMillis();
@@ -67,7 +68,8 @@ public class EmailController {
 
             // return ResponseEntity.ok(resultado);
             
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultado);
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultado);
+            return new ResponseEntity<String>(resultado, HttpStatus.OK);
         } catch (Exception e) {
             
 //        	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -102,7 +104,8 @@ public class EmailController {
 
             // return ResponseEntity.ok(resultado);
             
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultado);
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultado);
+            return new ResponseEntity<String>(resultado, HttpStatus.OK);
         } catch (Exception e) {
             
 //        	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
