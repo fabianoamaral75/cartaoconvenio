@@ -900,6 +900,10 @@ public class EmailService {
             logger.info("Testando conectividade com: {}:{}", 
                 mailSenderImpl.getHost(), 
                 mailSenderImpl.getPort());
+
+            var impl = (JavaMailSenderImpl) mailSender;
+            System.out.println("Host="+impl.getHost()+" Port="+impl.getPort()+" Protocol="+impl.getProtocol());
+            impl.getJavaMailProperties().forEach((k,v)-> System.out.println(k+"="+v));           
             
             // Testa a conexão criando uma sessão
             mailSenderImpl.testConnection();
