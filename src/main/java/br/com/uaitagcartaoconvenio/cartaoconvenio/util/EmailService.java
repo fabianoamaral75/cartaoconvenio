@@ -902,8 +902,14 @@ public class EmailService {
                 mailSenderImpl.getPort());
 
             var impl = (JavaMailSenderImpl) mailSender;
+            System.out.println("===============================================================================");
+            System.out.println("===============================================================================");
+            System.out.println("===============================================================================");
             System.out.println("Host="+impl.getHost()+" Port="+impl.getPort()+" Protocol="+impl.getProtocol());
             impl.getJavaMailProperties().forEach((k,v)-> System.out.println(k+"="+v));           
+            System.out.println("===============================================================================");
+            System.out.println("===============================================================================");
+            System.out.println("===============================================================================");
             
             // Testa a conexão criando uma sessão
             mailSenderImpl.testConnection();
