@@ -94,5 +94,40 @@ public class EmailController {
         	
         }
     }
+    
+    @PostMapping("/testarConexaoSmtp-email")
+    public ResponseEntity<?> testarConexaoSmtp(HttpServletRequest request) {
+        try {
+            String resultado = emailService.testarConexaoSmtp();
+
+            // return ResponseEntity.ok(resultado);
+            
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultado);
+        } catch (Exception e) {
+            
+//        	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+  //                  .body("Erro no teste: " + e.getMessage());
+        	
+        	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            e.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+
+        	
+        }
+    }
 }
 
