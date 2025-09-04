@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusReceber;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -105,12 +107,17 @@ public class ContasReceber implements Serializable{
 	private TaxaEntidade taxaEntidade = new TaxaEntidade();
 
 	@NotNull(message = "A Conta a Receber deverá estar associada a uma Entidade, favor informar Entidade!")
-	@ManyToOne(targetEntity = Entidade.class)
+	@ManyToOne(targetEntity = Entidade.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "ID_ENTIDADE", referencedColumnName = "ID_ENTIDADE", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_CONTAS_RECEBER_ENTIDADE"))
+	@JsonBackReference
 	private Entidade entidade = new Entidade();
 
 	@OneToMany(mappedBy = "contasReceber", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<FechamentoEntContasReceber> fechamentoEntContasReceber = new ArrayList<FechamentoEntContasReceber>();
+	
+	// Adicionar este relacionamento à sua Entity ContasReceber existente
+	@OneToMany(mappedBy = "contasReceber", orphanRemoval = true , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<ContasReceberEmprestimo> contasReceberEmprestimos;
 
 	@PreUpdate
     public void preUpdate() {

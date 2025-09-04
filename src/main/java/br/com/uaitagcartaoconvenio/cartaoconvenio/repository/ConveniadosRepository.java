@@ -49,10 +49,10 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
                  + " where pj.cnpj = ?1        " )
    Conveniados conveniadosByCnpj( String cnpj) ;  
 
-   @Query("SELECT c FROM Conveniados c WHERE UPPER(c.pessoa.nomePessoa) LIKE UPPER(CONCAT('%', :nome, '%'))")
+   @Query("SELECT DISTINCT c FROM Conveniados c JOIN c.pessoa p WHERE UPPER(p.nomePessoa) LIKE UPPER(CONCAT('%', :nome, '%'))")
    List<Conveniados> listaConveniadosByNome(@Param("nome") String nome);
-      
-   @Query("SELECT c FROM Conveniados c WHERE c.pessoa.cidade = :cidade")
+    
+   @Query("SELECT DISTINCT c FROM Conveniados c JOIN c.pessoa p WHERE p.cidade = :cidade")
    List<Conveniados> listaConveniadosByCidade(@Param("cidade") String cidade);
 
 	@Query(value = "SELECT DIA_PAGAMENTO FROM conveniados where id_conveniados = ?1", nativeQuery = true)
@@ -107,5 +107,11 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
     @Query("SELECT c FROM Conveniados c " +
            "WHERE c.idConveniados = :id")
     Optional<Conveniados> findByIdWithBasicRelationships(@Param("id") Long id);
-    
+
+    // Método para buscar conveniada por ID com pessoa jurídica (usando JPQL)
+    @Query("SELECT c FROM Conveniados c " +
+           "JOIN FETCH c.pessoa p " +
+           "LEFT JOIN FETCH p.pessoaJuridica pj " +
+           "WHERE c.idConveniados = :idConveniados")
+    Optional<Conveniados> findConveniadaComPessoaJuridicaById(@Param("idConveniados") Long idConveniados);
 }

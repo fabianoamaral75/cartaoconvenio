@@ -2,6 +2,7 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -35,7 +36,7 @@ public interface LimitecreditoRepository extends JpaRepository<LimiteCredito, Lo
 	                + "	, cartao      car                                                    "
 	                + "	, funcionario fun                                                    "
 	                + " WHERE ven.ano_mes                             = ?1                   "
-	                + "   AND ven.status                              IN ('PAGAMENTO_APROVADO', 'ANTECIPACAO_CONCLUIDA') "
+//	                + "   AND ven.status                              IN ('PAGAMENTO_APROVADO', 'ANTECIPACAO_CONCLUIDA') "
 	                + "   AND ven.status_limite_credito_restabelecido = 'VENDA_REALIZADA'    "
 	                + "   AND car.id_cartao                           = ven.id_cartao        "
 	                + "   AND fun.id_funcionario                      = car.id_funcionario   "
@@ -59,4 +60,9 @@ public interface LimitecreditoRepository extends JpaRepository<LimiteCredito, Lo
 	   @Modifying(flushAutomatically = true, clearAutomatically = true)
 	   @Query("UPDATE LimiteCredito lc SET lc.valorUtilizado = :novoValorUtilizado WHERE lc.idLimiteCredito = :id")
 	   int updateValorUtilizado(@Param("id") Long idLimiteCredito, @Param("novoValorUtilizado") BigDecimal novoValorUtilizado);
+	   
+	    // Versão com Optional
+	    @Query("SELECT lc FROM LimiteCredito lc WHERE lc.funcionario.idFuncionario = :idFuncionario")
+	    Optional<LimiteCredito> findByFuncionarioId(@Param("idFuncionario") Long idFuncionario);
+
 }

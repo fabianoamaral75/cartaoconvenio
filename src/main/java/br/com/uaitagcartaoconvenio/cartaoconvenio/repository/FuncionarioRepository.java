@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusFuncionario;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTipoFuncionario;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Entidade;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.Funcionario;
 
 @Repository
@@ -41,4 +42,14 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> 
     @Modifying
     @Query("UPDATE Funcionario f SET f.descStatusTipoFuncionario = :tipo WHERE f.idFuncionario = :id")
     int updateTipoFuncionario(@Param("id") Long id, @Param("tipo") StatusTipoFuncionario tipo);
+    
+    // Adicione este método ao seu FuncionarioRepository existente
+    Optional<Funcionario> findById(Long id);   
+    
+    @Query("SELECT e FROM Funcionario f " +
+    	       "JOIN f.entidade e " +
+    	       "LEFT JOIN FETCH e.taxaEntidade te " +
+    	       "WHERE f.idFuncionario = :idFuncionario " +
+    	       "AND te.statusTaxaEntidade = br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusTaxaEntidade.ATUAL")
+    Optional<Entidade> findEntidadeWithCurrentTaxaByFuncionarioId(@Param("idFuncionario") Long idFuncionario);
 }

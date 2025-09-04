@@ -387,8 +387,8 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
                                     + " venda SET                                                           "
                                     + "   status_limite_credito_restabelecido = 'LIMITE_RESTABELECIDO'      "
                                     + " WHERE ano_mes = ?1                                                  "
-                                    + "   AND status  = 'PAGAMENTO_APROVADO'                                "
-                                    + "   AND status_limite_credito_restabelecido <> 'LIMITE_RESTABELECIDO' " )
+//                                    + "   AND status  = 'PAGAMENTO_APROVADO'                                "
+                                    + "   AND status_limite_credito_restabelecido = 'VENDA_REALIZADA' " )
    int updateStatusLimiteRestabelecido( String anoMes );
  
    /******************************************************************/

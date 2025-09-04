@@ -189,7 +189,8 @@ public class ConveniadosService {
 			
 			Conveniados con = conveniadosRepository.findUserByIdconv( pessoa.getConveniados().getIdConveniados() );
 			
-			pessoa.setUsuario( con.getPessoa().getUsuario() );
+			
+			pessoa.setUsuario( con.getPessoa().get(0).getUsuario() );
 		}
 		
 		TaxaConveniados taxaConveniados = new TaxaConveniados();

@@ -141,7 +141,7 @@ public class CicloPagamentoVendaMapper {
         if (entity.getConveniados() != null) {
             ConveniadosResumoDTO conveniadosDTO = new ConveniadosResumoDTO();
             conveniadosDTO.setIdConveniados(entity.getConveniados().getIdConveniados());
-            conveniadosDTO.setNome(entity.getConveniados().getPessoa().getNomePessoa());
+            conveniadosDTO.setNome(entity.getConveniados().getPessoa().get(0).getNomePessoa());
             dto.setConveniados(conveniadosDTO);
         }
 

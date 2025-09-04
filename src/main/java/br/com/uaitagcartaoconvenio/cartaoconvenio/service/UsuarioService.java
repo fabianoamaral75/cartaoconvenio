@@ -169,11 +169,11 @@ public class UsuarioService implements UserDetailsService{
 	        }
 	        
 	        // 5. Salvar Pessoa (que agora tem Usuario persistido e Conveniados persistido)
-	        Pessoa pessoaSalva = pessoaRepository.save(pessoa);
+	        Pessoa pessoaSalva = pessoaRepository.saveAndFlush(pessoa);
 	        
 	        // 6. Atualizar Usuario com Pessoa persistida
 	        usuarioSalvo.setPessoa(pessoaSalva);
-	        usuarioRepository.save(usuarioSalvo);
+	        usuarioRepository.saveAndFlush(usuarioSalvo);
 	        
 	        return UsuarioMapper.INSTANCE.toDto(usuarioSalvo);
 	    } catch (Exception e) {

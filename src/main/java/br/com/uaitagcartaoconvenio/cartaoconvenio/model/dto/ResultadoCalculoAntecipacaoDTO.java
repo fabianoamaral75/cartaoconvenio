@@ -3,6 +3,8 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +20,11 @@ public class ResultadoCalculoAntecipacaoDTO {
     private BigDecimal taxaMes;
     private BigDecimal taxaDia;
     private BigDecimal taxaPeriodo;
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "America/Sao_Paulo")
     private LocalDate dtCorte;
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private LocalDate dtPagamento;
+    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "America/Sao_Paulo")
     private LocalDate dtVencimento;
     private Integer periodoDias;
     private BigDecimal valorDesconto;

@@ -597,7 +597,7 @@ public class EmailService {
 		    helper.setCc(copias);
 		}
 		
-		helper.setSubject("Solicitação de Aprovação de Antecipação - " + antecipacao.getConveniados().getPessoa().getNomePessoa());
+		helper.setSubject("Solicitação de Aprovação de Antecipação - " + antecipacao.getConveniados().getPessoa().get(0).getNomePessoa());
 		helper.setText(htmlTemplate, true);
 		helper.setFrom("sistema@uaitag.com.br");
 		
@@ -747,7 +747,7 @@ public class EmailService {
         Map<String, String> dados = new HashMap<>();
         
         // Dados da conveniada
-        dados.put("nomeConveniada", antecipacao.getConveniados().getPessoa().getNomePessoa());
+        dados.put("nomeConveniada", antecipacao.getConveniados().getPessoa().get(0).getNomePessoa());
         
         // Dados das taxas
         dados.put("taxaMes", formatarDecimal(antecipacao.getTaxaMes()));
@@ -812,7 +812,7 @@ public class EmailService {
             dados.put( "status"        , status                                                   );
             dados.put( "statusLower"   , status.toLowerCase()                                     );
             dados.put( "dataEnvio"     , FuncoesUteis.getCurrentDateTimeBrasil()                  );
-            dados.put( "nomeConveniada", antecipacao.getConveniados().getPessoa().getNomePessoa() );
+            dados.put( "nomeConveniada", antecipacao.getConveniados().getPessoa().get(0).getNomePessoa() );
             dados.put( "idAntecipacao" , antecipacao.getIdAntecipacao().toString()                );
             dados.put( "valorNominal"  , formatarMoeda(antecipacao.getValorNominal())             );
             dados.put( "dtPagamento"   , formatarData(antecipacao.getDtPagamento())               );
@@ -832,7 +832,7 @@ public class EmailService {
             
             // Configura mensagem
             helper.setTo     ( destinatarios.toArray(new String[0])                                                                      );
-            helper.setSubject( "Confirmação de Antecipação " + status + " - " + antecipacao.getConveniados().getPessoa().getNomePessoa() );
+            helper.setSubject( "Confirmação de Antecipação " + status + " - " + antecipacao.getConveniados().getPessoa().get(0).getNomePessoa() );
             helper.setText   ( htmlTemplate, true                                                                                        );
             helper.setFrom   ( "sistema@uaitag.com.br"                                                                                   );
             

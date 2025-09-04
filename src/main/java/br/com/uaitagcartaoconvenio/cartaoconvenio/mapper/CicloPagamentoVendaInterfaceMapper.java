@@ -20,7 +20,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.TipoPeriodoDTO;
 
 @Mapper(componentModel = "spring")
 public interface CicloPagamentoVendaInterfaceMapper {
-
+	
     @Mapping(target = "fechamentoConvItensVendas", expression = "java(mapFechamentos(source.getFechamentoConvItensVendas()))")
     @Mapping(target = "itemTaxaExtraConveniada", expression = "java(mapItensTaxa(source.getItemTaxaExtraConveniada()))")
     CicloPagamentoVendaDTO toDto(CicloPagamentoVenda source);
@@ -108,7 +108,9 @@ public interface CicloPagamentoVendaInterfaceMapper {
         ConveniadosResumoDTO dto = new ConveniadosResumoDTO();
         dto.setIdConveniados(conveniados.getIdConveniados());
         // Assumindo que Conveniados tem um método getNome() ou similar para obter o nome
-        dto.setNome(conveniados.getPessoa() != null ? conveniados.getPessoa().getNomePessoa() : null);
+        
+        
+        dto.setNome(conveniados.getPessoa() != null ? conveniados.getPessoa().get(0).getNomePessoa() : null);
         return dto;
     }
     

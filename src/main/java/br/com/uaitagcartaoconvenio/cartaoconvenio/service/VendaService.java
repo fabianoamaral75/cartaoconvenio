@@ -1,10 +1,13 @@
 package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
+
 import java.math.BigDecimal;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ import br.com.uaitagcartaoconvenio.cartaoconvenio.model.dto.ValidaVendaCataoPass
 import br.com.uaitagcartaoconvenio.cartaoconvenio.repository.VendaRepository;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.util.FuncoesUteis;
 
+
 @Service
 public class VendaService {
 
@@ -38,7 +42,14 @@ public class VendaService {
 	
 	@Autowired
 	private TaxaConveniadaEntidadeService txConveniadaEntidadeService;
-	
+
+	private static final Logger logger = LogManager.getLogger(FechamentoCicloService.class);
+
+	public class MensagensValidacao {
+	    public static final String SALDO_INSUFICIENTE = "Saldo insuficiente! (Saldo: %s)";
+	    public static final String PARAMETROS_NULOS = "Parâmetros não podem ser nulos";
+	    public static final String VALORES_INVALIDOS = "Valores inválidos para operação monetária";
+	}	
 	
 	/******************************************************************/
 	/*                                                                */
@@ -78,6 +89,8 @@ public class VendaService {
 		
 	}
 	
+	
+	
 	/***********************************************************************/
 	/*                                                                     */
 	/* Ajustes para alterar e validar em qual taxa o estabelecimento está. */
@@ -109,7 +122,7 @@ public class VendaService {
 //	    Venda venda = vendaRepository.findVendaByIdVenda( validaVendaCataoPassaword.getIdVenda() );
 	    	 
 	    if( venda == null ) return "Favor verificar, Venda não encontrada!";
-	    	 
+/*	    	 
 	    Double limiteFunc         = limiteCredito.getLimite().doubleValue();
 	    Double valorUtilizadoFunc = limiteCredito.getValorUtilizado().doubleValue();
 	 
@@ -119,11 +132,19 @@ public class VendaService {
 	    	 vendaRepository.updateStatusVendas(venda.getIdVenda(), StatusVendas.PAGAMENTO_NAO_APROVADO.name());
 	    	 return "Saldo insuficiente! ( Saldo: " + FuncoesUteis.formatarParaReal(limiteFunc - valorUtilizadoFunc) + " )";
 	    }
+*/	    
+	    String retornoValidaLimiteCredito = validarComLogs( limiteCredito,  venda);
+	    if( retornoValidaLimiteCredito != null ) return retornoValidaLimiteCredito;
 		
 	    Cartao cartao = cartaoService.getCartaoByNumeracao( validaVendaCataoPassaword.getCartao() );
 	    venda.setCartao(cartao);
 	    
-	    Double valorUtilizadoAtualizada = valorUtilizadoFunc + valorVenda;
+//	    Double valorUtilizadoAtualizada = valorUtilizadoFunc + valorVenda;
+        // Soma dos Valores para atualizar o limite de credito do Funcionário	    
+	    BigDecimal valorUtilizadoAtualizada = Optional.ofNullable(limiteCredito.getValorUtilizado())
+	            .orElse(BigDecimal.ZERO)
+	            .add(Optional.ofNullable(venda.getValorVenda())
+	                    .orElse(BigDecimal.ZERO));
 
 	    // Verifica se existe uma taxa especifica da Conveniada para uma Entidade;
 	    Optional<TaxaConveniadaEntidade> taxaConveniadaEntidade = txConveniadaEntidadeService.getTxConvEntStatus(StatusTaxaConv.ATUAL, limiteCredito.getFuncionario().getEntidade().getIdEntidade(), venda.getConveniados().getIdConveniados());
@@ -151,16 +172,55 @@ public class VendaService {
 	    venda.setTaxaEntidade(taxaEntidade);
 	    
 	    try {
-	    	vendaRepository.updateValorLimiteCredito(limiteCredito.getIdLimiteCredito(), new BigDecimal(valorUtilizadoAtualizada));
+	    	vendaRepository.updateValorLimiteCredito(limiteCredito.getIdLimiteCredito(), valorUtilizadoAtualizada);
 	    	venda = vendaRepository.saveAndFlush( venda );
 	    }catch ( Exception e ) {
-	    	vendaRepository.updateValorLimiteCredito(limiteCredito.getIdLimiteCredito(), new BigDecimal(valorUtilizadoFunc));
+	    	vendaRepository.updateValorLimiteCredito(limiteCredito.getIdLimiteCredito(), limiteCredito.getValorUtilizado());
 	    	return e.getMessage();
 		}
 	    
 	    return strRetorno;
 
 	}
+	
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+    public String validarComLogs(LimiteCredito limiteCredito, Venda venda) {
+    	logger.debug("Validando limite de crédito para venda: {}", venda.getIdVenda());
+        
+        try {
+            BigDecimal limite         = limiteCredito.getLimite();
+            BigDecimal valorUtilizado = limiteCredito.getValorUtilizado();
+            BigDecimal valorVenda     = venda.getValorVenda();
+            
+            logger.debug("Limite: {}, Utilizado: {}, Valor Venda: {}", limite, valorUtilizado, valorVenda);
+            
+            BigDecimal saldoDisponivel = limite.subtract(valorUtilizado);
+            
+            if (saldoDisponivel.compareTo(valorVenda) < 0) {
+            	logger.warn("Saldo insuficiente para venda {}: Saldo {} < Valor {}",
+                    venda.getIdVenda(), saldoDisponivel, valorVenda);
+                
+                vendaRepository.updateStatusVendas(
+                    venda.getIdVenda(), 
+                    StatusVendas.PAGAMENTO_NAO_APROVADO.name()
+                );
+                
+                return String.format(MensagensValidacao.SALDO_INSUFICIENTE,
+                    FuncoesUteis.formatarParaReal(saldoDisponivel.doubleValue()));
+            }
+            
+            logger.info("Pagamento aprovado para venda: {}", venda.getIdVenda());
+            return null;
+            
+        } catch (Exception e) {
+        	logger.error("Erro ao validar limite de crédito para venda: {}", venda.getIdVenda(), e);
+            throw new RuntimeException("Erro na validação de limite de crédito", e);
+        }
+    }
+	
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */

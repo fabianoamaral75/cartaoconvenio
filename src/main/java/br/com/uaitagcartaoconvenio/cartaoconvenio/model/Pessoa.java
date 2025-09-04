@@ -105,7 +105,7 @@ public class Pessoa implements Serializable {
 	@ManyToOne(targetEntity = Conveniados.class)
 	@JoinColumn(name = "ID_CONVENIADOS", referencedColumnName = "ID_CONVENIADOS", nullable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_CONVENIADOS"))
 	private Conveniados conveniados;
-	
+		
 	// Em Pessoa.java
 	public void setPessoaFisica(PessoaFisica pessoaFisica) {
 	    this.pessoaFisica = pessoaFisica;
@@ -133,7 +133,7 @@ public class Pessoa implements Serializable {
 	        usuario.setPessoa(this);
 	    }
 	}
-
+/*
 	public void setConveniados(Conveniados conveniados) {
 	    if (this.conveniados != null) {
 	        this.conveniados.setPessoa(null);
@@ -143,7 +143,7 @@ public class Pessoa implements Serializable {
 	        conveniados.setPessoa(this);
 	    }
 	}
-
+*/
 	public void setPessoaJuridica(PessoaJuridica pessoaJuridica) {
 	    if (this.pessoaJuridica != null) {
 	        this.pessoaJuridica.setPessoa(null);

@@ -34,6 +34,6 @@ public class ConveniadosDTO {
     private RamoAtividadeResumoDTO ramoAtividade;
     private List<CicloPagamentoVendaResumoDTO> cicloPagamentoVenda;
     private List<TaxaConveniadosResumoDTO> taxaConveniados;
-    private PessoaResumoDTO pessoa = new PessoaResumoDTO();
+    private List<PessoaResumoDTO> pessoa;
 
 }

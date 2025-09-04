@@ -21,7 +21,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
@@ -91,7 +90,6 @@ public class Conveniados implements Serializable {
     @Column(name = "IS_TAXAS_FAIXA_VENDAS", nullable = false, columnDefinition = "boolean default true")
     private Boolean isTaxasFaixaVendas;
 
-
 	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JsonManagedReference("conveniados-ciclos") // Indica que este lado DEVE ser serializado
 	private List<CicloPagamentoVenda> CicloPagamentoVenda = new ArrayList<CicloPagamentoVenda>();
@@ -100,9 +98,12 @@ public class Conveniados implements Serializable {
 	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<TaxaConveniados> taxaConveniados = new ArrayList<TaxaConveniados>();
 
-	@OneToOne(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//	@OneToOne(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 //	private Pessoa pessoa = new Pessoa();
-	private Pessoa pessoa; // Remova o = new Pessoa()
+//	private Pessoa pessoa; // Remova o = new Pessoa()
+	
+	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Pessoa> pessoa = new ArrayList<>();
 
 	@OneToMany(mappedBy = "conveniados", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ContratoConveniado> cartao = new ArrayList<ContratoConveniado>();
@@ -136,7 +137,7 @@ public class Conveniados implements Serializable {
         }        
     }
 
- // Método para gerenciar relacionamento bidirecional
+/*
     public void setPessoa(Pessoa pessoa) {
         if (this.pessoa != null) {
             this.pessoa.setConveniados(null);
@@ -146,6 +147,21 @@ public class Conveniados implements Serializable {
             pessoa.setConveniados(this);
         }
     }
-    
+*/    
+ // Métodos auxiliares
+    public void adicionarPessoa(Pessoa pessoa) {
+        this.pessoa.add(pessoa);
+        pessoa.setConveniados(this);
+    }
 
+    public void removerPessoa(Pessoa pessoa) {
+        this.pessoa.remove(pessoa);
+        pessoa.setConveniados(null);
+    }
+
+    // Método para compatibilidade com código existente
+    public Pessoa getPrimeiraPessoa() {
+        return pessoa.isEmpty() ? null : pessoa.get(0);
+    }
+    
 }

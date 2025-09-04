@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <th:block th:replace="fragments/_head :: head(${pageTitle})"></th:block>
+  <body class="uaitag">
+    <header th:replace="fragments/_header :: header"></header>
+    <main class="container" th:insert="${content}"></main>
+    <footer th:replace="fragments/_footer :: footer"></footer>
+  </body>
+</html>

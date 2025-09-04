@@ -108,6 +108,9 @@ public class FechamentoCicloService {
 	@Autowired
     private TipoPeriodoRepository tipoPeriodoRepository;
 	
+	@Autowired
+    private EmprestimoFechamentoService emprestimoFechamentoService;
+	
 	private static final Logger logger = LogManager.getLogger(FechamentoCicloService.class);
 	
 	
@@ -177,13 +180,13 @@ public class FechamentoCicloService {
 		// Gera as informaçoes do ciclo de pagamento para as conveniadas
 		List<CicloPagamentoVenda> listaCicloPagamentoVenda = new ArrayList<CicloPagamentoVenda>();
 		// Volta o limite de creditos dos funcionarios.
-		List<RestabelecerLimitCreditoDTO> listaRestabelecerLimitCredito = new ArrayList<RestabelecerLimitCreditoDTO>();
+//		List<RestabelecerLimitCreditoDTO> listaRestabelecerLimitCredito = new ArrayList<RestabelecerLimitCreditoDTO>();
 		// Gera as informaçoes do ciclo de controle de recebimento das Encitidades.
 		List<ContasReceber> listaCicloReceberVenda = new ArrayList<ContasReceber>();
 
 		try {
 			listaCicloPagamentoVenda      = this.fechamentoConveniado( msnFechamento, anoMes ); 
-			listaRestabelecerLimitCredito = this.restabelecerLimiteCreditoFuncionarios( msnFechamento, anoMes );
+//			listaRestabelecerLimitCredito = this.restabelecerLimiteCreditoFuncionarios( msnFechamento, anoMes );
 	        listaCicloReceberVenda        = this.fechamentoEntidade( msnFechamento, anoMes, execManual );
 	        
 	        /* Envia E-mail fim de Ciclo. */
@@ -212,7 +215,7 @@ public class FechamentoCicloService {
 				// Realiza Rollback em caso de erro em qualquer uma das etapas.
 				logger.info("Rollback: " + msnFechamento);
 		   		if( listaCicloPagamentoVenda.size()      > 0 ) cicloPagamentoVendaService.deletarListaCiclos(listaCicloPagamentoVenda);
-		   		if( listaRestabelecerLimitCredito.size() > 0 ) restabelecerLimiteCreditoFuncionariosRollback( listaRestabelecerLimitCredito );
+//		   		if( listaRestabelecerLimitCredito.size() > 0 ) restabelecerLimiteCreditoFuncionariosRollback( listaRestabelecerLimitCredito );
 	   		    if( listaCicloReceberVenda.size()        > 0 ) contasReceberService.deletarListaCiclos(listaCicloReceberVenda);
 	   		    // verifica se já existe um Ciclo de fechamento para o pagamento e recebimento.
 	   		    validaFechamentoCiclo( anoMes );
@@ -236,6 +239,7 @@ public class FechamentoCicloService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
+/*	
 	private List<RestabelecerLimitCreditoDTO> restabelecerLimiteCreditoFuncionarios( String msn, String anoMes ) {
 		try {		
 			// String anoMesAnterior = FuncoesUteis.getPreviousMonthFormatted();
@@ -257,6 +261,32 @@ public class FechamentoCicloService {
 	        
 		}		
 	}
+*/
+	private List<RestabelecerLimitCreditoDTO> restabelecerLimiteCreditoFuncionarios(String msn, String anoMes) {
+	    try {        
+
+	        List<RestabelecerLimitCreditoDTO> listRestLimitCreditoEmpres = new ArrayList<RestabelecerLimitCreditoDTO>();
+
+	        // Processar restabelecimento tradicional (se ainda existir)
+	        List<RestabelecerLimitCreditoDTO> listaTradicional = limitecreditoService.listaRestabelecerLimiteCredito(anoMes);
+	        
+	        if(listRestLimitCreditoEmpres.size() > 0 ) listaTradicional.addAll(listRestLimitCreditoEmpres);
+
+	        // Restabelece limite de crédito para compras realizadas nas Conveniadas 	        
+	        for(RestabelecerLimitCreditoDTO lrlc : listaTradicional) limitecreditoService.updateRestabelecerLimiteCredito(lrlc.getIdFuncionario(), lrlc.getValorRestituir());
+	        
+	        // Atualizar o status do limite de credito da tabela vendas para o status de aplicado e restabelecido.
+	        vendaRepository.updateStatusLimiteRestabelecido(anoMes);
+	        
+	        return listaTradicional;
+	        
+	    } catch (Exception e) {
+	        msn = e.getMessage() != null ? e.getMessage() : "Erro sem mensagem específica";
+	        logger.error("Erro no restabelecimento de limite de crédito: {}", msn, e);
+	        throw new IllegalArgumentException(msn);
+	    }        
+	}	
+	
 	
 	/******************************************************************/
 	/*                                                                */
@@ -288,6 +318,11 @@ public class FechamentoCicloService {
 
 			// Trata as vendas por Conveniadas
 			for( DadosFechamentoPagamentoCicloDTO lv: listaVendasFechamento ) {
+				
+				if( lv.getIdConveniados() == 10 )
+				System.out.println("Processando ID: " + lv.getIdConveniados());
+				
+				
 
 				CicloPagamentoVenda cPgVenda = new CicloPagamentoVenda();
 				int diasParaPagamento        = conveniadosRepository.getDiasPagamento( lv.getIdConveniados() );
@@ -473,6 +508,7 @@ public class FechamentoCicloService {
 		msn = null;
 		Long idEntidade = 0L;
 		List<ContasReceber> listaContasReceberVenda =  new ArrayList<ContasReceber>();
+		List<RestabelecerLimitCreditoDTO> listaRestabelecerLimitCredito = new ArrayList<RestabelecerLimitCreditoDTO>();
 		
 		try {
 			
@@ -503,12 +539,16 @@ public class FechamentoCicloService {
 					 listaFecr.add(fecr);
 				 }
 				 
-				 idEntidade                                             = lrv.getIdEntidade();
+				 idEntidade = lrv.getIdEntidade();
 				 listaIdsEntidades.add(idEntidade);
 				 contasReceber.setFechamentoEntContasReceber( listaFecr                  );				 
 				 listaContasReceberVenda.add                ( contasReceber              );
 				 
 			}
+			
+	        // Processar contas a receber de empréstimos
+	        List<ContasReceber> contasReceberEmprestimos = emprestimoFechamentoService.processarFechamentoEmprestimos(anoMes);
+	        listaContasReceberVenda.addAll(contasReceberEmprestimos);
 			
 			// Grava na base as informaçoes de conta a Receber.
 			if(listaContasReceberVenda.size() > 30000) listaContasReceberVenda = contasReceberService.salvarListaGrande(listaContasReceberVenda, msn);
@@ -521,7 +561,10 @@ public class FechamentoCicloService {
 				else vendaRepository.updateStatusVendasFechamentoAutomatico( anoMes );
 				// Atualizata a tabela de Entidade com a informação da última data de faturamento para a Entidade.
 				entidadeService.atualizarAnoMesRecebimentoPosFechamentoEmLote(listaIdsEntidades, anoMes);
-			    		     	
+
+				// Restabelece Limite de Crédito dos funcionarios.
+				listaRestabelecerLimitCredito = this.restabelecerLimiteCreditoFuncionarios( msn, anoMes );
+		     	
 		    }else {
 		    	msn = "Error: erro na gerração do cilco de contadas a pagar!\n" + msn;	
 		    	return null;
@@ -530,6 +573,9 @@ public class FechamentoCicloService {
 		} catch (Exception e) {
 			msn = e.getMessage();
 			System.err.println(e.getMessage());
+			
+			if( listaRestabelecerLimitCredito.size() > 0 ) restabelecerLimiteCreditoFuncionariosRollback( listaRestabelecerLimitCredito );
+			
 	    	throw new BusinessException(
 	    			    "Não foi possível processar o Fechamento do Ciclo para as Entidades!",
 	    			    "Falha ao gerar Fechamento do Ciclo a Receber!")
@@ -680,22 +726,17 @@ public class FechamentoCicloService {
         periodoDTO.setDescricao            ( "Cobrança Única"                                           );
         periodoDTO.setDataInicio           ( LocalDate.now()                                            );
         periodoDTO.setDataFim              ( LocalDate.now().plusMonths(1)                              );
-        periodoDTO.setObservacao           ( "Cobrança automática devido a último faturamento negatigo.");
+        periodoDTO.setObservacao           ( "Cobrança automática devido a último faturamento negativo.");
         periodoDTO.setDataCriacao          ( LocalDateTime.now()                                        );
         periodoDTO.setDtUltimaCobranca     ( null                                                       );
         periodoDTO.setDtProximaCobranca    ( LocalDate.now().plusMonths(1)                              );
         periodoDTO.setQtyCobranca          ( 0L                                                         );
         periodoDTO.setTipoPeriodoId        ( 7L                                                         );
-        // Campos ignorados conforme relacionamento:
-        periodoDTO.getTaxaExtraConveniada().setConveniadosId(idConveniada);
-//        periodoDTO.setTaxaExtraConveniadaId( idConveniada                                               );
-//        periodoDTO.setTaxaExtraEntidadeId  ( null                                                       );
+        
+        // CORREÇÃO: Inicializar o objeto TaxaExtraConveniadaDTO dentro do periodoDTO
+        periodoDTO.setTaxaExtraConveniada(dto); // ← Esta linha estava faltando!
         
         dto.setPeriodoCobrancaTaxa(periodoDTO);
-        
-        // Campos explicitamente ignorados:
-        // - id (não setado)
-        // - itemTaxaExtraConveniada (não setado, ficará como null)
         
         return dto;
     }

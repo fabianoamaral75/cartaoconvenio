@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusEmtidade;
@@ -142,6 +143,21 @@ public class Entidade implements Serializable{
 	
 	@OneToMany(mappedBy = "entidade", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TaxaConveniadaEntidade> taxasConveniadas = new ArrayList<>();
+
+    @OneToMany( mappedBy = "entidade", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = false, fetch = FetchType.LAZY )
+	@JsonManagedReference
+	private List<ContasReceber> contasReceber = new ArrayList<>();
+
+	/* Helpers para manter os dois lados em sincronia */
+	public void addContasReceber(ContasReceber cr) {
+	    cr.setEntidade(this);
+	    this.contasReceber.add(cr);
+	}
+
+	public void removeContasReceber(ContasReceber cr) {
+	    cr.setEntidade(null);
+	    this.contasReceber.remove(cr);
+	}
 
 	@PreUpdate
     public void preUpdate() {

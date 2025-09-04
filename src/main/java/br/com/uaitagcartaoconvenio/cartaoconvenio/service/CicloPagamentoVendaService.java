@@ -274,7 +274,7 @@ public class CicloPagamentoVendaService {
          }
          
          try {
-         	 emailService.enviarEmailAnexoNF(	"Conveniado", emails, cp.getAnoMes(), cp.getConveniados().getPessoa().getNomePessoa(), result);
+         	 emailService.enviarEmailAnexoNF(	"Conveniado", emails, cp.getAnoMes(), cp.getConveniados().getPessoa().get(0).getNomePessoa(), result);
          } catch (EmailFechamentoException e) {
              logger.error("Falha no envio de e-mail de fechamento. Tipo: {}, Detalhes: {}",
                         e.getTipoErro(), e.getDetalhes(), e);
@@ -307,7 +307,7 @@ public class CicloPagamentoVendaService {
  		NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
          
          // Popula o Map com os valores formatados
-         row.put("empresa"  , obj.getConveniados().getPessoa().getNomePessoa() ); 
+         row.put("empresa"  , obj.getConveniados().getPessoa().get(0).getNomePessoa() ); 
          row.put("periodo"  , obj.getAnoMes()                                  );
          row.put("valor"    , currencyFormat.format( obj.getVlrCicloBruto() )  );
          row.put("nomeArq"  , obj.getNomeArquivo()                             );
@@ -368,7 +368,7 @@ public class CicloPagamentoVendaService {
  		 }
     	 
  		try {
-    	 emailService.enviarEmailConfPagamento(	emails, cp.getAnoMes(), cp.getConveniados().getPessoa().getNomePessoa(), result);
+    	 emailService.enviarEmailConfPagamento(	emails, cp.getAnoMes(), cp.getConveniados().getPessoa().get(0).getNomePessoa(), result);
 		} catch (EmailFechamentoException e) {
 		    logger.error("Falha no envio de e-mail de fechamento. Tipo: {}, Detalhes: {}",
 		               e.getTipoErro(), e.getDetalhes(), e);
@@ -401,7 +401,7 @@ public class CicloPagamentoVendaService {
 		NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
        
        // Popula o Map com os valores formatados
-       row.put("empresa"  , obj.getConveniados().getPessoa().getNomePessoa() ); 
+       row.put("empresa"  , obj.getConveniados().getPessoa().get(0).getNomePessoa() ); 
        row.put("periodo"  , obj.getAnoMes()                                  );
        row.put("valor"    , currencyFormat.format( obj.getVlrCicloBruto() )  );
        row.put("docBanco" , doc                                              );

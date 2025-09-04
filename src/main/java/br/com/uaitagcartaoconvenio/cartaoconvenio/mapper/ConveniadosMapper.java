@@ -52,7 +52,8 @@ public interface ConveniadosMapper {
         }
         
         Conveniados conveniados = toEntity(dto);
-        conveniados.setPessoa(pessoa);
+        conveniados.getPessoa().add(pessoa);
+//        conveniados.setPessoa(pessoa);
         
         return conveniados;
     }
@@ -75,7 +76,8 @@ public interface ConveniadosMapper {
         Pessoa pessoa = new Pessoa();
         pessoa.setIdPessoa(pessoaDto.getIdPessoa());
         pessoa.setNomePessoa(pessoaDto.getNomePessoa());
-        conveniados.setPessoa(pessoa);
+        conveniados.getPessoa().add(pessoa);
+//        conveniados.setPessoa(pessoa);
         
         return conveniados;
     }
@@ -114,9 +116,10 @@ public interface ConveniadosMapper {
         ConveniadosDTO dto = toDto(conveniados);
         if (conveniados.getPessoa() != null) {
             PessoaResumoDTO pessoaDto = new PessoaResumoDTO();
-            pessoaDto.setIdPessoa(conveniados.getPessoa().getIdPessoa());
-            pessoaDto.setNomePessoa(conveniados.getPessoa().getNomePessoa());
-            dto.setPessoa(pessoaDto);
+            pessoaDto.setIdPessoa(conveniados.getPessoa().get(0).getIdPessoa());
+            pessoaDto.setNomePessoa(conveniados.getPessoa().get(0).getNomePessoa());
+            dto.getPessoa().add(pessoaDto);
+//            dto.setPessoa(pessoaDto);
         }
         
         return dto;
