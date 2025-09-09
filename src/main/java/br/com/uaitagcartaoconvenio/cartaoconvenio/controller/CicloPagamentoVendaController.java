@@ -219,6 +219,7 @@ public class CicloPagamentoVendaController {
 	@GetMapping(value = "/getCicloPagamentoVendaByIdConveniados/{idConveniados}")
 	public ResponseEntity<?> getCicloPagamentoVendaByIdConveniados( @PathVariable("idConveniados") Long idConveniados , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
 		try {
+/*
 			CicloPagamentoVenda cicloPagamentoVenda = cicloPagamentoVendaService.getCicloPagamentoVendaByIdConveniados( idConveniados );
 			
 			if(cicloPagamentoVenda == null) {
@@ -226,8 +227,13 @@ public class CicloPagamentoVendaController {
 			}
 			
 			CicloPagamentoVendaDTO dto = cicloPagamentoVendaInterfaceMapper.toDto(cicloPagamentoVenda);
+*/			
+			CicloPagamentoVendaDTO dto =cicloPagamentoVendaService.getCicloPagamentoVendaByIdConveniados( idConveniados );
+//			CicloPagamentoVenda lista =cicloPagamentoVendaService.getCicloPagamentoVendaByIdConveniados( idConveniados );
 			
 			return new ResponseEntity<CicloPagamentoVendaDTO>(dto, HttpStatus.OK);
+//			return new ResponseEntity<CicloPagamentoVenda>(lista, HttpStatus.OK);
+			
 	    } catch (ExceptionCustomizada ex) {
 	    	
 	    	long timestamp = System.currentTimeMillis();

@@ -3,6 +3,7 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -402,7 +403,21 @@ public class ConveniadosService {
     // Método 1: Buscar todos os conveniados ordenados por ID (limit 10)
     public List<Conveniados> buscarTodosConveniadosOrdenadosPorId() {
     	Pageable topTen = PageRequest.of(0, 10);
-        return conveniadosRepository.findTop10ByOrderByIdConveniados(topTen);
+    	List<Conveniados> conveniadosList = conveniadosRepository.findTop10ByOrderByIdConveniados(topTen);
+        return filtrarApenasPessoasJuridicas( conveniadosList );
+//        return conveniadosRepository.findTop10ByOrderByIdConveniados();
+    }
+        
+    public List<Conveniados> filtrarApenasPessoasJuridicas(List<Conveniados> conveniadosList) {
+        conveniadosList.forEach(conveniado -> {
+            List<Pessoa> pessoasJuridicas = conveniado.getPessoa().stream()
+                    .filter(pessoa -> pessoa.getPessoaFisica() == null)
+                    .collect(Collectors.toList());
+            
+            conveniado.setPessoa(pessoasJuridicas);
+        });
+        
+        return conveniadosList;
     }
 
     // Método 2: Buscar conveniados por parte do nome da pessoa (limit 10)

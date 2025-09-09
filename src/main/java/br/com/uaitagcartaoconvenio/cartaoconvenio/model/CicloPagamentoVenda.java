@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
 import jakarta.persistence.CascadeType;
@@ -31,12 +32,12 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.AccessLevel;
 
 
 @Entity
@@ -180,6 +181,17 @@ public class CicloPagamentoVenda implements Serializable{
 	        }
 	    }
 	}
+	
+    // Adicione esta anotação para evitar serialização cíclica
+    @JsonIgnoreProperties("cicloPagamentoVendas") 
+    public Conveniados getConveniados() {
+        return conveniados;
+    }
+
+    @JsonIgnoreProperties("cicloPagamentoVendas")
+    public TaxaConveniados getTaxaConveniados() {
+        return taxaConveniados;
+    }
 
 	@Override
 	public String toString() {

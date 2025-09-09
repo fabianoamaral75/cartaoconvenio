@@ -78,7 +78,7 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
     @Query("UPDATE Conveniados c SET c.descStatusConveniada = :status WHERE c.idConveniados = :id")
     void atualizarStatus(@Param("id") Long id, @Param("status") StatusConveniada status);
 
-    
+/*    
     @Query("SELECT DISTINCT c FROM Conveniados c LEFT JOIN FETCH c.pessoa ORDER BY c.idConveniados")
     List<Conveniados> findTop10ByOrderByIdConveniados(Pageable pageable);
     
@@ -86,7 +86,7 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
     @Query("SELECT DISTINCT c FROM Conveniados c LEFT JOIN FETCH c.pessoa p " +
     	       "WHERE UPPER(p.nomePessoa) LIKE UPPER(CONCAT('%', :parteNome, '%')) " +
     	       "ORDER BY c.idConveniados")
-    	List<Conveniados> findTop10ByPessoaNomePessoaContainingIgnoreCase(@Param("parteNome") String parteNome, Pageable pageable);
+    List<Conveniados> findTop10ByPessoaNomePessoaContainingIgnoreCase(@Param("parteNome") String parteNome, Pageable pageable);
     
  
     
@@ -102,7 +102,7 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
            "WHERE UPPER(p.nomePessoa) LIKE UPPER(CONCAT('%', :parteNome, '%')) " +
            "ORDER BY c.idConveniados")
     Page<Conveniados> findByPessoaNomePessoaContainingIgnoreCase(@Param("parteNome") String parteNome, Pageable pageable);
-        
+*/        
  // No repositório
     @Query("SELECT c FROM Conveniados c " +
            "WHERE c.idConveniados = :id")
@@ -114,4 +114,55 @@ public interface ConveniadosRepository extends JpaRepository<Conveniados, Long>{
            "LEFT JOIN FETCH p.pessoaJuridica pj " +
            "WHERE c.idConveniados = :idConveniados")
     Optional<Conveniados> findConveniadaComPessoaJuridicaById(@Param("idConveniados") Long idConveniados);
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	
+    @Query(value = " select con                   "
+                 + "   from                       "
+                 + "       Conveniados      con   "
+                 + "  JOIN con.pessoa        pe   "
+                 + "  JOIN pe.pessoaJuridica pj   " 
+//                 + " WHERE pe.pessoaFisica IS NULL " 
+    	         + " ORDER BY con.idConveniados")
+    List<Conveniados> findTop10ByOrderByIdConveniados(Pageable pageable);    
+        
+ /*   
+    @Query("SELECT DISTINCT c FROM Conveniados c  " +
+    	   "  LEFT JOIN FETCH c.pessoa p          " +
+    	   "  LEFT JOIN FETCH p.pessoaJuridica pj " +
+    	   " WHERE p.pessoaJuridica IS NOT NULL   " +
+    	   " ORDER BY c.idConveniados             ")
+    List<Conveniados> findTop10ByOrderByIdConveniados(Pageable pageable);    
+ */   
+    @Query("SELECT DISTINCT c FROM Conveniados c " +
+    	       "LEFT JOIN FETCH c.pessoa p " +
+    	       "LEFT JOIN FETCH p.pessoaJuridica pj " +
+    	       "WHERE UPPER(p.nomePessoa) LIKE UPPER(CONCAT('%', :parteNome, '%')) " +
+    	       "AND p.pessoaJuridica IS NOT NULL " +
+    	       "ORDER BY c.idConveniados")
+    List<Conveniados> findTop10ByPessoaNomePessoaContainingIgnoreCase(@Param("parteNome") String parteNome, Pageable pageable);        
+    
+    @EntityGraph(attributePaths = {"pessoa"})
+    @Query("SELECT c FROM Conveniados c " +
+           "JOIN c.pessoa p " +
+           "WHERE p.pessoaJuridica IS NOT NULL " +
+           "ORDER BY c.idConveniados")
+    Page<Conveniados> findAllByOrderByIdConveniados(Pageable pageable);    
+    
+    @EntityGraph(attributePaths = {"pessoa"})
+    @Query("SELECT c FROM Conveniados c " +
+           "JOIN c.pessoa p " +
+           "WHERE UPPER(p.nomePessoa) LIKE UPPER(CONCAT('%', :parteNome, '%')) " +
+           "AND p.pessoaJuridica IS NOT NULL " +
+           "ORDER BY c.idConveniados")
+    Page<Conveniados> findByPessoaNomePessoaContainingIgnoreCase(@Param("parteNome") String parteNome, Pageable pageable);    
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   
+    
 }

@@ -64,7 +64,10 @@ public class PessoaFisica implements Serializable{
 	
 //	@JsonIgnore
 	@ManyToOne(targetEntity = Pessoa.class)
-	@JoinColumn(name = "ID_PESSOA", nullable = true, referencedColumnName = "ID_PESSOA", foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_FISICA_PESSOA"))
+	@JoinColumn( name = "ID_PESSOA", 
+	             nullable = true, 
+	             referencedColumnName = "ID_PESSOA", 
+	             foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_PESSOA_FISICA_PESSOA"))
 	private Pessoa pessoa;
 	
 	

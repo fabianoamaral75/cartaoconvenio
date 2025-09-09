@@ -25,7 +25,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.com.uaitagcartaoconvenio.cartaoconvenio.ExceptionCustomizada;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.enums.StatusCicloPgVenda;
+import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.CicloPagamentoVendaInterfaceMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.mapper.CicloPagamentoVendaMapper;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.CicloPagamentoVenda;
 import br.com.uaitagcartaoconvenio.cartaoconvenio.model.FechamentoConvItensVendas;
@@ -62,6 +64,10 @@ public class CicloPagamentoVendaService {
 	
 	@Autowired
 	private ItemTaxaExtraConveniadaRepository itemTaxaExtraConveniadaRepository;
+	
+	@Autowired
+	private CicloPagamentoVendaInterfaceMapper cicloPagamentoVendaInterfaceMapper;
+
 		
 	private static final Logger logger = LogManager.getLogger(ContasReceberService.class);
 	
@@ -171,14 +177,19 @@ public class CicloPagamentoVendaService {
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	
-	public CicloPagamentoVenda getCicloPagamentoVendaByIdConveniados( Long idConveniados )  {
+	public CicloPagamentoVendaDTO getCicloPagamentoVendaByIdConveniados( Long idConveniados )  {
+//	public CicloPagamentoVenda getCicloPagamentoVendaByIdConveniados( Long idConveniados )  {
 		
 		CicloPagamentoVenda listaCicloPagamentoVenda = cicloPagamentoVendaRepository.listaCicloPagamentoVendaByIdConveniados( idConveniados );
 		
-		return listaCicloPagamentoVenda;
+		if(listaCicloPagamentoVenda == null) {
+			throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para a ID da Conveniada: " + idConveniados );
+		}
+//		return listaCicloPagamentoVenda;
+		return cicloPagamentoVendaInterfaceMapper.toDto(listaCicloPagamentoVenda);
 		
 	}
-
+	
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */
