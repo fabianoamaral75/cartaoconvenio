@@ -178,14 +178,12 @@ public class CicloPagamentoVendaService {
 	/*                                                                */
 	/******************************************************************/	
 	public CicloPagamentoVendaDTO getCicloPagamentoVendaByIdConveniados( Long idConveniados )  {
-//	public CicloPagamentoVenda getCicloPagamentoVendaByIdConveniados( Long idConveniados )  {
 		
 		CicloPagamentoVenda listaCicloPagamentoVenda = cicloPagamentoVendaRepository.listaCicloPagamentoVendaByIdConveniados( idConveniados );
 		
 		if(listaCicloPagamentoVenda == null) {
 			throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para a ID da Conveniada: " + idConveniados );
 		}
-//		return listaCicloPagamentoVenda;
 		return cicloPagamentoVendaInterfaceMapper.toDto(listaCicloPagamentoVenda);
 		
 	}
@@ -197,6 +195,18 @@ public class CicloPagamentoVendaService {
 	public List<CicloPagamentoVenda> getCicloPagamentoVendaSelectAntecipacao( String anoMes )  {
 		
 		List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaRepository.listaCicloPagamentoVendaSelectAntecipacao( anoMes );
+		
+		return listaCicloPagamentoVenda;
+		
+	}
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	public List<CicloPagamentoVenda> getCicloPgVendAntIdConveniada( Long idConveniados )  {
+		
+		List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaRepository.getCicloPagamentoVendaAntecipacaoIdConveniada( idConveniados );
 		
 		return listaCicloPagamentoVenda;
 		

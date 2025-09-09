@@ -219,20 +219,10 @@ public class CicloPagamentoVendaController {
 	@GetMapping(value = "/getCicloPagamentoVendaByIdConveniados/{idConveniados}")
 	public ResponseEntity<?> getCicloPagamentoVendaByIdConveniados( @PathVariable("idConveniados") Long idConveniados , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
 		try {
-/*
-			CicloPagamentoVenda cicloPagamentoVenda = cicloPagamentoVendaService.getCicloPagamentoVendaByIdConveniados( idConveniados );
-			
-			if(cicloPagamentoVenda == null) {
-				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para a ID da Conveniada: " + idConveniados );
-			}
-			
-			CicloPagamentoVendaDTO dto = cicloPagamentoVendaInterfaceMapper.toDto(cicloPagamentoVenda);
-*/			
+
 			CicloPagamentoVendaDTO dto =cicloPagamentoVendaService.getCicloPagamentoVendaByIdConveniados( idConveniados );
-//			CicloPagamentoVenda lista =cicloPagamentoVendaService.getCicloPagamentoVendaByIdConveniados( idConveniados );
 			
 			return new ResponseEntity<CicloPagamentoVendaDTO>(dto, HttpStatus.OK);
-//			return new ResponseEntity<CicloPagamentoVenda>(lista, HttpStatus.OK);
 			
 	    } catch (ExceptionCustomizada ex) {
 	    	
@@ -300,7 +290,7 @@ public class CicloPagamentoVendaController {
 	/******************************************************************/	
 	@ResponseBody
 	@GetMapping(value = "/getCicloPagamentoVendaSelectAntecipacao/{anoMes}")
-	public ResponseEntity<?> getCicloPagamentoVendaSelectAntecipacao( @PathVariable("anoMes ") String anoMes , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
+	public ResponseEntity<?> getCicloPagamentoVendaSelectAntecipacao( @PathVariable("anoMes") String anoMes , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
 		try {
 			List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaService.getCicloPagamentoVendaSelectAntecipacao( anoMes  );
 			
@@ -331,7 +321,45 @@ public class CicloPagamentoVendaController {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	    }
 	}
-	
+
+	/******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	
+	@ResponseBody
+	@GetMapping(value = "/getCicloPgVendAntIdConveniada/{idConveniados}")
+	public ResponseEntity<?> getCicloPgVendAntIdConveniada( @PathVariable("idConveniados") Long idConveniados , HttpServletRequest request ) throws ExceptionCustomizada, IOException{
+		try {
+			List<CicloPagamentoVenda> listaCicloPagamentoVenda = cicloPagamentoVendaService.getCicloPgVendAntIdConveniada( idConveniados  );
+			
+			if(listaCicloPagamentoVenda == null) {
+				throw new ExceptionCustomizada("Não existe Ciclo de Pagamento para o Conveniados: " + idConveniados  );
+			}
+			
+			List<CicloPagamentoVendaDTO> dto = cicloPagamentoVendaInterfaceMapper.toListDto(listaCicloPagamentoVenda);
+			
+			return new ResponseEntity<List<CicloPagamentoVendaDTO>>(dto, HttpStatus.OK);	
+	    } catch (ExceptionCustomizada ex) {
+	    	
+	    	long timestamp = System.currentTimeMillis();
+
+	    	// Criar formato desejado
+	    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	sdf.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo")); // Fuso horário opcional
+
+	    	// Converter
+	    	String dataFormatada = sdf.format(new Date(timestamp));
+	    	
+	        ErrorResponse error = new ErrorResponse(
+	            HttpStatus.BAD_REQUEST.value(),
+	            ex.getMessage(),
+	            request.getRequestURI(),
+	            dataFormatada
+	        );
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+	    }
+	}
+
 	/******************************************************************/
 	/*                                                                */
 	/*                                                                */

@@ -17,7 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DadosCalculoAntcipacaoDTO {
 	
-    private Long idConveniados;   // Lista de conveniada para selecionar a que solicitou a antecipação.
+    private Long idConveniados;   // Conveniada para selecionar a que solicitou a antecipação.
     private List<Long> idsVendas; // Lista de ID das vendas que serão antecipadas
     private String loginUser;     // Login do usuário que esta criando e solicitando a antecipação.
     

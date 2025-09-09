@@ -197,6 +197,13 @@ public interface CicloPagamentoVendaRepository extends JpaRepository<CicloPagame
                  + "   and cp.descStatusPagamento = 'PAGAMENTO' " )
   	List<FechamentoConvItensVendas> listaCicloPagamentoVendaByIdCR( Long id ); 
 
+    @Query(value = "select cp                                                                      " +
+            " from CicloPagamentoVenda cp                                                   " +
+            " where cp.conveniados.idConveniados = :idConveniados                           " +
+            "   and cp.descStatusPagamento IN ( 'AGUARDANDO_PAGAMENTO', 'AGUARDANDO_UPLOAD_NF' ) " +
+            " order by cp.anoMes desc, cp.dtCriacao desc                                    ")
+    List<CicloPagamentoVenda> getCicloPagamentoVendaAntecipacaoIdConveniada(@Param("idConveniados") Long idConveniados);    
+    
 
 }
 
