@@ -2,6 +2,9 @@ package br.com.uaitagcartaoconvenio.cartaoconvenio.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,6 +79,8 @@ public class AntecipacaoService {
 //    public AntecipacaoDTO criarPreAntecipacaoVendasMesCorrente(Long idConveniados, List<Long> idsVendas, String loginUser) {
     public AntecipacaoDTO criarPreAntecipacaoVendasMesCorrente( DadosCalculoAntcipacaoDTO dto ) {
         
+        validarDadosCalculoCompleto(dto);
+        
         // Validar conveniada
         Conveniados conveniados = conveniadosRepository.findById(/*idConveniados*/ dto.getIdConveniados())
             .orElseThrow(() -> new AntecipacaoException("Conveniada não encontrada com ID: " + dto.getIdConveniados()));
@@ -146,13 +151,78 @@ public class AntecipacaoService {
         return antecipacaoMapper.toDTO(antecipacaoSalva);
     }
     
-    
+    /******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	    
+  public void validarDadosCalculoCompleto( DadosCalculoAntcipacaoDTO dto) {
+        if (dto == null) {
+            throw new AntecipacaoException("DTO de cálculo de antecipação não pode ser nulo");
+        }
+
+        StringBuilder errors = new StringBuilder();
+        
+        if (dto.getIdConveniados() == null) {
+            errors.append("ID da conveniada é obrigatório. ");
+        }
+
+        if (dto.getIdsVendas() == null || dto.getIdsVendas().isEmpty()) {
+            errors.append("Lista de IDs das vendas é obrigatória. ");
+        }
+
+        if (dto.getLoginUser() == null || dto.getLoginUser().trim().isEmpty()) {
+            errors.append("Login do usuário é obrigatório. ");
+        }
+
+        if (dto.getDataCorte() == null) {
+            errors.append("Data de corte é obrigatória. ");
+        }
+
+        if (dto.getDataPagamento() == null) {
+            errors.append("Data de pagamento é obrigatória. ");
+        }
+
+        if (dto.getDataVencimento() == null) {
+            errors.append("Data de vencimento é obrigatória. ");
+        }
+
+        if (dto.getTaxaNominalMensal() == null) {
+            errors.append("Taxa nominal mensal é obrigatória. ");
+        } else if (dto.getTaxaNominalMensal().compareTo(BigDecimal.ZERO) <= 0) {
+            errors.append("Taxa nominal mensal deve ser maior que zero. ");
+        }
+
+        // Se encontrou erros, lança a exceção com todos eles
+        if (errors.length() > 0) {
+            throw new AntecipacaoException(errors.toString().trim());
+        }
+
+        // Validações de lógica de negócio
+        if (dto.getDataPagamento().isBefore(dto.getDataCorte())) {
+            throw new AntecipacaoException("Data de pagamento não pode ser anterior à data de corte");
+        }
+
+        if (dto.getDataVencimento().isBefore(dto.getDataPagamento())) {
+            throw new AntecipacaoException("Data de vencimento não pode ser anterior à data de pagamento");
+        }
+    }
+    public static LocalDate dateToLocalDate(java.util.Date date) {
+        if (date == null) {
+            return null;
+        }
+        return date.toInstant()
+                  .atZone(ZoneId.systemDefault())
+                  .toLocalDate();
+    }
+
     /******************************************************************/
 	/*                                                                */
 	/*                                                                */
 	/******************************************************************/	    
     @Transactional
     public AntecipacaoDTO criarPreAntecipacaoFechamentoExistente( DadosCalculoAntcipacaoCicloDTO dto ) {
+
+        validarDadosCicloCalculoCompleto(dto);
     	
         CicloPagamentoVenda ciclo = cicloPagamentoVendaRepository.findById( /*idCicloPagamentoVenda*/ dto.getIdCicloPagamentoVenda())
             .orElseThrow(() -> new AntecipacaoException("Fechamento não encontrado com ID: " + dto.getIdCicloPagamentoVenda()));
@@ -161,8 +231,11 @@ public class AntecipacaoService {
             throw new AntecipacaoException("Fechamento não está no status AGUARDANDO_UPLOAD_NF");
         }
         
+        dto.setDataCorte     ( dateToLocalDate( ciclo.getDtCriacao()   ) );
+        dto.setDataVencimento( dateToLocalDate( ciclo.getDtPagamento() ) );
+
         Conveniados conveniados = ciclo.getConveniados();
-        
+         
         // Calcular valor base (valor líquido do fechamento)
         BigDecimal valorBase = ciclo.getVlrLiquidoPagamento();
 /*        
@@ -198,7 +271,58 @@ public class AntecipacaoService {
         
         return antecipacaoMapper.toDTO(antecipacao);
     }
-    
+  
+        /******************************************************************/
+	/*                                                                */
+	/*                                                                */
+	/******************************************************************/	    
+  public void validarDadosCicloCalculoCompleto( DadosCalculoAntcipacaoCicloDTO dto) {
+        if (dto == null) {
+            throw new AntecipacaoException("DTO de cálculo de antecipação não pode ser nulo");
+        }
+
+        StringBuilder errors = new StringBuilder();
+        
+        if (dto.getIdCicloPagamentoVenda() == null) {
+            errors.append("ID do Ciclo de Pagamento Venda é obrigatório. ");
+        }
+        if (dto.getLoginUser() == null || dto.getLoginUser().trim().isEmpty()) {
+            errors.append("Login do usuário é obrigatório. ");
+        }
+
+ //       if (dto.getDataCorte() == null) {
+ //           errors.append("Data de corte é obrigatória. ");
+ //       }
+
+        if (dto.getDataPagamento() == null) {
+            errors.append("Data de pagamento é obrigatória. ");
+        }
+
+        // if (dto.getDataVencimento() == null) {
+        //     errors.append("Data de vencimento é obrigatória. ");
+        // }
+
+        if (dto.getTaxaNominalMensal() == null) {
+            errors.append("Taxa nominal mensal é obrigatória. ");
+        } else if (dto.getTaxaNominalMensal().compareTo(BigDecimal.ZERO) <= 0) {
+            errors.append("Taxa nominal mensal deve ser maior que zero. ");
+        }
+
+        // Se encontrou erros, lança a exceção com todos eles
+        if (errors.length() > 0) {
+            throw new AntecipacaoException(errors.toString().trim());
+        }
+
+        // Validações de lógica de negócio
+        // if (dto.getDataPagamento().isBefore(dto.getDataCorte())) {
+        //     throw new AntecipacaoException("Data de pagamento não pode ser anterior à data de corte");
+        // }
+
+        // if (dto.getDataVencimento().isBefore(dto.getDataPagamento())) {
+        //     throw new AntecipacaoException("Data de vencimento não pode ser anterior à data de pagamento");
+        // }
+    }
+
     /******************************************************************/
 	/*                                                                */
 	/*                                                                */
